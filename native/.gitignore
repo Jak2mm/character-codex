@@ -1,0 +1,5 @@
+www/
+node_modules/
+tauri/src-tauri/target/
+tauri/src-tauri/gen/
+android/android/
