@@ -79,7 +79,7 @@ function atkCalc(c, a, D){
 function renderCharBar(){
   const sel = $('#charSel'); const list = charList();
   sel.innerHTML = list.map(c => `<option value="${c.id}" ${c.id === APP.curId ? 'selected' : ''}>${esc(c.name || 'Unnamed')} — ${esc(c.classes.map(k => k.n + ' ' + k.lvl).join(' / '))} (${esc(rsOf(c).short)})</option>`).join('') || '<option>No characters</option>';
-  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0; renderTurnInfo();
+  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0; renderTurnInfo(); renderRestRow();
   const br = $('#brandRs'); if (br) br.textContent = APP_cur() ? rsOf(APP_cur()).short.replace(/ SRD$/, '') : 'CC';
   $('#delWrap').innerHTML = '<button class="btn ghost" id="delChar">Delete</button>';
 }

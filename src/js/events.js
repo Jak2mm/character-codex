@@ -91,7 +91,7 @@ const ACT = {
   prcRules: () => { APP.tab = 'rules'; APP.rsec = -1; APP.rq = ''; saveRulesPref(); window.scrollTo({top:0}); return 'noSave'; },
   delClass: (c, b) => c.classes.splice(+b.dataset.i, 1),
   dmg: c => { const a = num($('#hpDelta').value); if (!a) return; let left = a; const t = num(c.hp.temp); if (t > 0){ const u = Math.min(t, left); c.hp.temp = t - u; left -= u; } c.hp.cur = num(c.hp.cur) - left; toast(`Took <b>${a}</b> damage`); },
-  heal: c => { const a = num($('#hpDelta').value); if (!a) return; c.hp.cur = Math.min(num(c.hp.max), num(c.hp.cur) + a); c.hp.nl = Math.max(0, num(c.hp.nl) - a); toast(`Healed <b>${a}</b>`); },
+  heal: c => { const a = num($('#hpDelta').value); if (!a) return; c.hp.cur = Math.min(Math.max(num(c.hp.cur), num(D.hpMax) || num(c.hp.max)), num(c.hp.cur) + a); c.hp.nl = Math.max(0, num(c.hp.nl) - a); toast(`Healed <b>${a}</b>`); },
   'pick-armor': c => openPicker({title:'Choose armor', kind:'armor', onPick: e => { const d = e.data;
     c.armor = d ? {n:d.n, bonus:parseSigned(d.ac), enh:0, mdx:parseSigned(d.mdx), acp:parseSigned(d.acp) || 0, asf:parseSigned(d.asf) || 0} : Object.assign(c.armor, {n:e.name});
     if (d) addToItems(c, d.n, 'armor', d.w, {loc:'equipped'}); markDirty(); renderAll(); }}),
