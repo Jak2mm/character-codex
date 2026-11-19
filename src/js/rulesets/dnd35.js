@@ -28,5 +28,5 @@ registerRuleset({
     {id: 'bonuses',   title: 'Bonuses in effect',    size: 'full'},
     {id: 'special',   title: 'Special abilities & class features', size: 'full'},
   ],
-  tabs: {skills: renderSkills, spells: renderSpells, tracker: c => renderTracker(c) + trackerExtras35(c), items: renderItems, companions: renderCompanions},
+  tabs: {skills: renderSkills, spells: renderSpells, tracker: c => renderTracker(c, trackerExtras35(c)), items: renderItems, companions: renderCompanions},
 });
