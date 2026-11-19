@@ -46,7 +46,7 @@ function atkOptExtras(c, a, kind, twoH){
   const am = ammoMods(c, a);
   if (am){
     if (am.enh > num(a.enh)){ const d = am.enh - num(a.enh); out.atk += d; out.dmg += d; const t = `Ammunition enhancement +${am.enh}, ${am.name} (only the better of weapon ${sgn(num(a.enh))} and ammunition counts)`; out.atkParts.push([t, d]); out.dmgParts.push([t, d]); }
-    am.dice.forEach(x => { out.xdice.push(x.d + ' ' + x.t); out.dmgParts.push([x.src, '+' + x.d + ' ' + x.t]); });
+    am.dice.forEach(x => { out.xdice.push((x.d + ' ' + x.t).trim()); out.dmgParts.push([x.src, ('+' + x.d + ' ' + x.t).trim()]); });
     out.notes.push(...am.notes);
   }
   return out;
@@ -57,8 +57,10 @@ function ammoMods(c, a){
   const out = {enh: 0, dice: [], notes: [], name: it ? it.n.replace(/\s*\(\d+\)/, '') : 'Ammunition'};
   if (it){
     const L = it.lib ? libById(it.lib) : null, n = it.n.toLowerCase();
-    out.enh = Math.max(num(it.plus), num((n.match(/\+(\d)\b/) || [])[1]), L && L.wpn ? num(L.wpn.enh) : 0);
-    const specials = Object.keys(WEAPON_SPECIALS).filter(k => new RegExp('\\b' + k + '\\b').test(n) || (L && L.wpn && (L.wpn.specials || []).map(x => String(x).toLowerCase()).includes(k)) || String(it.sp || '').toLowerCase() === k);
+    const LA = L && L.kind === 'ammo' ? L.ammo : null, Lsp = (LA ? LA.specials : L && L.wpn ? L.wpn.specials : []) || [];
+    out.enh = Math.max(num(it.plus), num((n.match(/\+(\d)\b/) || [])[1]), L && L.wpn ? num(L.wpn.enh) : 0, LA ? num(LA.enh) : 0);
+    const specials = Object.keys(WEAPON_SPECIALS).filter(k => new RegExp('\\b' + k + '\\b').test(n) || Lsp.map(x => String(x).toLowerCase()).includes(k) || String(it.sp || '').toLowerCase() === k);
+    if (LA && LA.xdmg){ const m = String(LA.xdmg).match(/(\d+d\d+)\s*([a-z]+)?/i); if (m) out.dice.push({d: m[1], t: (m[2] || '').toLowerCase(), src: `${out.name} (extra damage)`}); }
     specials.sort((x, y) => y.length - x.length).forEach(k => { if (specials.some(o => o !== k && o.includes(k))) return; const sp = WEAPON_SPECIALS[k];
       const m = String(sp.x || '').match(/\+(\d+d\d+)\s+(\w+)/); if (m) out.dice.push({d: m[1], t: m[2], src: `${out.name} (${k})`}); if (sp.note) out.notes.push(`${k}: ${sp.note}`); });
   }

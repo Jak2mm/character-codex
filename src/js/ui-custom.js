@@ -1,5 +1,6 @@
 // ===================== CUSTOM ITEMS: weapons, armor, special abilities, bonuses, spells =====================
-// Library item: {id, t:'item', n, d, w, cost, kind:'gear'|'weapon'|'armor'|'shield',
+// Library item: {id, t:'item', n, d, w, cost, kind:'gear'|'weapon'|'armor'|'shield'|'ammo',
+//   ammo:{type:'arrow'|'bolt'|'bullet', count, enh, specials:[], xdmg},
 //   wpn:{base, dS, dM, crit, rng, ty, ab, two, enh, mw, specials:[], xdmg},
 //   arm:{base, bonus, mdx, acp, asf, enh, mw, specials:[]},
 //   bon:[typed bonuses], abil:[{n, uses, d}], spells:[{n, mode:'day'|'charges'|'atwill', uses, cost, cl}], charges}
@@ -89,7 +90,8 @@ function customizeItem(c, it){
   const x = (it.t === 'weapon' && IDX.weapons.get(it.n.toLowerCase())) || (it.t === 'armor' && IDX.armor.get(it.n.toLowerCase())) || null;
   const ref = getRef(it.t === 'magic' ? 'magic' : 'item', it.n); const div = document.createElement('div'); div.innerHTML = ref ? ref.html.replace(/<dl[\s\S]*?<\/dl>/, '') : '';
   const L = {id:uid('L'), rs:rsOf(APP_cur()).id, t:'item', n:it.n, d:div.textContent.trim().slice(0, 3000), w:num(it.w), cost:'', kind:'gear'};
-  if (it.t === 'weapon' && x){ L.kind = 'weapon'; L.wpn = {base:x.n, dS:x.dS, dM:x.dM, crit:x.crit, rng:x.rng, ty:x.ty, ab:/Ranged/.test(x.sub) ? 'Dex' : 'Str', two:/Two-Handed/.test(x.sub), enh:0, mw:false, specials:[]}; L.cost = x.cost; }
+  if (it.t === 'weapon' && x && x.dM === '—' && /arrow|bolt|bullet/i.test(x.n)){ L.kind = 'ammo'; L.ammo = {type: /bolt/i.test(x.n) ? 'bolt' : /bullet/i.test(x.n) ? 'bullet' : 'arrow', count: packSize(x.n), enh:0, specials:[], xdmg:''}; L.cost = x.cost; }
+  else if (it.t === 'weapon' && x){ L.kind = 'weapon'; L.wpn = {base:x.n, dS:x.dS, dM:x.dM, crit:x.crit, rng:x.rng, ty:x.ty, ab:/Ranged/.test(x.sub) ? 'Dex' : 'Str', two:/Two-Handed/.test(x.sub), enh:0, mw:false, specials:[]}; L.cost = x.cost; }
   if (it.t === 'armor' && x){ L.kind = /shield|buckler/i.test(x.n) ? 'shield' : 'armor'; L.arm = {base:x.n, bonus:num(String(x.ac).replace('+', '')), mdx: x.mdx === '—' ? '' : num(String(x.mdx).replace('+', '')), acp:num(String(x.acp).replace('–', '-')), asf:num(String(x.asf).replace('%', '')), enh:0, mw:false, specials:[]}; L.cost = x.cost; }
   const mw = MAGIC_WEAPONS[normKey(it.n)]; const bw = mw && IDX.weapons.get(mw.base.toLowerCase());
   if (bw){ L.kind = 'weapon'; L.wpn = {base:bw.n, dS: mw.nodmg ? '' : bw.dS, dM: mw.nodmg ? '' : bw.dM, crit:bw.crit, rng:bw.rng, ty:bw.ty, ab:'Str', two:false, enh:mw.enh, mw:false, specials:[], xdmg:''}; }
@@ -104,6 +106,7 @@ function openItemEditor(id, onDone){
   const isNew = !id; const E = id ? clone(libById(id)) : {id: uid('L'), rs:rsOf(APP_cur()).id, t:'item', n:'', d:'', w:0, cost:'', kind:'gear'};
   E.wpn = Object.assign({base:'', dS:'1d4', dM:'1d6', crit:'x2', rng:'—', ty:'Slashing', ab:'Str', two:false, enh:0, mw:false, specials:[], xdmg:''}, E.wpn || {});
   E.arm = Object.assign({base:'', bonus:0, mdx:'', acp:0, asf:0, enh:0, mw:false, specials:[]}, E.arm || {});
+  E.ammo = Object.assign({type:'arrow', count:20, enh:0, specials:[], xdmg:''}, E.ammo || {});
   E.bon = E.bon || []; E.abil = E.abil || []; E.spells = E.spells || [];
   const bg = openModal(`<div class="modal" role="dialog" aria-label="Custom item"><div class="mh"><h3>${isNew ? 'New custom item' : 'Edit custom item'}</h3><button class="btn ghost" data-close>Close</button></div>
     <div class="mform ie" id="ie-body"></div>
@@ -116,14 +119,15 @@ function openItemEditor(id, onDone){
   const inp = (path, val, extra = '') => `<input type="text" data-e="${path}" value="${esc(val ?? '')}" ${extra}>`;
   const numI = (path, val, extra = '') => `<input type="number" data-e="${path}" data-num="1" value="${esc(val ?? '')}" ${extra}>`;
   const chk = (path, val, label) => `<label class="mini"><input type="checkbox" data-e="${path}" ${val ? 'checked' : ''}> ${label}</label>`;
-  const specChips = kind => { const arr = kind === 'weapon' ? E.wpn.specials : E.arm.specials;
-    return `<div class="bchips">${arr.map((s, i) => `<span class="bchip" style="background:var(--accent-soft);color:var(--accent)">${refA('magic', `(${kind === 'weapon' ? 'Weapon' : 'Armor'} ability) ${s}`, s)} <button class="btn ghost sm" data-delspec="${kind}:${i}" aria-label="Remove ${esc(s)}" style="padding:0 2px">✕</button></span>`).join('') || '<span class="hint">None</span>'}</div>
-      <div class="row" style="margin-top:6px"><select id="ie-addspec-${kind}" style="width:auto;max-width:100%"><option value="">Add a special ability…</option>${SPECIAL_LIST(kind).map(s => opt(s, s, '')).join('')}</select></div>`; };
+  const specArr = kind => kind === 'weapon' ? E.wpn.specials : kind === 'ammo' ? E.ammo.specials : E.arm.specials;
+  const specChips = kind => { const arr = specArr(kind); const wk = kind === 'weapon' || kind === 'ammo';
+    return `<div class="bchips">${arr.map((s, i) => `<span class="bchip" style="background:var(--accent-soft);color:var(--accent)">${refA('magic', `(${wk ? 'Weapon' : 'Armor'} ability) ${s}`, s)} <button class="btn ghost sm" data-delspec="${kind}:${i}" aria-label="Remove ${esc(s)}" style="padding:0 2px">✕</button></span>`).join('') || '<span class="hint">None</span>'}</div>
+      <div class="row" style="margin-top:6px"><select id="ie-addspec-${kind}" style="width:auto;max-width:100%"><option value="">Add a special ability…</option>${SPECIAL_LIST(kind === 'ammo' ? 'weapon' : kind).map(s => opt(s, s, '')).join('')}</select></div>`; };
   function draw(){
     const k = E.kind;
     body.innerHTML = `
       <div class="fields">${F('Name', inp('n', E.n, 'placeholder="e.g. Flametongue, Gran\'s Lucky Cloak"'), 'wide')}
-        ${F('Kind', `<select data-e="kind" data-redraw="1">${[['gear', 'Wondrous item / gear'], ['weapon', 'Weapon'], ['armor', 'Armor'], ['shield', 'Shield']].map(([v, l]) => opt(v, l, k)).join('')}</select>`)}
+        ${F('Kind', `<select data-e="kind" data-redraw="1">${[['gear', 'Wondrous item / gear'], ['weapon', 'Weapon'], ['ammo', 'Ammunition'], ['armor', 'Armor'], ['shield', 'Shield']].map(([v, l]) => opt(v, l, k)).join('')}</select>`)}
         ${k === 'gear' ? F('Worn on', `<select data-e="slot"><option value="">Guess from the name</option><option value="none" ${E.slot === 'none' ? 'selected' : ''}>No slot (carried)</option>${[['head','Head'],['eyes','Eyes'],['neck','Neck'],['torso','Torso'],['body','Body (robe)'],['waist','Waist'],['shoulders','Shoulders'],['arms','Arms / Wrists'],['hands','Hands'],['ring','Ring'],['feet','Feet']].map(([v, l]) => opt(v, l, E.slot)).join('')}</select>`) : ''}
         ${F('Weight (lb.)', numI('w', E.w, 'step="0.25" min="0"'))}${F('Cost / value', inp('cost', E.cost, 'placeholder="e.g. 8,315 gp"'))}</div>
       ${k === 'weapon' ? `<section class="ie-sec"><div class="splv">Weapon</div><div class="pb grid" style="gap:10px">
@@ -132,6 +136,10 @@ function openItemEditor(id, onDone){
         <div class="fields">${F('Damage (Small)', inp('wpn.dS', E.wpn.dS))}${F('Damage (Medium)', inp('wpn.dM', E.wpn.dM))}${F('Critical', inp('wpn.crit', E.wpn.crit))}${F('Range', inp('wpn.rng', E.wpn.rng))}${F('Damage type', inp('wpn.ty', E.wpn.ty))}${F('Extra damage', inp('wpn.xdmg', E.wpn.xdmg, 'placeholder="e.g. +1d4 acid"'))}</div>
         <div class="row">${chk('wpn.mw', E.wpn.mw, 'Masterwork (+1 attack when not magic)')}${chk('wpn.two', E.wpn.two, 'Two-handed (1½ Str to damage)')}${chk('wpn.nostr', E.wpn.nostr, 'No Str to damage (bows, crossbows)')}</div>
         <div><div class="cap">Special abilities</div>${specChips('weapon')}<p class="hint" style="margin:4px 0 0">Flaming, frost and shock add their dice to damage; keen widens the threat range; the rest are noted on the attack.</p></div></div></section>` : ''}
+      ${k === 'ammo' ? `<section class="ie-sec"><div class="splv">Ammunition</div><div class="pb grid" style="gap:10px">
+        <div class="fields">${F('Type', `<select data-e="ammo.type" data-redraw="1">${opt('arrow', 'Arrows (bows)', E.ammo.type)}${opt('bolt', 'Bolts (crossbows)', E.ammo.type)}${opt('bullet', 'Sling bullets (slings)', E.ammo.type)}</select>`)}
+          ${F('Pieces in a bundle', numI('ammo.count', E.ammo.count, 'min="1"'))}${F('Enhancement', `<select data-e="ammo.enh" data-num="1">${enhOpts(E.ammo.enh)}</select>`)}${F('Extra damage', inp('ammo.xdmg', E.ammo.xdmg, 'placeholder="e.g. +1d4 acid"'))}</div>
+        <div><div class="cap">Special abilities</div>${specChips('ammo')}<p class="hint" style="margin:4px 0 0">The ammunition is used by any ${E.ammo.type === 'bolt' ? 'crossbow' : E.ammo.type === 'bullet' ? 'sling' : 'bow'} you carry: pick it in the weapon's Ammo row. Its enhancement counts only if it's better than the weapon's; flaming, frost and shock add their dice to damage.</p></div></div></section>` : ''}
       ${k === 'armor' || k === 'shield' ? `<section class="ie-sec"><div class="splv">${k === 'armor' ? 'Armor' : 'Shield'}</div><div class="pb grid" style="gap:10px">
         <div class="fields">${F('Based on', `<select id="ie-abase"><option value="">Choose ${k === 'armor' ? 'armor' : 'a shield'} to copy its stats…</option>${armors.filter(a => (k === 'shield') === /shield|buckler/i.test(a.n)).map(a => opt(a.n, a.n, E.arm.base)).join('')}</select>`, 'wide')}
           ${F('Enhancement', `<select data-e="arm.enh" data-num="1">${enhOpts(E.arm.enh)}</select>`)}</div>
@@ -171,14 +179,13 @@ function openItemEditor(id, onDone){
     if (el.dataset.e){ setPath(E, el.dataset.e, readE(el)); if (el.dataset.redraw) draw(); return; }
     if (el.id === 'ie-wbase'){ const w = IDX.weapons.get(el.value.toLowerCase()); if (w){ Object.assign(E.wpn, {base:w.n, dS:w.dS, dM:w.dM, crit:w.crit, rng:w.rng, ty:w.ty, ab:/Ranged/.test(w.sub) ? 'Dex' : 'Str', two:/Two-Handed/.test(w.sub), nostr:/Ranged/.test(w.sub) && /bow|crossbow|net/i.test(w.n) && !/sling/i.test(w.n)}); if (!E.w) E.w = w.w; } draw(); }
     if (el.id === 'ie-abase'){ const a = IDX.armor.get(el.value.toLowerCase()); if (a){ Object.assign(E.arm, {base:a.n, bonus:num(String(a.ac).replace('+', '')), mdx: a.mdx === '—' ? '' : num(String(a.mdx).replace('+', '')), acp:num(String(a.acp).replace('–', '-')), asf:num(String(a.asf).replace('%', ''))}); if (!E.w) E.w = a.w; } draw(); }
-    if (el.id === 'ie-addspec-weapon' && el.value){ E.wpn.specials.push(el.value); draw(); }
-    if (el.id && el.id.startsWith('ie-addspec-') && el.id !== 'ie-addspec-weapon' && el.value){ E.arm.specials.push(el.value); draw(); }
+    if (el.id && el.id.startsWith('ie-addspec-') && el.value){ specArr(el.id.slice(11)).push(el.value); draw(); }
   });
   body.addEventListener('click', e => {
     const a = e.target.closest('[data-add]'); if (a){ const k = a.dataset.add;
       if (k === 'bon') E.bon.push({t:'ac', ty:'enhancement', v:1}); if (k === 'abil') E.abil.push({n:'', uses:'', d:''}); if (k === 'spells') E.spells.push({n:'', mode:'day', uses:1, cl:''}); draw(); return; }
     const d = e.target.closest('[data-delrow]'); if (d){ const [k, i] = d.dataset.delrow.split(':'); E[k].splice(+i, 1); draw(); return; }
-    const s = e.target.closest('[data-delspec]'); if (s){ const [k, i] = s.dataset.delspec.split(':'); (k === 'weapon' ? E.wpn.specials : E.arm.specials).splice(+i, 1); draw(); return; }
+    const s = e.target.closest('[data-delspec]'); if (s){ const [k, i] = s.dataset.delspec.split(':'); specArr(k).splice(+i, 1); draw(); return; }
     const p = e.target.closest('[data-pickspell]'); if (p){ const i = +p.dataset.pickspell; pickSpellInline(sp => { E.spells[i].n = sp.n; if (!E.spells[i].cl) E.spells[i].cl = Math.max(1, ...Object.values(sp.c).map(l => l * 2 - 1)); draw(); }); }
   });
   draw(); setTimeout(() => { const n = $('[data-e="n"]', body); if (n) n.focus(); }, 30);
@@ -186,7 +193,7 @@ function openItemEditor(id, onDone){
     E.n = String(E.n || '').trim(); if (!E.n){ $('[data-e="n"]', body).focus(); toast('Give the item a name first.', 'warn'); return; }
     E.bon = E.bon.filter(b => b.t && num(b.v)).map(b => { const o = {t:b.t, ty:b.ty || 'untyped', v:num(b.v)}; if (b.w) o.w = b.w; return o; });
     E.abil = E.abil.filter(a => String(a.n || '').trim()); E.spells = E.spells.filter(s => String(s.n || '').trim());
-    if (E.kind !== 'weapon') delete E.wpn; if (E.kind !== 'armor' && E.kind !== 'shield') delete E.arm;
+    if (E.kind !== 'weapon') delete E.wpn; if (E.kind !== 'armor' && E.kind !== 'shield') delete E.arm; if (E.kind !== 'ammo') delete E.ammo; else E.ammo.count = Math.max(1, num(E.ammo.count) || 1);
     const arr = APP.lib.entries; const ix = arr.findIndex(x => x.id === E.id); if (ix >= 0) arr[ix] = E; else arr.push(E);
     markLibDirty(); syncLinked(E); closeModal(); toast(`Saved <b>${esc(E.n)}</b>.`);
     if (onDone) onDone({name:E.n, type:'custom', key:E.id, lib:E}); renderAll();

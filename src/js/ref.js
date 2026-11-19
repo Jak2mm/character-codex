@@ -205,8 +205,9 @@ function openPicker(opts){
 }
 
 function customItemRef(L){
-  const pairs = [['Kind', {gear:'Wondrous item / gear', weapon:'Weapon', armor:'Armor', shield:'Shield'}[L.kind || 'gear']], ['Cost', L.cost], ['Weight', L.w ? L.w + ' lb.' : '']];
+  const pairs = [['Kind', {gear:'Wondrous item / gear', weapon:'Weapon', ammo:'Ammunition', armor:'Armor', shield:'Shield'}[L.kind || 'gear']], ['Cost', L.cost], ['Weight', L.w ? L.w + ' lb.' : '']];
   if (L.kind === 'weapon' && L.wpn){ const a = weaponAttack(L, 'Medium'); pairs.push(['Damage', a.dmg + (a.xdmg ? ' ' + a.xdmg : '')], ['Critical', a.crit], ['Enhancement', a.enh ? '+' + a.enh : (L.wpn.mw ? 'masterwork' : '')], ['Special', (L.wpn.specials || []).join(', ')]); }
+  if (L.kind === 'ammo' && L.ammo){ pairs.push(['Type', {arrow:'Arrows', bolt:'Crossbow bolts', bullet:'Sling bullets'}[L.ammo.type]], ['Bundle', L.ammo.count], ['Enhancement', num(L.ammo.enh) ? '+' + num(L.ammo.enh) : ''], ['Special', (L.ammo.specials || []).join(', ')], ['Extra damage', L.ammo.xdmg || '']); }
   if ((L.kind === 'armor' || L.kind === 'shield') && L.arm){ const s = armorSlot(L); pairs.push(['AC bonus', '+' + (s.bonus + s.enh)], ['Max Dex', L.kind === 'armor' ? (s.mdx === '' ? '—' : '+' + s.mdx) : ''], ['Check penalty', s.acp], ['Special', (L.arm.specials || []).join(', ')]); }
   const bl = libItemBonuses(L); if (bl.length) pairs.push(['Bonuses', bl.map(bonusText).join(', ')]);
   if ((L.abil || []).length) pairs.push(['Abilities', L.abil.map(a => a.n + (a.uses ? ` (${a.uses})` : '')).join(', ')]);

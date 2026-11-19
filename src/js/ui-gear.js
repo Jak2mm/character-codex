@@ -17,7 +17,7 @@ const SLOT_LABEL = Object.fromEntries(SLOTS.map(s => [s[0], s[1]]));
 // what slot an item goes in: 'body' / 'shield' for armor, otherwise by name (custom items can set it)
 function itemSlotKind(it){
   const L = it.lib ? libById(it.lib) : null;
-  if (L){ if (L.kind === 'armor') return 'body'; if (L.kind === 'shield') return 'shield'; if (L.slot) return L.slot === 'none' ? null : L.slot; }
+  if (L){ if (L.kind === 'ammo') return null; if (L.kind === 'armor') return 'body'; if (L.kind === 'shield') return 'shield'; if (L.slot) return L.slot === 'none' ? null : L.slot; }
   const nm = it.n || '';
   if (it.t === 'armor' || IDX.armor.get(nm.toLowerCase())){ const a = IDX.armor.get(nm.toLowerCase()); if (a && /shield|buckler/i.test(a.n)) return 'shield'; if (a && !/spikes|gauntlet, locked/i.test(a.n)) return 'body'; }
   const m = SRD.magic.find(x => x.n.toLowerCase() === nm.toLowerCase());

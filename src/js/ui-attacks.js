@@ -72,8 +72,9 @@ const AMMO_RE = {arrow:/\barrows?\b/i, bolt:/\bbolts?\b/i, bullet:/\bbullets?\b/
 const AMMO_LABEL = {arrow:'arrows', bolt:'bolts', bullet:'sling bullets'};
 const AMMO_SRD = {arrow:'Arrows (20)', bolt:'Bolts, crossbow (10)', bullet:'Bullets, sling (10)'};
 function packSize(n){ const m = String(n).match(/\((\d+)\)/); return m ? parseInt(m[1]) : 1; }
-function ammoCount(it){ return it.count != null ? num(it.count) : packSize(it.n) * num(it.qty || 1); }
-function ammoItems(c, a){ const k = ammoKind(a); if (!k) return []; return c.items.filter(it => AMMO_RE[k].test(it.n) && !/^\s*(longbow|shortbow|crossbow|sling)\b/i.test(it.n)); }
+function ammoLib(it){ const L = it && it.lib ? libById(it.lib) : null; return L && L.kind === 'ammo' ? L : null; }
+function ammoCount(it){ const L = ammoLib(it); return it.count != null ? num(it.count) : (L ? num(L.ammo.count) || 1 : packSize(it.n)) * num(it.qty || 1); }
+function ammoItems(c, a){ const k = ammoKind(a); if (!k) return []; return c.items.filter(it => { const L = ammoLib(it); if (L) return L.ammo.type === k; if (it.lib && libById(it.lib) && libById(it.lib).kind !== 'gear') return false; return AMMO_RE[k].test(it.n) && !/^\s*(longbow|shortbow|crossbow|sling)\b/i.test(it.n); }); }
 function ammoFor(c, a){ const list = ammoItems(c, a); return list.find(it => it.id === a.ammo) || list[0] || null; }
 // returns false when the shot can't be made
 function fireAmmo(c, a){
@@ -91,9 +92,9 @@ function ammoRow(c, a){
   return `<div class="ammo row"><span class="cap">Ammo</span>
     <select data-act-change="pickAmmo" data-id="${a.id}" style="width:auto;max-width:220px" aria-label="Ammunition">${list.map(it => `<option value="${it.id}" ${cur && it.id === cur.id ? 'selected' : ''}>${esc(it.n)}</option>`).join('')}</select>
     <input type="number" min="0" style="width:72px" data-ammocount="${a.id}" data-item="${cur.id}" value="${ammoCount(cur)}" aria-label="Ammunition left"><span class="hint">left · 1 used per attack roll</span>
-    <select data-ammoplus="${cur.id}" style="width:auto" aria-label="Ammunition enhancement" title="Magic ammunition: its enhancement bonus (only the better of the weapon's and the ammunition's counts)">${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}" ${num(cur.plus) === v ? 'selected' : ''}>${v ? '+' + v : 'Not magic'}</option>`).join('')}</select>
-    <select data-ammosp="${cur.id}" style="width:auto" aria-label="Ammunition special ability">${['', 'flaming', 'frost', 'shock', 'flaming burst', 'icy burst', 'shocking burst', 'holy', 'unholy', 'axiomatic', 'anarchic'].map(v => `<option value="${v}" ${(cur.sp || '') === v ? 'selected' : ''}>${v ? v[0].toUpperCase() + v.slice(1) : 'No special ability'}</option>`).join('')}</select>
-    ${getRef('item', cur.n) ? refA('item', cur.n, 'ⓘ') : ''}</div>`;
+    ${ammoLib(cur) ? `<span class="pill acc" title="Set in the Custom Library">${esc([num(ammoLib(cur).ammo.enh) ? '+' + num(ammoLib(cur).ammo.enh) : '', ...(ammoLib(cur).ammo.specials || []), ammoLib(cur).ammo.xdmg].filter(Boolean).join(' · ') || 'custom')}</span>` : `<select data-ammoplus="${cur.id}" style="width:auto" aria-label="Ammunition enhancement" title="Magic ammunition: its enhancement bonus (only the better of the weapon's and the ammunition's counts)">${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}" ${num(cur.plus) === v ? 'selected' : ''}>${v ? '+' + v : 'Not magic'}</option>`).join('')}</select>
+    <select data-ammosp="${cur.id}" style="width:auto" aria-label="Ammunition special ability">${['', 'flaming', 'frost', 'shock', 'flaming burst', 'icy burst', 'shocking burst', 'holy', 'unholy', 'axiomatic', 'anarchic'].map(v => `<option value="${v}" ${(cur.sp || '') === v ? 'selected' : ''}>${v ? v[0].toUpperCase() + v.slice(1) : 'No special ability'}</option>`).join('')}</select>`}
+    ${ammoLib(cur) ? refA('custom', cur.lib, 'ⓘ', 'custom') : getRef('item', cur.n) ? refA('item', cur.n, 'ⓘ') : ''}</div>`;
 }
 function handsSummary(c){
   const chips = []; const shield = shieldHand(c) ? c.shield.n : '';
