@@ -1,5 +1,6 @@
 <div class="top"><div class="wrap">
   <div class="brand">
+    <button class="btn nav-tog" id="navToggle" aria-controls="sidebar" aria-expanded="false" aria-label="Menu" title="Show menu"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <h1 title="Start screen" role="button" tabindex="0"><b id="brandRs" title="Ruleset of the open character">3.5</b>Character Codex</h1>
     <div class="charbar">
       <select id="charSel" aria-label="Character"></select>
@@ -12,15 +13,17 @@
       <span id="delWrap"><button class="btn ghost" id="delChar">Delete</button></span>
       <span class="sync local" id="sync">Loading…</span>
     </div>
-    <div class="roundchip" title="Combat round. Advancing it counts down spell and condition durations.">
-      <span class="lab">Round</span>
-      <button class="btn sm ghost" id="rPrev" aria-label="Previous round">−</button>
-      <span class="num" id="rNum">0</span>
-      <button class="btn sm pri" id="rNext">Next round</button>
+    <div class="roundchip">
+      <div class="rc-round" title="Combat round. Each new round counts down spell and condition durations.">
+        <span class="lab">Round</span>
+        <span class="rc-num"><button class="btn sm ghost" id="rPrev" aria-label="Undo round" title="Undo round">−</button><span class="num" id="rNum">0</span></span>
+      </div>
+      <div class="rc-turn" id="turnInfo" aria-live="polite" hidden></div>
     </div>
   </div>
-  <nav class="tabs" role="tablist" id="tabs"></nav>
 </div></div>
+<nav class="sidebar" id="sidebar" aria-label="Pages"></nav>
+<div class="side-scrim" id="sideScrim" hidden></div>
 <main class="wrap" id="main"></main>
 <div id="tip" hidden></div>
 <div id="toasts" aria-live="polite"></div>
