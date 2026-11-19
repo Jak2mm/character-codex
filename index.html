@@ -298,7 +298,7 @@ table.st tr:last-child td{border-bottom:none}
 .statline{display:grid;grid-template-columns:104px auto minmax(0,1fr) 58px;gap:8px;align-items:center}
 .statline .tag{min-width:0}
 @media (max-width:640px){.top{position:static}.charbar{flex-basis:100%}.atk{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.atk .f{min-width:0}
-  .roundchip{margin-left:auto}}
+  }
 .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 
 /* notes & quests */
@@ -517,6 +517,94 @@ table.bdt th,table.bdt td{border-bottom:1px solid var(--rule-2);padding:3px 5px;
 
 @media (max-width:520px){.f.wide{grid-column:span 1}.brand h1{font-size:18px}}
 @media (prefers-reduced-motion:no-preference){.toast{animation:tin .2s ease-out}@keyframes tin{from{transform:translateY(8px);opacity:0}}}
+
+/* ===== rounded look ===== */
+:root{--r:12px;--r-sm:7px}
+.panel{border-radius:var(--r);overflow:clip}
+.ph h2{border-bottom-right-radius:var(--r-sm)}
+.btn,.seg button,.subtabs button,.sp-mode button{border-radius:var(--r-sm)}
+input[type=text],input[type=search],input[type=date],input[type=number],input:not([type]),select,textarea{border-radius:var(--r-sm)}
+.out{border-radius:var(--r-sm)}
+.tag{border-radius:5px}
+.slot,.slot-card,.rs-card,.st-card,.hand-chip,.sbox,.hp-box,.rs-slot{border-radius:var(--r-sm)}
+.st-item{border-radius:var(--r)}
+.modal,#tip,.mention{border-radius:var(--r);overflow:hidden}
+.toast{border-radius:var(--r-sm)}
+.roundchip{border-radius:var(--r-sm);overflow:clip}
+.meter{border-radius:4px}.meter>i{border-radius:4px}
+.portrait{border-radius:var(--r-sm)}
+.nv-link{border-radius:0 var(--r-sm) var(--r-sm) 0;margin-right:8px;width:calc(100% - 8px)}
+.nv-head .nv-link{margin-right:0;width:100%}
+.sp-bar{border-radius:var(--r-sm) var(--r-sm) 0 0}
+.sp-edit-banner{border-radius:var(--r)}
+
+/* ===== compact panels: big number, small label ===== */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sbox-grid{display:grid;gap:8px}
+.ab-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.sv-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.sbox{border:1px solid var(--rule);background:var(--paper);padding:8px 4px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0}
+.sbox.acc{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.sb-v{display:flex;align-items:baseline;justify-content:center;gap:2px;min-height:34px}
+.sb-big{font-family:var(--f-label);font-weight:700;font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums;padding:0 6px;border-radius:var(--r-sm)}
+.sb-big{border:1px solid transparent;min-width:2.4em;text-align:center}
+.sb-big.roll{cursor:pointer;border-color:var(--rule);background:var(--sheet)}
+.sb-big.roll:hover{background:var(--accent-soft);border-color:var(--accent)}
+.sb-l{font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);line-height:1.2}
+.sb-l .tag,.sbox .sb-l a.tag{text-align:center;background:none;color:var(--ink-2);padding:0;min-width:0;font-size:11px;font-weight:600}
+.ab-box .sb-l .tag{color:var(--ink);font-size:13px;font-weight:700}
+.sb-score{font-family:var(--f-label);font-weight:700;font-size:14px;color:var(--ink-2);display:flex;gap:4px;align-items:center}
+.cc-wrap{display:grid;gap:10px}
+.cc-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.cc-grid .sbox{justify-content:flex-start}.cc-grid .sb-l{overflow-wrap:anywhere}
+.hp-box{border:1px solid var(--rule);background:var(--paper);padding:8px 10px;display:grid;gap:6px}
+.hp-top{display:flex;justify-content:space-between;align-items:center}
+.hp-nums{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.hp-cur input{width:84px;font-family:var(--f-label);font-weight:700;font-size:30px;padding:0 4px;height:44px}
+.hp-sl{font-family:var(--f-label);font-size:26px;color:var(--ink-2);line-height:44px}
+.hp-max{font-family:var(--f-label);font-weight:700;font-size:30px;line-height:44px;font-variant-numeric:tabular-nums;margin-right:auto}
+.hp-sm{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hp-sm span{font-family:var(--f-label);font-weight:600;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.hp-sm input{width:62px}
+.hp-box .meter{height:10px}
+.hp-ctl{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px}
+.hp-ctl input{text-align:center}
+.hp-dmg{color:var(--bad);border-color:var(--bad)} .hp-heal{color:var(--good);border-color:var(--good)}
+.cg-list{display:grid}
+.cg-row{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.cg-slot{font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.cg-n{min-width:0}
+.ca-list{display:grid}
+.ca-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px 12px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--rule-2)}
+.ca-row.stowed{opacity:.6}
+.ca-n{display:flex;flex-direction:column;min-width:0}
+.ca-n .hint{font-size:12.5px}
+.ca-v{display:flex;flex-direction:column;align-items:center;gap:1px}
+.ca-v .cap{font-size:10px}
+.ca-dmg{cursor:pointer;background:var(--sheet);color:var(--ink);font-size:14px;min-width:64px}
+.ca-dmg:hover{background:var(--accent-soft)}
+.ca-row>.ammo{grid-column:1/-1}
+.rs-slots{display:flex;flex-wrap:wrap;gap:6px}
+.rs-slot{display:grid;grid-template-columns:auto auto;gap:0 8px;align-items:baseline;border:1px solid var(--rule);background:var(--paper);padding:4px 8px}
+.rs-slot .lv{font-family:var(--f-label);font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--ink-2)}
+.rs-slot b{font-family:var(--f-label);font-size:20px;text-align:right} .rs-slot b small{font-size:12px;color:var(--ink-2)}
+.rs-slot .dc{font-size:11px;color:var(--ink-2)}
+.rs-slot .pips{justify-content:flex-end;margin:0}
+.rs-sp.spent{opacity:.55}
+.sp-mode{display:inline-flex;gap:0;border:1px solid var(--rule);border-radius:var(--r-sm);overflow:hidden;align-self:center}
+.sp-mode button{border:0;border-radius:0;background:transparent;padding:2px 8px;font-family:var(--f-label);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:11px;cursor:pointer;color:var(--ink-2)}
+.sp-mode button+button{border-left:1px solid var(--rule)}
+.sp-mode button.on{background:var(--tab);color:var(--tab-fg)}
+.trk-extra{display:grid;gap:14px;margin-top:14px}
+.trk-h{border-radius:var(--r-sm)}
+.rc-wrap{display:flex;flex-direction:column;gap:4px;align-items:stretch}
+.rest-row{display:flex;gap:4px;justify-content:flex-end}
+.rest-row .btn{flex:1}
+.rest-list{margin:8px 0;padding-left:20px;display:grid;gap:4px}
+@media (min-width:641px){.sp-full .cc-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
+@media (max-width:640px){.ab-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.rc-wrap{margin-left:auto}.cg-row{grid-template-columns:70px minmax(0,1fr)}.cg-row .bchips{grid-column:1/-1}
+  .ca-row{grid-template-columns:minmax(0,1fr) auto auto}.ca-row>.btn{grid-column:1/-1;justify-self:start}}
+@media print{.rest-row,.sp-mode{display:none!important}}
 </style>
 
 </head>
@@ -536,13 +624,13 @@ table.bdt th,table.bdt td{border-bottom:1px solid var(--rule-2);padding:3px 5px;
       <span id="delWrap"><button class="btn ghost" id="delChar">Delete</button></span>
       <span class="sync local" id="sync">Loading…</span>
     </div>
-    <div class="roundchip">
+    <div class="rc-wrap"><div class="roundchip">
       <div class="rc-round" title="Combat round. Each new round counts down spell and condition durations.">
         <span class="lab">Round</span>
         <span class="rc-num"><button class="btn sm ghost" id="rPrev" aria-label="Undo round" title="Undo round">−</button><span class="num" id="rNum">0</span></span>
       </div>
       <div class="rc-turn" id="turnInfo" aria-live="polite" hidden></div>
-    </div>
+    </div><div class="rest-row" id="restRow" hidden></div></div>
   </div>
 </div></div>
 <nav class="sidebar" id="sidebar" aria-label="Pages"></nav>
@@ -1642,7 +1730,7 @@ function atkCalc(c, a, D){
 function renderCharBar(){
   const sel = $('#charSel'); const list = charList();
   sel.innerHTML = list.map(c => `<option value="${c.id}" ${c.id === APP.curId ? 'selected' : ''}>${esc(c.name || 'Unnamed')} — ${esc(c.classes.map(k => k.n + ' ' + k.lvl).join(' / '))} (${esc(rsOf(c).short)})</option>`).join('') || '<option>No characters</option>';
-  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0; renderTurnInfo();
+  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0; renderTurnInfo(); renderRestRow();
   const br = $('#brandRs'); if (br) br.textContent = APP_cur() ? rsOf(APP_cur()).short.replace(/ SRD$/, '') : 'CC';
   $('#delWrap').innerHTML = '<button class="btn ghost" id="delChar">Delete</button>';
 }
@@ -3593,12 +3681,13 @@ document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === 
 // The ruleset module lists its sheet panels (rulesets/*.js). This arranges them, and lets a player
 // reorder, resize, collapse or hide panels for each character with "Customise sheet".
 // Hidden or collapsed panels still count in every calculation; only the display changes.
-// Saved on the character as c.sheetLayout = {order:[ids], size:{id:'half'|'full'}, hidden:{id:true}, collapsed:{id:true}}
+// Panels the ruleset marks compact:true can also be shown Compact (big numbers in boxes) instead of Full.
+// Saved on the character as c.sheetLayout = {order:[ids], size:{id:'half'|'full'}, hidden:{id:true}, collapsed:{id:true}, mode:{id:'compact'}}
 APP.sheetEdit = false;
 
 function sheetLayoutOf(c){
   const L = c.sheetLayout = c.sheetLayout || {};
-  L.order = Array.isArray(L.order) ? L.order : []; L.size = L.size || {}; L.hidden = L.hidden || {}; L.collapsed = L.collapsed || {};
+  L.order = Array.isArray(L.order) ? L.order : []; L.size = L.size || {}; L.hidden = L.hidden || {}; L.collapsed = L.collapsed || {}; L.mode = L.mode || {};
   return L;
 }
 // the ruleset's panels in this character's order (new panels a ruleset adds later slot in at their standard place)
@@ -3609,12 +3698,19 @@ function orderedPanels(c){
   return out;
 }
 // add the collapse button into the panel's own header
-function withCollapse(html, p, collapsed){
-  const btn = `<button class="btn ghost sm sp-col" data-sp="collapse" data-panel="${p.id}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'} ${esc(p.title)}">${collapsed ? '▸' : '▾'}</button>`;
+function panelMode(c, p){ return p.compact && sheetLayoutOf(c).mode[p.id] === 'compact' ? 'compact' : 'full'; }
+function modeSeg(p, cur, withHide){
+  const opts = [['full', 'Full'], ['compact', 'Compact'], ...(withHide ? [['hidden', 'Hide']] : [])];
+  return `<span class="sp-mode" role="group" aria-label="${esc(p.title)} view">${opts.map(([v, l]) => `<button class="${cur === v ? 'on' : ''}" data-sp="mode" data-panel="${p.id}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</span>`;
+}
+function withCollapse(html, p, collapsed, mode){
+  const seg = mode ? modeSeg(p, mode, false) : '';
+  const btn = seg + `<button class="btn ghost sm sp-col" data-sp="collapse" data-panel="${p.id}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'} ${esc(p.title)}">${collapsed ? '▸' : '▾'}</button>`;
   const i = html.indexOf('<div class="tools">'); return i < 0 ? html : html.slice(0, i + 19) + btn + html.slice(i + 19);
 }
 function renderSheet(c){
   const M = ruleset(c), L = sheetLayoutOf(c), edit = APP.sheetEdit, html = M.sheetPanels(c), list = orderedPanels(c);
+  const comp = M.compactPanels && list.some(p => panelMode(c, p) === 'compact') ? M.compactPanels(c) : {};
   const n = list.length;
   const items = list.map((p, i) => {
     const hid = !!L.hidden[p.id]; if (hid && !edit) return '';
@@ -3623,13 +3719,14 @@ function renderSheet(c){
         <button class="btn sm" data-sp="up" data-panel="${p.id}" ${i === 0 ? 'disabled' : ''} aria-label="Move ${esc(p.title)} up">↑</button>
         <button class="btn sm" data-sp="down" data-panel="${p.id}" ${i === n - 1 ? 'disabled' : ''} aria-label="Move ${esc(p.title)} down">↓</button>
         <button class="btn sm" data-sp="size" data-panel="${p.id}" title="Currently ${size} width">${size === 'full' ? 'Make half width' : 'Make full width'}</button>
-        ${p.keep ? '<span class="hint">always shown</span>' : `<button class="btn sm ${hid ? 'pri' : ''}" data-sp="hide" data-panel="${p.id}">${hid ? 'Show' : 'Hide'}</button>`}</span></div>` : '';
-    return `<div class="sheet-sec sp-${size}${col ? ' collapsed' : ''}${hid ? ' sp-hidden' : ''}" data-panel="${p.id}">${bar}${withCollapse(html[p.id] || '', p, col)}</div>`;
+        ${p.keep ? '<span class="hint">always shown</span>' : p.compact ? modeSeg(p, hid ? 'hidden' : panelMode(c, p), true) : `<button class="btn sm ${hid ? 'pri' : ''}" data-sp="hide" data-panel="${p.id}">${hid ? 'Show' : 'Hide'}</button>`}</span></div>` : '';
+    const mode = panelMode(c, p), body = mode === 'compact' && comp[p.id] ? comp[p.id] : html[p.id] || '';
+    return `<div class="sheet-sec sp-${size}${col ? ' collapsed' : ''}${hid ? ' sp-hidden' : ''} sp-m-${mode}" data-panel="${p.id}">${bar}${withCollapse(body, p, col, p.compact && !edit ? mode : '')}</div>`;
   }).join('');
   const hiddenList = list.filter(p => L.hidden[p.id]);
-  const changed = L.order.length || Object.keys(L.size).length || hiddenList.length;
+  const changed = L.order.length || Object.keys(L.size).length || hiddenList.length || Object.keys(L.mode).length;
   const top = edit
-    ? `<div class="sp-edit-banner"><div><b>Customising ${esc(c.name || 'this character')}'s sheet.</b> Move sections with ↑ ↓, switch them between half and full width, or hide the ones you don't need. Hidden sections still count in every calculation. Each character keeps its own layout.</div>
+    ? `<div class="sp-edit-banner"><div><b>Customising ${esc(c.name || 'this character')}'s sheet.</b> Move sections with ↑ ↓, switch them between half and full width, show some as Compact (just the key numbers), or hide the ones you don't need. Hidden sections still count in every calculation. Each character keeps its own layout.</div>
         <div class="row">${changed ? '<button class="btn sm" data-sp="reset">Reset to standard</button>' : ''}<button class="btn sm pri" data-sp="done">Done</button></div></div>`
     : '';
   const foot = !edit && hiddenList.length ? `<p class="hint sp-foot">Hidden: ${hiddenList.map(p => esc(p.title)).join(', ')}. <a href="#" data-sp="edit">Customise sheet</a> to show ${hiddenList.length === 1 ? 'it' : 'them'} again.</p>` : '';
@@ -3642,6 +3739,7 @@ document.addEventListener('click', e => {
   if (act === 'done'){ APP.sheetEdit = false; renderAll(); return; }
   if (act === 'reset'){ c.sheetLayout = {}; toast('Sheet layout reset to the standard one.'); }
   if (act === 'collapse'){ L.collapsed[id] = !L.collapsed[id]; if (!L.collapsed[id]) delete L.collapsed[id]; }
+  if (act === 'mode'){ const v = b.dataset.v; if (v === 'hidden') L.hidden[id] = true; else { delete L.hidden[id]; if (v === 'compact') L.mode[id] = 'compact'; else delete L.mode[id]; } }
   if (act === 'hide'){ L.hidden[id] = !L.hidden[id]; if (!L.hidden[id]) delete L.hidden[id]; }
   if (act === 'size'){ const p = (ruleset(c).sheet || []).find(x => x.id === id); const cur = L.size[id] || (p && p.size) || 'full'; const nx = cur === 'full' ? 'half' : 'full'; if (p && p.size === nx) delete L.size[id]; else L.size[id] = nx; }
   if (act === 'up' || act === 'down'){ const ids = orderedPanels(c).map(p => p.id); const i = ids.indexOf(id), j = act === 'up' ? i - 1 : i + 1;
@@ -3649,6 +3747,164 @@ document.addEventListener('click', e => {
   markDirty(); renderAll();
   if (act === 'up' || act === 'down'){ const el = document.querySelector(`.sheet-sec[data-panel="${id}"]`); if (el) el.scrollIntoView({block:'nearest'}); }
 });
+
+// ===================== COMPACT PANELS (3.5 SRD) =====================
+// Short versions of the busiest sheet panels, for play at the table: big numbers in boxes with the
+// label underneath. A player picks Full, Compact or Hidden per panel (Customise sheet, or the
+// toggle in the panel's title bar). The Combat & Effects page also uses these so you rarely need
+// to leave it during a fight. All numbers come from the same D values as the full panels.
+
+// one stat box: big value on top, small label under it
+const sbox = (val, label, extra = '') => `<div class="sbox ${extra}"><div class="sb-v">${val}</div><div class="sb-l">${label}</div></div>`;
+
+function compactAbilities35(c){
+  const boxes = ABIL.map(a => { const t = num(c.abil[a].temp) !== 0;
+    const mod = `<span class="sb-big roll" data-roll="ab.${a}.${t ? 'tmod' : 'mod'}" data-label="${ABIL_FULL[a]} check" data-o="ab.${a}.${t ? 'tmod' : 'mod'}" data-fmt="sgn" title="Click to roll a ${ABIL_FULL[a]} check"></span>`;
+    return `<div class="sbox ab-box"><div class="sb-l">${refA('gloss', a, a.toUpperCase(), 'tag')}</div><div class="sb-v">${mod}</div>
+      <div class="sb-score" data-ref="bd" data-name="ab.${a}" title="${t ? 'Score with temporary adjustment' : 'Score'}"><span data-o="ab.${a}.${t ? 'tscore' : 'total'}"></span>${t ? '<span class="pill acc">temp</span>' : ''}</div></div>`; }).join('');
+  return panel('Ability scores', `<div class="pb sbox-grid ab-grid">${boxes}</div>`);
+}
+
+function compactSaves35(c){
+  const NAMES = {Fort: 'Fortitude', Ref: 'Reflex', Will: 'Will'};
+  const boxes = ['Fort', 'Ref', 'Will'].map(s => sbox(`<span class="sb-big roll" data-roll="sv.${s}" data-label="${NAMES[s]} save" data-o="sv.${s}" data-fmt="sgn" data-ref="bd" data-name="sv.${s}" title="Click to roll"></span>`, refA('gloss', s, NAMES[s], 'tag'))).join('');
+  return panel('Saving throws', `<div class="pb sbox-grid sv-grid">${boxes}</div>`);
+}
+
+function compactCombat35(c){
+  const hp = `<div class="hp-box">
+      <div class="hp-top"><span class="sb-l">${refA('gloss', 'HP', 'Hit points', 'tag')}</span><span class="pill" id="hpState"></span></div>
+      <div class="hp-nums"><label class="hp-cur" title="Current hit points"><span class="vh">Current hit points</span>${N('hp.cur', c.hp.cur)}</label><span class="hp-sl">/</span>
+        <span class="hp-max" data-o="hpMax" data-ref="bd" data-name="hp" title="Max hit points"></span>
+        <label class="hp-sm"><span>Temp</span>${N('hp.temp', c.hp.temp, 'aria-label="Temporary hit points"')}</label>
+        <label class="hp-sm"><span>Nonlethal</span>${N('hp.nl', c.hp.nl, 'aria-label="Nonlethal damage"')}</label></div>
+      <div class="meter" id="hpMeter"><i></i></div>
+      <div class="hp-ctl"><button class="btn sm hp-dmg" data-act="dmg">Damage</button><input type="number" id="hpDelta" placeholder="Amount" aria-label="Damage or healing amount"><button class="btn sm hp-heal" data-act="heal">Heal</button></div></div>`;
+  const big = (o, fmt, roll, label) => `<span class="sb-big${roll ? ' roll' : ''}" data-o="${o}" data-fmt="${fmt}"${roll ? ` data-roll="${o}" data-label="${label}" title="Click to roll"` : ''}></span>`;
+  const boxes = [
+    sbox(`<span class="sb-big" data-o="ac" data-ref="bd" data-name="ac"></span>`, refA('gloss', 'AC', 'Armor class', 'tag'), 'acc'),
+    sbox(big('touch', ''), refA('gloss', 'Touch', 'Touch', 'tag')),
+    sbox(big('ff', ''), refA('gloss', 'FF', 'Flat-footed', 'tag')),
+    sbox(big('init', 'sgn', true, 'Initiative'), refA('gloss', 'Init', 'Initiative', 'tag')),
+    sbox(`<span class="sb-big" data-o="speed"></span>`, refA('gloss', 'Speed', 'Speed (ft.)', 'tag')),
+    sbox(`<span class="sb-big" data-o="bab" data-fmt="sgn" title="Your highest base attack bonus. Extra attacks at higher levels are shown on each weapon in Attacks."></span>`, refA('gloss', 'BAB', 'Base attack', 'tag')),
+    sbox(big('grapple', 'sgn', true, 'Grapple'), refA('gloss', 'Grapple', 'Grapple', 'tag')),
+  ].join('');
+  return panel('Combat', `<div class="pb cc-wrap">${hp}<div class="sbox-grid cc-grid">${boxes}</div>
+    ${D.noDex ? '<p class="hint" style="margin:0;color:var(--bad)">A condition is denying your Dex bonus to AC.</p>' : ''}${c.dr || c.sr ? `<p class="hint" style="margin:0">${c.dr ? `DR <b>${esc(c.dr)}</b>` : ''}${c.dr && c.sr ? ' · ' : ''}${c.sr ? `SR <b>${esc(c.sr)}</b>` : ''}</p>` : ''}</div>`);
+}
+
+function compactGear35(c){
+  const st = bonusStatus(D);
+  const rows = SLOTS.map(([k, label]) => { const it = slotItem(c, k); if (!it) return '';
+    const L = it.lib ? libById(it.lib) : null;
+    const name = (L ? refA('custom', L.id, it.n, 'custom') : getRef('item', it.n) ? refA('item', it.n) : `<b>${esc(it.n)}</b>`) + (it.plus && !L ? ` <b>+${it.plus}</b>` : '');
+    const live = liveBonuses('item', it.id);
+    return `<div class="cg-row"><span class="cg-slot">${esc(label.replace(' (held)', ''))}</span><span class="cg-n">${name}</span>${live.length ? `<span class="bchips">${bonusChips(live, st)}</span>` : ''}</div>`; }).join('');
+  return panel('Gear', `<div class="cg-list">${rows || '<div class="empty">Nothing equipped. Switch this panel to Full to put items in their slots.</div>'}</div>
+    <div class="pb row hint" style="border-top:1px solid var(--rule-2)">Armor check ${OT('acp')} · spell failure ${OT('asf')}% · max Dex ${OT('mdx')}</div>`);
+}
+
+function compactAttacks35(c){
+  const list = [...c.attacks].sort((a, b) => (b.eq ? 1 : 0) - (a.eq ? 1 : 0));
+  const rows = list.map(a => `<div class="ca-row ${a.eq ? '' : 'stowed'}" data-atk="${a.id}">
+      <div class="ca-n">${getRef('item', a.n) ? refA('item', a.n) : `<b>${esc(a.n || 'Unnamed')}</b>`}<span class="hint">${esc([a.eq ? {main:'main hand', off:'off hand', both:'both hands'}[a.eq] : 'not equipped', a.crit ? 'crit ' + a.crit : '', a.note || [a.rng, a.ty].filter(x => x && x !== '—').join(' · ')].filter(Boolean).join(' · '))}</span></div>
+      <div class="ca-v"><span class="cap">Attack</span><span class="out sm roll atkb" data-label="${esc(a.n)} attack" data-ref="bd" data-name="atk:${a.id}" title="Click to roll"></span></div>
+      <div class="ca-v"><span class="cap">Damage</span><button class="out sm atkd ca-dmg" data-act="rollDmg" data-id="${a.id}" data-ref="bd" data-name="dmg:${a.id}" title="Click to roll damage"></button></div>
+      ${a.eq ? '' : `<button class="btn sm" data-act="wieldAtk" data-id="${a.id}">Wield</button>`}${ammoRow(c, a)}</div>`).join('');
+  return panel('Attacks', `<div class="ca-list">${rows || '<div class="empty">No attacks yet. Switch this panel to Full, or use the Character page, to add weapons.</div>'}</div>`,
+    `<button class="btn sm pri" data-act="addAtk">Add weapon</button>`);
+}
+
+// spells ready to cast: slots, plus prepared spells (prepared casters) or spells known (spontaneous casters)
+function spellsReady35(c){
+  const casters = c.classes.map(k => ({k, info: casterInfo(c, k, D)})).filter(x => x.info);
+  if (!casters.length) return '';
+  return casters.map(({k, info}) => {
+    const book = c.spells[k.n] || (c.spells[k.n] = {list:[], used:{}});
+    const slots = info.slots.filter(s => s.total != null).map(s => { const used = num(book.used[s.lvl]), tot = s.total;
+      return `<div class="rs-slot" data-ref="bd" data-name="slot:${esc(k.n)}:${s.lvl}"><span class="lv">${s.lvl === 0 ? '0' : ord(s.lvl)}</span><b>${Math.max(0, tot - used)}<small>/${tot}</small></b><span class="dc">DC ${s.dc}</span>
+        <span class="pips">${Array.from({length: tot}, (_, i) => `<button class="pip ${i < used ? 'used' : ''}" data-act="pip" data-cls="${k.n}" data-lvl="${s.lvl}" data-n="${i}" aria-label="${ord(s.lvl)} level slot ${i + 1}"></button>`).join('')}</span></div>`; }).join('');
+    const ready = book.list.filter(s => info.ci.spont || num(s.prep) > 0);
+    const levels = [...new Set(ready.map(s => num(s.lvl)))].sort((a, b) => a - b);
+    const rows = levels.map(L => `<div class="splv">${lvLabel(L)}</div>` + ready.filter(s => num(s.lvl) === L).map(s => {
+      const i = book.list.indexOf(s), left = info.ci.spont ? null : Math.max(0, num(s.prep) - num(s.cast));
+      const sd = IDX.spells.get(s.n.toLowerCase()); const meta = sd ? [sd.ct, sd.rng, sd.dur].filter(Boolean).join(' · ') : '';
+      return `<div class="sp rs-sp ${left === 0 ? 'spent' : ''}"><div>${refA('spell', s.n, s.n, !sd && libByName('spell', s.n) ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div></div>
+        <div class="row" style="justify-content:flex-end;gap:6px">${left == null ? '' : `<span class="pill ${left ? 'acc' : ''}">${left} of ${num(s.prep)} left</span>`}<button class="btn sm pri" data-act="cast" data-cls="${k.n}" data-i="${i}">Cast</button></div></div>`; }).join('')).join('');
+    const empty = info.ci.spont ? `No spells known yet. Add them on the <a href="#" data-tab="spells">Spells</a> page.` : `No spells prepared. Prepare them on the <a href="#" data-tab="spells">Spells</a> page.`;
+    return panel(`${k.n} spells`, `<div class="pb"><div class="row hint" style="gap:14px;margin-bottom:8px"><span>Caster level <b>${info.cl}</b></span><span>${esc(info.ci.ab)} <b>${sgn(info.mod)}</b></span><span>${info.ci.spont ? 'Spells known' : 'Prepared spells'}</span>${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Spell failure ${D.asf}%</span>` : ''}</div>
+        <div class="rs-slots">${slots}</div></div><div class="list" style="border-top:1px solid var(--rule)">${rows || `<div class="empty">${empty}</div>`}</div>`,
+      `<button class="btn sm" data-tab="spells">All spells</button>`);
+  }).join('');
+}
+
+// the bottom of Combat & Effects: everything you need on your turn without changing page
+function trackerExtras35(c){
+  const P = sheetPanels35(c);
+  return `<div class="trk-extra"><div class="splv trk-h">Your character</div>
+    ${P.combat}<div class="grid g2" style="align-items:start">${compactSaves35(c)}${compactAttacks35(c)}</div>
+    ${spellsReady35(c)}${renderItemSpells(c)}</div>`;
+}
+
+// ===================== RESTING =====================
+// Rest buttons sit under the round box. Each ruleset says which rests it has (module.rests);
+// 3.5 has only a long rest (a night's rest of 8 hours). 5e will add a short rest.
+
+// what a 3.5 night's rest does, as a list of plain-language lines (also used for the confirm box)
+function longRestPlan35(c){
+  const d = derive(c), lvl = totalLevel(c), cur = num(c.hp.cur), heal = Math.max(0, Math.min(d.hpMax, cur + lvl) - cur);
+  const casters = c.classes.filter(k => casterInfo(c, k, d)).map(k => k.n);
+  const timed = c.effects.filter(e => !e.expired && e.rounds != null);
+  const tired = c.effects.filter(e => !e.expired && /^(fatigued|exhausted)$/i.test(e.n));
+  const dayItems = c.items.some(it => it.used && Object.keys(it.used).length);
+  const lines = [
+    heal ? `Heal <b>${heal}</b> hit point${heal === 1 ? '' : 's'} (1 per character level)` : cur >= d.hpMax ? 'Hit points already full' : '',
+    num(c.hp.nl) ? `Clear <b>${num(c.hp.nl)}</b> nonlethal damage` : '',
+    casters.length ? `Restore spell slots and prepared spells (${casters.map(esc).join(', ')})` : '',
+    dayItems ? 'Restore per-day uses of magic items' : '',
+    timed.length ? `End ${timed.length} timed effect${timed.length === 1 ? '' : 's'} (${timed.slice(0, 4).map(e => esc(e.n)).join(', ')}${timed.length > 4 ? '…' : ''})` : '',
+    tired.length ? `Remove ${tired.map(e => esc(e.n.toLowerCase())).join(' and ')}` : '',
+    c.combat.round > 0 || c.combat.list.some(x => !x.me) ? 'End the encounter (round back to 0, initiative cleared)' : '',
+  ].filter(Boolean);
+  return {heal, lines, apply(){
+    c.hp.cur = cur + heal; c.hp.nl = 0;
+    for (const k in c.spells){ const b = c.spells[k]; if (!b) continue; b.used = {}; (b.list || []).forEach(s => s.cast = 0); }
+    c.items.forEach(it => { if (it.used) it.used = {}; });
+    timed.forEach(e => { e.rounds = 0; e.expired = true; });
+    c.effects = c.effects.filter(e => !tired.includes(e));
+    c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me);
+  }};
+}
+
+function renderRestRow(){
+  const el = document.getElementById('restRow'); if (!el) return; const c = APP_cur();
+  const R = c ? (ruleset(c).rests || {}) : {};
+  el.innerHTML = c ? `${R.short ? `<button class="btn sm" data-rest="short" title="${esc(R.short.tip || 'Short rest')}">Short rest</button>` : ''}
+    ${R.long ? `<button class="btn sm" data-rest="long" title="${esc(R.long.tip || 'Long rest')}">Long rest</button>` : ''}` : '';
+  el.hidden = !c || (!R.short && !R.long);
+}
+
+function openRest(kind){
+  const c = APP_cur(); if (!c) return; const R = (ruleset(c).rests || {})[kind]; if (!R) return;
+  const plan = R.plan(c), title = kind === 'long' ? 'Long rest' : 'Short rest';
+  const bg = openModal(`<div class="modal narrow" role="dialog" aria-label="${title}"><div class="mh"><h3>${title}</h3><button class="btn ghost" data-close>Close</button></div>
+    <div class="mform"><p style="margin:0">${esc(R.blurb || '')}</p>
+      ${plan.lines.length ? `<ul class="rest-list">${plan.lines.map(l => `<li>${l}</li>`).join('')}</ul>` : '<p class="hint">Nothing to recover right now.</p>'}
+      <p class="hint" style="margin:0">${esc(R.note || '')}</p></div>
+    <div class="mfoot"><span></span><div class="row"><button class="btn" data-close>Cancel</button><button class="btn pri" id="restGo">Rest</button></div></div></div>`);
+  $$('[data-close]', bg).forEach(b => b.addEventListener('click', closeModal));
+  setTimeout(() => $('#restGo', bg).focus(), 30);
+  $('#restGo', bg).addEventListener('click', () => { plan.apply(); markDirty(); closeModal(); renderAll();
+    toast(`${title} taken.${plan.heal ? ` Healed <b>${plan.heal}</b>.` : ''}`); });
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-rest]'); if (b){ e.preventDefault(); openRest(b.dataset.rest); } });
+
+const RESTS_35 = {
+  long: {plan: longRestPlan35, tip: '8 hours of rest: heal, get spells back, end timed effects',
+    blurb: 'A full night (8 hours) of rest. This will:',
+    note: 'Prepared casters choose their spells for the new day on the Spells page. Ability damage and other long-term effects are not changed.'},
+};
 
 // ===================== RULESET MODULE: 3.5 SRD =====================
 // A ruleset module tells the app everything that is specific to one game system:
@@ -3658,6 +3914,8 @@ document.addEventListener('click', e => {
 //   sheet       the Character tab's panels, in their standard order and width ('full' or 'half');
 //               players can reorder, resize, collapse or hide them per character (ui-panels.js)
 //   sheetPanels(c)  builds the HTML for those panels, keyed by panel id
+//   compactPanels(c)  short versions of the panels marked compact:true (big numbers in boxes)
+//   rests       which rests the game has (long / short), with what each one recovers
 //   tabs        renderers for ruleset-specific tabs (anything not listed uses the shared one)
 // To add a ruleset, copy this file's shape into rulesets/<id>.js and add it to JS_ORDER in tools/build.py.
 registerRuleset({
@@ -3665,18 +3923,20 @@ registerRuleset({
   data: SRD,
   derive: derive35,
   sheetPanels: sheetPanels35,
+  compactPanels: c => ({abilities: compactAbilities35(c), saves: compactSaves35(c), combat: compactCombat35(c), gear: compactGear35(c), attacks: compactAttacks35(c)}),
+  rests: RESTS_35,
   sheet: [
     {id: 'ident',     title: 'Character',            size: 'full', keep: true},
-    {id: 'abilities', title: 'Ability scores',       size: 'half'},
-    {id: 'combat',    title: 'Combat',               size: 'half'},
-    {id: 'saves',     title: 'Saving throws',        size: 'half'},
-    {id: 'languages', title: 'Languages',            size: 'half'},
-    {id: 'gear',      title: 'Gear',                 size: 'full'},
-    {id: 'attacks',   title: 'Attacks',              size: 'full'},
+    {id: 'combat',    title: 'Combat',               size: 'full', compact: true},
+    {id: 'abilities', title: 'Ability scores',       size: 'half', compact: true},
+    {id: 'saves',     title: 'Saving throws',        size: 'half', compact: true},
+    {id: 'gear',      title: 'Gear',                 size: 'full', compact: true},
+    {id: 'attacks',   title: 'Attacks',              size: 'full', compact: true},
+    {id: 'languages', title: 'Languages',            size: 'full'},
     {id: 'bonuses',   title: 'Bonuses in effect',    size: 'full'},
     {id: 'special',   title: 'Special abilities & class features', size: 'full'},
   ],
-  tabs: {skills: renderSkills, spells: renderSpells, tracker: renderTracker, items: renderItems, companions: renderCompanions},
+  tabs: {skills: renderSkills, spells: renderSpells, tracker: c => renderTracker(c) + trackerExtras35(c), items: renderItems, companions: renderCompanions},
 });
 
 // ===================== SIDEBAR MENU + TURN ORDER IN THE TOP BAR =====================
@@ -3847,7 +4107,7 @@ const ACT = {
   prcRules: () => { APP.tab = 'rules'; APP.rsec = -1; APP.rq = ''; saveRulesPref(); window.scrollTo({top:0}); return 'noSave'; },
   delClass: (c, b) => c.classes.splice(+b.dataset.i, 1),
   dmg: c => { const a = num($('#hpDelta').value); if (!a) return; let left = a; const t = num(c.hp.temp); if (t > 0){ const u = Math.min(t, left); c.hp.temp = t - u; left -= u; } c.hp.cur = num(c.hp.cur) - left; toast(`Took <b>${a}</b> damage`); },
-  heal: c => { const a = num($('#hpDelta').value); if (!a) return; c.hp.cur = Math.min(num(c.hp.max), num(c.hp.cur) + a); c.hp.nl = Math.max(0, num(c.hp.nl) - a); toast(`Healed <b>${a}</b>`); },
+  heal: c => { const a = num($('#hpDelta').value); if (!a) return; c.hp.cur = Math.min(Math.max(num(c.hp.cur), num(D.hpMax) || num(c.hp.max)), num(c.hp.cur) + a); c.hp.nl = Math.max(0, num(c.hp.nl) - a); toast(`Healed <b>${a}</b>`); },
   'pick-armor': c => openPicker({title:'Choose armor', kind:'armor', onPick: e => { const d = e.data;
     c.armor = d ? {n:d.n, bonus:parseSigned(d.ac), enh:0, mdx:parseSigned(d.mdx), acp:parseSigned(d.acp) || 0, asf:parseSigned(d.asf) || 0} : Object.assign(c.armor, {n:e.name});
     if (d) addToItems(c, d.n, 'armor', d.w, {loc:'equipped'}); markDirty(); renderAll(); }}),
