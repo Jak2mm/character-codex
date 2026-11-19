@@ -1,4 +1,4 @@
-"""Draw the app icons (web app, Windows and Android) with Pillow.
+"""Draw the app icons (web app, Windows, Mac and Android) with Pillow.
 
 Usage: python tools/make_icons.py
 """
@@ -41,10 +41,13 @@ save(draw(512), 'icons', 'icon-512.png')
 save(draw(512, safe=0.72, radius=0), 'icons', 'icon-maskable-512.png')
 save(draw(180, radius=0), 'icons', 'apple-touch-icon.png')
 save(draw(64), 'icons', 'favicon-64.png')
-# Windows (Tauri)
+# Windows and Mac (Tauri)
 T = ('native', 'tauri', 'src-tauri', 'icons')
 for n, sz in [('32x32.png', 32), ('128x128.png', 128), ('128x128@2x.png', 256), ('icon.png', 512)]: save(draw(sz), *T, n)
 ico = draw(256); p = os.path.join(ROOT, *T, 'icon.ico'); ico.save(p, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]); print('wrote', os.path.relpath(p, ROOT))
+# Mac (same Tauri app): Apple's icon grid leaves a margin round the rounded square (824 of 1024 pixels)
+mac = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0)); mac.alpha_composite(draw(824), (100, 100))
+p = os.path.join(ROOT, *T, 'icon.icns'); mac.save(p); print('wrote', os.path.relpath(p, ROOT))
 # Android (Capacitor assets: generated into launcher icons and splash screens at build time)
 A = ('native', 'android', 'assets')
 save(draw(1024, radius=0), *A, 'icon-only.png')

@@ -7,15 +7,26 @@ Usage:
 import os, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-JS_ORDER = ['app-shell.js', 'core.js', 'images.js', 'bonuses.js', 'ref.js', 'store.js', 'ui-sheet.js', 'ui-other.js', 'ui-rules.js', 'ui-bonus.js', 'ui-custom.js', 'ui-gear.js', 'ui-attacks.js', 'ui-world.js', 'ui-mention.js', 'ui-map.js', 'ui-companion.js', 'ui-prestige.js', 'ui-newchar.js', 'ui-start.js', 'ui-panels.js', 'ui-compact.js', 'ui-combatopts.js', 'ui-targets.js', 'ui-scenes.js', 'ui-themes.js', 'ui-rest.js', 'rulesets/dnd35.js', 'ui-nav.js', 'events.js']
+JS_ORDER = ['app-shell.js', 'core.js', 'images.js', 'bonuses.js', 'ref.js', 'store.js', 'folder.js', 'ui-sheet.js', 'ui-other.js', 'ui-rules.js', 'ui-bonus.js', 'ui-custom.js', 'ui-gear.js', 'ui-attacks.js', 'ui-world.js', 'ui-mention.js', 'ui-map.js', 'ui-companion.js', 'ui-prestige.js', 'ui-newchar.js', 'ui-start.js', 'ui-panels.js', 'ui-compact.js', 'ui-combatopts.js', 'ui-targets.js', 'ui-scenes.js', 'ui-themes.js', 'ui-rest.js', 'rulesets/dnd35.js', 'ui-nav.js', 'events.js']
 
 def read(*p):
     with open(os.path.join(ROOT, *p), encoding='utf-8') as f:
         return f.read()
 
+def art_js():
+    # Painted theme backgrounds: src/art/<theme id>.jpg, built into the page so it stays one file
+    import base64, json
+    d = os.path.join(ROOT, 'src', 'art'); art = {}
+    if os.path.isdir(d):
+        for n in sorted(os.listdir(d)):
+            if n.endswith('.jpg'):
+                with open(os.path.join(d, n), 'rb') as f:
+                    art[n[:-4]] = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode()
+    return 'const SCENE_ART = ' + json.dumps(art) + ';\n'
+
 def build(fragment=False):
     data = read('data', 'srd.json').replace('</', '<\\/')  # keep the JSON from closing its <script> tag
-    js = '\n'.join(read('src', 'js', f) for f in JS_ORDER)
+    js = art_js() + '\n'.join(read('src', 'js', f) for f in JS_ORDER)
     inner = (read('src', 'head.html') + read('src', 'body.html') +
              '<script type="application/json" id="srd-data">' + data + '</script>\n'
              '<script>\n"use strict";\n' + js + '\n</script>\n')
