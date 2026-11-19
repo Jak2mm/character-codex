@@ -604,13 +604,54 @@ button.pill{border:0;cursor:pointer;font:inherit;font-family:var(--f-label);font
 .sp-mode button{border:0;border-radius:0;background:transparent;padding:2px 8px;font-family:var(--f-label);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:11px;cursor:pointer;color:var(--ink-2)}
 .sp-mode button+button{border-left:1px solid var(--rule)}
 .sp-mode button.on{background:var(--tab);color:var(--tab-fg)}
-.trk-extra{display:grid;gap:14px;margin-top:14px}
-.trk-h{border-radius:var(--r-sm)}
+.prep-n{font-weight:600}.prep-n.full{color:var(--good)}.prep-n.over{color:var(--bad)}
+.prep-lim{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+.prep-lim input{width:auto;margin:0}
+.trk-h{margin:10px 0 -4px;font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:20px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--tab);padding-bottom:4px}
+.aoo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--rule-2)}
+.aoo .pips{margin:0}.aoo .pip{cursor:default}
+.aoo.compact{border-top:1px solid var(--rule-2);border-bottom:0}
+.opt-list{display:grid}
+.opt-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:7px 10px;border-bottom:1px solid var(--rule-2);cursor:pointer}
+.opt-row input[type=checkbox]{width:auto;margin:3px 0 0}
+.opt-row select{width:auto}
+.opt-row>span{display:flex;flex-direction:column;gap:1px}
+.opt-row>span .pill{align-self:flex-start}
+.opt-row.on{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.opt-chips{display:flex;flex-wrap:wrap;gap:6px}
+.opt-chip{border:1px solid var(--rule);background:var(--sheet);border-radius:999px;padding:4px 12px;font-family:var(--f-label);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;color:var(--ink)}
+.opt-chip small{font-size:10px;color:var(--ink-2);text-transform:none}
+.opt-chip.on{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.opt-chip.on small{color:inherit;opacity:.8}
+.opt-chip select{width:auto;padding:0 4px;font-size:12px}
+.cmp-block{display:grid;gap:10px}
+.cmp-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--tab);padding-bottom:6px;margin-top:6px}
+.cmp-bar h2{margin:0;font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:20px}
+.cmp-tools{margin-left:auto;display:flex;gap:6px}
+.cmp-mini{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px;align-items:start}
+.dmg-line{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:4px}
+.dmg-chip{font-family:var(--f-label);font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:11px;padding:1px 8px;border-radius:9px;border:1px solid currentColor;--dc:var(--ink-2);color:var(--dc);background:color-mix(in srgb,var(--dc) 12%,transparent)}
+.t-fire{--dc:#c2410c}.t-cold{--dc:#1d6fb8}.t-acid{--dc:#4d7c0f}.t-electricity{--dc:#a16207}.t-sonic{--dc:#7e22ce}.t-force{--dc:#475569}.t-negative-energy{--dc:#6b2f4a}.t-divine{--dc:var(--gold)}.t-heal{--dc:var(--good)}
+:root[data-theme="dark"] .t-fire{--dc:#fb923c}:root[data-theme="dark"] .t-cold{--dc:#60a5fa}:root[data-theme="dark"] .t-acid{--dc:#a3e635}:root[data-theme="dark"] .t-electricity{--dc:#facc15}:root[data-theme="dark"] .t-sonic{--dc:#c084fc}:root[data-theme="dark"] .t-force{--dc:#94a3b8}:root[data-theme="dark"] .t-negative-energy{--dc:#e879a6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .t-fire{--dc:#fb923c}:root:not([data-theme="light"]) .t-cold{--dc:#60a5fa}:root:not([data-theme="light"]) .t-acid{--dc:#a3e635}:root:not([data-theme="light"]) .t-electricity{--dc:#facc15}:root:not([data-theme="light"]) .t-sonic{--dc:#c084fc}:root:not([data-theme="light"]) .t-force{--dc:#94a3b8}:root:not([data-theme="light"]) .t-negative-energy{--dc:#e879a6}}
+.dmg-roll{cursor:pointer;background:var(--sheet);color:var(--ink);font-size:13px;height:22px;min-width:0}
+.dmg-roll:hover{background:var(--accent-soft)}
+.dmg-flat{font-family:var(--f-label);font-size:14px}
+.round-c{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.round-c .n{font-family:var(--f-label);font-size:30px;line-height:1;margin-right:8px;font-variant-numeric:tabular-nums}
+.effc{display:grid;grid-template-columns:minmax(0,1fr) auto auto 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.effc.expired{opacity:.6}
+.effc-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.initc{display:grid;grid-template-columns:24px minmax(0,1fr) auto minmax(0,1fr) 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.initc .pos{color:var(--ink-2);font-family:var(--f-label);font-weight:700}
+.initc.cur{background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold)}
+.initc b.me{color:var(--accent)}
+.initc .hint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc-wrap{display:flex;flex-direction:column;gap:4px;align-items:stretch}
 .rest-row{display:flex;gap:4px;justify-content:flex-end}
 .rest-row .btn{flex:1}
 .rest-list{margin:8px 0;padding-left:20px;display:grid;gap:4px}
-@media (min-width:641px){.sp-full .cc-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
+@media (min-width:641px){.sp-full .cc-grid,.trk-page .cc-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
 @media (max-width:640px){.ab-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.rc-wrap{margin-left:auto}.cg-row{grid-template-columns:70px minmax(0,1fr)}.cg-row .bchips{grid-column:1/-1}
   .ca-row{grid-template-columns:minmax(0,1fr) auto auto}.ca-row>.btn{grid-column:1/-1;justify-self:start}}
 @media print{.rest-row,.sp-mode{display:none!important}}
@@ -1270,6 +1311,8 @@ function collectBonuses(c){
     const tab = row ? num(String(row[8]).replace('–', '-')) : 0; if (tab) add([B('ac', 'untyped', tab)], 'Monk AC bonus (level)', 'monklvl', 'class');
     const spd = row ? num(String(row[9])) : 0; if (spd) add([B('speed', 'untyped', spd)], 'Monk fast movement', 'monkspd', 'class'); }
   const barb = cl('Barbarian'); if (barb && !/heavy|half-plate|full plate|splint|banded/i.test(c.armor.n || '')) add([B('speed', 'untyped', 10)], 'Barbarian fast movement', 'barbspd', 'class');
+  // attack options switched on during a fight (flanking, charging, Combat Expertise…)
+  if (typeof combatOptBonuses === 'function') for (const o of combatOptBonuses(c)) add(o.list, o.src, 'opt:' + o.id, 'combat');
   // familiar's gift to its master (Alertness-style bonuses)
   if (typeof familiarBonuses === 'function') familiarBonuses(c).forEach(b => out.push(b));
   // synergies
@@ -1714,23 +1757,25 @@ function atkCalc(c, a, D){
   const abm = a.ab === 'Dex' ? D.Dex : a.ab === 'None' ? 0 : D.Str; const kind = a.ab === 'Dex' ? 'ranged' : 'melee';
   const L = D.bonusList || [];
   const ra = resolve(L, b => b.t === 'atk' || b.t === 'atk.' + kind || (b.t === 'atkw' && wmatch(b.w, a.n)));
-  const rd = resolve(L, b => b.t === 'dmg' || (b.t === 'dmgw' && wmatch(b.w, a.n)));
+  const rd = resolve(L, b => b.t === 'dmg' || b.t === 'dmg.' + kind || (b.t === 'dmgw' && wmatch(b.w, a.n)));
   if (D.res){ D.res['atk:' + a.id] = ra; D.res['dmg:' + a.id] = rd; }
   const twf = twfPenalty(c, a);
   if (twf && D.res){ D.res['atk:' + a.id] = {total: ra.total + twf, applied: [...ra.applied, {src:'Two-weapon fighting' + (a.eq === 'off' ? ' (off hand)' : ' (main hand)'), ty:'untyped', v:twf}], supp: ra.supp}; }
   const tb = r => r.applied.map(b => [`${b.src} (${b.ty})`, num(b.v)]); const nz = ps => ps.filter(p => p[2] === 'base' || num(p[1]) !== 0);
-  const extra = D.sizeAC + num(a.enh) + num(a.misc) + ra.total + twf;
+  const offHand = a.eq === 'off' || (a.eq === undefined && a.off); const twoH = a.eq === 'both' ? (weaponInfo(a).hands === 2 && !weaponInfo(a).ranged) : a.two;
+  const X = typeof atkOptExtras === 'function' ? atkOptExtras(c, a, kind, twoH) : {atk:0, dmg:0, dice:'', extraAtk:false, atkParts:[], dmgParts:[]};
+  const extra = D.sizeAC + num(a.enh) + num(a.misc) + ra.total + twf + X.atk;
   const first = D.bab + abm + extra;
   const maxAtk = a.eq === 'off' && c.twf ? offHandAttacks(c) : 4;
   const it = []; for (let b = D.bab, i = 0; i < maxAtk && (i === 0 || b > 0); b -= 5, i++) it.push(sgn(b + abm + extra));
-  const offHand = a.eq === 'off' || (a.eq === undefined && a.off); const twoH = a.eq === 'both' ? (weaponInfo(a).hands === 2 && !weaponInfo(a).ranged) : a.two;
+  if (X.extraAtk) it.unshift(sgn(first));
   let sb = a.nostr ? 0 : D.Str; if (!a.nostr && twoH && sb > 0) sb = Math.floor(sb * 1.5); if (offHand && sb > 0) sb = Math.floor(sb / 2);
-  const db = sb + num(a.enh) + num(a.dmgMisc) + rd.total;
-  const dmg = (a.dmg || '—') + (a.dmg && db ? (db > 0 ? '+' + db : '–' + Math.abs(db)) : '') + (a.xdmg ? ' ' + a.xdmg : '');
+  const db = sb + num(a.enh) + num(a.dmgMisc) + rd.total + X.dmg;
+  const dmg = (a.dmg || '—') + (a.dmg && db ? (db > 0 ? '+' + db : '–' + Math.abs(db)) : '') + (a.dmg && X.dice ? ` +${X.dice} sneak` : '') + (a.xdmg ? ' ' + a.xdmg : '');
   if (D.why){
-    D.why['atk:' + a.id] = {parts: nz([['Base attack bonus', D.bab, 'base'], [a.ab === 'None' ? 'No ability' : `${a.ab} modifier`, abm, 'base'], [`Size (${D.size})`, D.sizeAC], ['Enhancement', num(a.enh)], ...tb(ra), ['Two-weapon fighting', twf], ['Misc (your entry)', num(a.misc)]]), total:first,
-      note: it.length > 1 ? `Extra attacks at −5 each: ${it.join('/')}.` : ''};
-    D.why['dmg:' + a.id] = {parts: nz([['Weapon dice', a.dmg || '—', 'base'], [a.nostr ? 'No Str (your choice)' : `Str modifier${twoH && D.Str > 0 ? ' ×1½ (two hands)' : offHand && D.Str > 0 ? ' ×½ (off hand)' : ''}`, sb], ['Enhancement', num(a.enh)], ...tb(rd), ['Misc (your entry)', num(a.dmgMisc)]]), total:dmg};
+    D.why['atk:' + a.id] = {parts: nz([['Base attack bonus', D.bab, 'base'], [a.ab === 'None' ? 'No ability' : `${a.ab} modifier`, abm, 'base'], [`Size (${D.size})`, D.sizeAC], ['Enhancement', num(a.enh)], ...tb(ra), ['Two-weapon fighting', twf], ...X.atkParts, ['Misc (your entry)', num(a.misc)]]), total:first,
+      note: (X.extraAtk ? 'Rapid Shot adds one extra attack at your highest bonus. ' : '') + (it.length > 1 ? `Extra attacks at −5 each: ${it.join('/')}.` : '')};
+    D.why['dmg:' + a.id] = {parts: nz([['Weapon dice', a.dmg || '—', 'base'], [a.nostr ? 'No Str (your choice)' : `Str modifier${twoH && D.Str > 0 ? ' ×1½ (two hands)' : offHand && D.Str > 0 ? ' ×½ (off hand)' : ''}`, sb], ['Enhancement', num(a.enh)], ...tb(rd), ...X.dmgParts.filter(p => typeof p[1] === 'string' || p[1]), ['Misc (your entry)', num(a.dmgMisc)]]), total:dmg};
   }
   return {first, bonus: it.join('/'), dmg};
 }
@@ -1971,14 +2016,30 @@ function renderSpells(c){
     You can still track spell effects on you (from allies, potions or scrolls) on the <b>Combat &amp; Effects</b> tab.</div>`);
   return `<div class="grid" style="gap:14px">${casters.map(({k, info}) => spellClassPanel(c, k, info)).join('')}${itemSp}</div>`;
 }
+// ---- how many spells a prepared caster may prepare (3.5: one per spell slot; a cleric's domain slot takes only domain spells) ----
+const prepLimitOn = c => c.prepLimit !== false;
+function prepUsed(book, lvl, skip = -1){ let all = 0, plain = 0; book.list.forEach((s, i) => { if (i === skip || num(s.lvl) !== lvl) return; const p = num(s.prep); all += p; if (!s.dom) plain += p; }); return {all, plain}; }
+// how many copies of one spell can be prepared, given everything else already prepared at that level
+function prepRoom(c, cls, lvl, isDom, skip = -1){
+  const k = c.classes.find(x => x.n === cls), info = k && casterInfo(c, k, D); if (!info || info.ci.spont) return Infinity;
+  const sl = info.slots.find(x => x.lvl === lvl); if (!sl || sl.total == null || !sl.scoreOK) return 0;
+  const u = prepUsed(c.spells[cls], lvl, skip); const all = sl.total - u.all, plain = sl.total - sl.dom - u.plain;
+  return Math.max(0, isDom ? all : Math.min(all, plain));
+}
+function prepLimitText(info, lvl){ const sl = info.slots.find(x => x.lvl === lvl) || {};
+  if (sl.total == null || !sl.scoreOK) return `You can't prepare ${lvLabel(lvl).toLowerCase()} spells yet${sl.total != null ? ' (your casting score is too low)' : ''}.`;
+  return `You can prepare ${sl.total - sl.dom} ${lvl === 0 ? '0-level' : ord(lvl) + '-level'} spell${sl.total - sl.dom === 1 ? '' : 's'} a day${sl.dom ? ` plus ${sl.dom} domain spell` : ''} (one per spell slot).`; }
+
 function spellClassPanel(c, k, info){
   const book = c.spells[k.n] || (c.spells[k.n] = {list:[], used:{}});
+  const lim = !info.ci.spont && prepLimitOn(c);
   const slots = info.slots.map(s => {
     const used = num(book.used[s.lvl]); const tot = s.total;
     const pips = tot == null ? '' : `<div class="pips">${Array.from({length: tot}, (_, i) => `<button class="pip ${i < used ? 'used' : ''}" data-act="pip" data-cls="${k.n}" data-lvl="${s.lvl}" data-n="${i}" aria-label="Slot ${i + 1}"></button>`).join('')}</div>`;
     return `<div class="slot has-why" style="${tot == null ? 'opacity:.4' : ''}" data-ref="bd" data-name="slot:${esc(k.n)}:${s.lvl}"><div class="lv">${s.lvl === 0 ? '0' : ord(s.lvl)}</div>
       <div class="ct">${tot == null ? '—' : `${Math.max(0, tot - used)}<span class="hint" style="font-size:13px">/${tot}</span>`}</div>
-      <div class="dc">DC ${s.dc}${s.dom ? ' · +1 domain' : ''}${s.bonus ? ` · +${s.bonus} bonus` : ''}</div>${!s.scoreOK && tot != null ? '<div class="dc" style="color:var(--bad)">score too low</div>' : ''}${pips}</div>`;
+      <div class="dc">DC ${s.dc}${s.dom ? ' · +1 domain' : ''}${s.bonus ? ` · +${s.bonus} bonus` : ''}</div>${!s.scoreOK && tot != null ? '<div class="dc" style="color:var(--bad)">score too low</div>' : ''}
+      ${info.ci.spont || tot == null ? '' : (() => { const p = prepUsed(book, s.lvl).all, cap = s.scoreOK ? tot : 0; return `<div class="dc prep-n ${p > cap ? 'over' : p === cap && cap ? 'full' : ''}" title="Spells prepared at this level">prepared ${p}/${cap}</div>`; })()}${pips}</div>`;
   }).join('');
   const knownLine = info.known ? `<p class="hint" style="margin:6px 0 0">Spells known: ${info.known.map((n, i) => n == null ? null : `${i === 0 ? '0' : ord(i)}: ${n}`).filter(Boolean).join(' · ')}</p>` : '';
   const levels = [...new Set(book.list.map(s => num(s.lvl)))].sort((a, b) => a - b);
@@ -1986,22 +2047,22 @@ function spellClassPanel(c, k, info){
     const i = book.list.indexOf(s); const sd = IDX.spells.get(s.n.toLowerCase()); const custom = !sd && libByName('spell', s.n);
     const meta = sd ? [sd.sch, sd.ct, sd.rng, sd.dur].filter(Boolean).join(' · ') : custom ? [custom.sch, custom.dur].filter(Boolean).join(' · ') : '';
     const left = info.ci.spont ? null : Math.max(0, num(s.prep) - num(s.cast));
-    return `<div class="sp"><div>${refA('spell', s.n, s.n, custom ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div></div>
+    return `<div class="sp"><div>${refA('spell', s.n, s.n, custom ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div>${spellDmgLine(s, info.cl)}</div>
       <div class="row" style="justify-content:flex-end;gap:4px">
-        ${info.ci.spont ? '' : `<span class="hint">prep</span><input type="number" style="width:52px" data-k="spells.${k.n}.list.${i}.prep" data-num="1" id="k-sp-${s.id}" value="${num(s.prep)}" min="0"><span class="pill ${left ? 'acc' : ''}">${left} left</span>`}
+        ${info.ci.spont ? '' : `<span class="hint">prep</span><input type="number" style="width:52px" data-k="spells.${k.n}.list.${i}.prep" data-num="1" data-rerender="1" id="k-sp-${s.id}" value="${num(s.prep)}" min="0"${lim ? ` max="${num(s.prep) + prepRoom(c, k.n, num(s.lvl), !!s.dom, i)}"` : ''}><span class="pill ${left ? 'acc' : ''}">${left} left</span>`}
         <button class="btn sm pri" data-act="cast" data-cls="${k.n}" data-i="${i}">Cast</button>
         <button class="btn ghost sm" data-act="delSpell" data-cls="${k.n}" data-i="${i}" aria-label="Remove spell">✕</button></div></div>`; }).join('')).join('');
   const domains = k.n === 'Cleric' ? `<div class="row" style="margin-top:8px"><span class="cap">Domains</span>${[0, 1].map(i => `<div style="width:150px">${S('domains.' + i, c.domains[i] || '', [['', '— choose —'], ...DOMAINS], 'data-rerender="1"')}</div>${c.domains[i] ? refA('domain', c.domains[i], 'ⓘ') : ''}`).join('')}</div>` : '';
   return panel(`${k.n} spells`, `<div class="pb">
       <div class="row" style="gap:16px;margin-bottom:8px"><span><span class="cap">Caster level</span> <b>${info.cl}</b></span><span><span class="cap">Casting ability</span> <b>${info.ci.ab} ${sgn(info.mod)}</b></span>
-        <span><span class="cap">Type</span> <b>${info.ci.spont ? 'Spontaneous (spells known)' : 'Prepared'}</b></span>${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Arcane spell failure ${D.asf}%</span>` : ''}</div>
+        <span><span class="cap">Type</span> <b>${info.ci.spont ? 'Spontaneous (spells known)' : 'Prepared'}</b></span>${info.ci.spont ? '' : `<label class="mini prep-lim" title="When on, you can only prepare as many spells as you have spell slots (3.5 rules). Turn off for house rules or special cases such as a specialist wizard's extra slot."><input type="checkbox" data-k="prepLimit" data-rerender="1" ${lim ? 'checked' : ''}> Limit prepared spells to slots</label>`}${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Arcane spell failure ${D.asf}%</span>` : ''}</div>
       <div class="slots">${slots}</div>${knownLine}${domains}</div>
     <div class="list" style="border-top:1px solid var(--rule)">${list || `<div class="empty">No spells on your list yet. <b>Add spells</b> opens the ${esc(k.n.toLowerCase())} spell list with full descriptions.</div>`}</div>`,
     `<button class="btn sm pri" data-act="addSpell" data-cls="${k.n}">Add spells</button><button class="btn sm" data-act="rest" data-cls="${k.n}" title="Restore all slots and prepared spells">Rest</button>`);
 }
 
 // ===================== TRACKER TAB =====================
-function renderTracker(c){
+function renderTracker(c, extras = []){
   const cb = c.combat; const order = [...cb.list].sort((a, b) => num(b.init) - num(a.init) || num(b.mod) - num(a.mod));
   const initRows = order.map((x, i) => `<div class="init ${i === cb.turn % Math.max(1, order.length) && cb.round > 0 ? 'cur' : ''}">
     <span class="pos">${i + 1}</span><div>${I('combat.list.' + cb.list.indexOf(x) + '.n', x.n, 'aria-label="Name"')}</div>
@@ -2035,8 +2096,40 @@ function renderTracker(c){
   const effP = panel('Active spells &amp; conditions', `<div class="list">${active.map(effRow).join('') || '<div class="empty">Nothing affecting you right now. Add a condition (shaken, prone, fatigued…), a spell effect, or cast a spell from the <b>Spells</b> tab to track it here.</div>'}</div>
       ${expired.length ? `<div class="splv row" style="justify-content:space-between"><span>Ended</span><button class="btn sm" data-act="clearExpired">Clear ended</button></div><div class="list">${expired.map(effRow).join('')}</div>` : ''}`,
     `<button class="btn sm pri" data-act="addCond">Add condition</button><button class="btn sm" data-act="addSpellEff">Add spell effect</button><button class="btn sm" data-act="addCustomEff">Custom</button>`);
-  return `<div class="grid" style="gap:14px">${roundP}<div class="grid g2" style="align-items:start">${effP}${initP}</div></div>`;
+  // compact versions: one line per effect / combatant, no notes or explanations
+  const cur = i => i === cb.turn % Math.max(1, order.length) && cb.round > 0;
+  const roundC = panel('Round counter', `<div class="pb round-c"><span class="cap">Round</span><b class="n">${cb.round}</b>
+      <button class="btn sm pri" data-act="nextTurn">Next turn</button><button class="btn sm" data-act="prevRound">Undo round</button><button class="btn sm" data-act="rollMyInit">Roll my initiative (${sgn(D.init)})</button><button class="btn sm ghost" data-act="endCombat">End encounter</button>${barbLvl && !raging ? '<button class="btn sm gold" data-act="rage">Rage</button>' : ''}</div>`);
+  const effRowC = e => { const t = e.kind === 'spell' ? 'spell' : e.kind === 'condition' ? 'cond' : null;
+    return `<div class="effc ${e.expired ? 'expired' : ''}"><span class="effc-n">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`}</span><span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
+      ${e.expired ? `<button class="btn sm" data-act="effRenew" data-id="${e.id}">Renew</button>` : e.rounds == null ? '<span class="pill">no countdown</span>' : `<span class="pill good">${fmtRounds(e.rounds)} left</span>`}
+      <button class="btn ghost sm" data-act="delEff" data-id="${e.id}" aria-label="Remove effect">✕</button></div>`; };
+  const effC = panel('Active spells &amp; conditions', `<div class="list">${active.map(effRowC).join('') || '<div class="empty">Nothing affecting you right now.</div>'}</div>
+      ${expired.length ? `<div class="splv row" style="justify-content:space-between"><span>Ended</span><button class="btn sm" data-act="clearExpired">Clear ended</button></div><div class="list">${expired.map(effRowC).join('')}</div>` : ''}`,
+    `<button class="btn sm pri" data-act="addCond">Add condition</button><button class="btn sm" data-act="addSpellEff">Add spell effect</button><button class="btn sm" data-act="addCustomEff">Custom</button>`);
+  const initC = panel('Initiative order', `<div class="list">${order.map((x, i) => `<div class="initc ${cur(i) ? 'cur' : ''}"><span class="pos">${i + 1}</span><b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b><span class="rc-init" title="Initiative">${esc(String(x.init ?? ''))}</span>${x.hp ? `<span class="hint">${esc(x.hp)}</span>` : '<span></span>'}<button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('') || '<div class="empty">No one in initiative yet.</div>'}</div>
+      <div class="pb row" style="border-top:1px solid var(--rule-2)"><input type="text" id="newInitName" placeholder="Name (e.g. Orc #2)" style="flex:2;min-width:140px"><input type="number" id="newInitVal" placeholder="Init" style="width:80px"><button class="btn sm pri" data-act="addInit">Add</button></div>`,
+    `<button class="btn sm ghost" data-act="clearInit">Clear</button>`);
+  const list = [
+    {id: 'round', full: () => roundP, compact: () => roundC, def: 'full'},
+    {id: 'effects', full: () => effP, compact: () => effC, def: 'full'},
+    {id: 'init', full: () => initP, compact: () => initC, def: 'full'},
+    ...extras];
+  return `<div class="grid trk-page" style="gap:14px">${list.map(p => pagePanel(c, 'tracker', p)).join('')}</div>`;
 }
+
+// a panel on a page other than the Character sheet that can be shown Full or Compact.
+// p = {id, full(), compact(), def}; the choice is saved per character in c.pageLayout[page][id]
+function pagePanel(c, page, p){
+  const L = ((c.pageLayout = c.pageLayout || {})[page] = c.pageLayout[page] || {});
+  const mode = p.compact ? (L[p.id] || p.def || 'full') : 'full';
+  const html = mode === 'compact' ? p.compact() : p.full(); if (!html) return '';
+  if (!p.compact) return html;
+  const seg = `<span class="sp-mode" role="group" aria-label="View">${[['full', 'Full'], ['compact', 'Compact']].map(([v, l]) => `<button class="${mode === v ? 'on' : ''}" data-pg="${page}" data-panel="${p.id}" data-v="${v}" aria-pressed="${mode === v}">${l}</button>`).join('')}</span>`;
+  return html.split('<div class="tools">').join('<div class="tools">' + seg);
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if (!b) return; e.preventDefault(); const c = APP_cur(); if (!c) return;
+  const L = ((c.pageLayout = c.pageLayout || {})[b.dataset.pg] = c.pageLayout[b.dataset.pg] || {}); L[b.dataset.panel] = b.dataset.v; markDirty(); renderAll(); });
 
 // ===================== ITEMS TAB =====================
 function drawLoad(c, D){
@@ -3355,43 +3448,150 @@ function familiarBonuses(c){
   return out;
 }
 
-function renderCompanions(c){
-  c.companions = c.companions || []; const L = compLevels(c);
-  const elig = [L.druid ? `animal companion (effective druid level ${L.druid})` : '', L.arcane ? `familiar (master level ${L.arcane})` : '', L.paladin >= 5 ? `special mount (paladin ${L.paladin})` : ''].filter(Boolean);
-  const cards = c.companions.map((x, i) => compCard(c, x, i)).join('');
-  return `<div class="grid" style="gap:14px">
-    <div class="panel"><div class="ph"><h2>Companions</h2><div class="tools"><button class="btn sm pri" data-act="compAdd">Add from the rules</button><button class="btn sm" data-act="compCustom">Add custom</button></div></div>
-      <p class="pb hint" style="margin:0">${elig.length ? `Your classes give you: ${esc(elig.join(', '))}. Stats are worked out from the SRD tables for your level.` : 'Druids and rangers get animal companions, sorcerers and wizards get familiars, and paladins get a special mount at 5th level. You can also add any animal or a custom companion.'}</p></div>
-    ${cards || `<div class="panel"><div class="empty"><b>No companions yet.</b><br>Add an animal companion, familiar or mount from the SRD lists, or make a custom one (a cohort, hireling, summoned ally or pet).</div></div>`}</div>`;
+// ---- companion numbers in one shape, for rules-based and custom companions alike ----
+const numOr = (v, d = '') => { const m = String(v ?? '').replace(/–/g, '-').match(/[+-]?\d+/); return m ? parseInt(m[0]) : d; };
+function compNums(s, x){
+  if (!s.custom) return {hpMax: num(s.hpMax), ac: s.ac, touch: s.touch, ff: s.ff, init: s.init, speed: s.speed, bab: s.bab, grapple: s.grapple,
+    sv: {Fort: s.fort, Ref: s.ref, Will: s.will}, abil: s.abil, attacks: parseAttacks(s.full || s.attack), attackText: s.attack, fullText: s.full};
+  const t = x.stats || {}; const ac = String(t.ac || ''); const bg = String(t.bab || '').split('/');
+  const sv = {}; for (const m of String(t.saves || '').replace(/–/g, '-').matchAll(/(Fort|Ref|Will)\w*\s*([+-]?\d+)/gi)) sv[m[1][0].toUpperCase() + m[1].slice(1, 4).toLowerCase().replace('for', 'ort')] = parseInt(m[2]);
+  const ab = {}; for (const m of String(t.abil || '').matchAll(/(Str|Dex|Con|Int|Wis|Cha)\w*\s*(\d+|—|-)/gi)) ab[m[1][0].toUpperCase() + m[1].slice(1, 3).toLowerCase()] = /\d/.test(m[2]) ? parseInt(m[2]) : null;
+  return {hpMax: numOr(t.hp), ac: numOr(ac), touch: numOr((ac.match(/touch\s*([+-]?\d+)/i) || [])[1]), ff: numOr((ac.match(/flat[- ]?footed\s*([+-]?\d+)/i) || [])[1]),
+    init: numOr(t.init), speed: t.speed || '', bab: numOr(bg[0]), grapple: numOr(bg[1]), sv: {Fort: sv.Fort ?? '', Ref: sv.Ref ?? '', Will: sv.Will ?? ''}, abil: ab,
+    attacks: parseAttacks(t.attack), attackText: t.attack || '', fullText: ''};
 }
-function compCard(c, x, i){
-  const s = compStats(c, x); const P = f => `companions.${i}.${f}`; const st = bonusStatus(D);
-  const defs = s.defs || {}; const sp = s.specials.map(n => { const k = Object.keys(defs).find(d => d.toLowerCase() === n.toLowerCase() || n.toLowerCase().startsWith(d.toLowerCase()));
+// "2 claws +5 melee (1d4+2) and bite +0 melee (1d6+1 plus trip)" → [{n, bonus:[5], kind, dmg:'1d4+2', extra}]
+function parseAttacks(text){
+  const out = []; const re = /(\d+\s+)?([A-Za-z][A-Za-z' -]*?)\s+((?:[+–-]\d+\/?)+)\s+(melee|ranged)(?:\s+touch)?\s*\(([^)]*)\)/g; let m;
+  while ((m = re.exec(String(text || '')))){ const n = m[2].replace(/^(and|or)\s+/i, '').trim(); const dm = (m[5].match(/\d+d\d+(?:\s*[+–-]\s*\d+)?/) || [''])[0].replace(/\s+/g, '');
+    out.push({n: (m[1] ? m[1].trim() + ' ' : '') + n, bonus: m[3].split('/').filter(Boolean).map(sNum), kind: m[4], dmg: dm, extra: m[5].replace(dm, '').trim().replace(/^[,;]\s*/, '')}); }
+  return out;
+}
+
+// ---- each companion is a set of boxes like the main sheet: Full, Compact or hidden ----
+const COMP_PANELS = [
+  {id: 'info', title: 'Companion', size: 'full', keep: true, compact: true},
+  {id: 'combat', title: 'Combat', size: 'full', compact: true},
+  {id: 'abilities', title: 'Ability scores', size: 'half', compact: true},
+  {id: 'saves', title: 'Saving throws', size: 'half', compact: true},
+  {id: 'attacks', title: 'Attacks', size: 'full', compact: true},
+  {id: 'gear', title: 'Gear', size: 'half', compact: true},
+  {id: 'skills', title: 'Skills & feats', size: 'half', compact: true},
+];
+function compMode(x, id){ const L = (x.layout = x.layout || {mode: {}}); L.mode = L.mode || {};
+  if (L.mode[id]) return L.mode[id];
+  if (id === 'gear') return x.gear || x.kind === 'mount' || x.kind === 'custom' ? 'full' : 'hidden';
+  return 'full'; }
+function compSeg(x, p, cur){
+  const opts = [['full', 'Full'], ['compact', 'Compact'], ...(p.keep ? [] : [['hidden', 'Hide']])];
+  return `<span class="sp-mode" role="group" aria-label="${esc(p.title)} view">${opts.map(([v, l]) => `<button class="${cur === v ? 'on' : ''}" data-cmpmode="${x.id}" data-panel="${p.id}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</span>`;
+}
+const compTitle = x => x.n || x.base || 'Companion';
+
+// one box of one companion, in the given mode ('full' | 'compact'); seg = the Full/Compact/Hide switch to show in its header
+function compPanel(c, x, id, mode, seg){
+  const i = c.companions.indexOf(x), P = f => `companions.${i}.${f}`, s = compStats(c, x), V = compNums(s, x);
+  const p = COMP_PANELS.find(q => q.id === id), tools = seg || '';
+  const hp = x.hp ?? V.hpMax, pct = V.hpMax ? Math.max(0, Math.min(1, num(hp) / V.hpMax)) : 0;
+  const rollBox = (v, label, rollLabel, cls = '') => sbox(v === '' || v == null ? '<span class="sb-big">—</span>' : `<span class="sb-big ${rollLabel ? 'roll' : ''}" ${rollLabel ? `data-bonus="${num(v)}" data-label="${esc(compTitle(x))} · ${esc(rollLabel)}" title="Click to roll"` : ''}>${rollLabel ? sgn(num(v)) : esc(String(v))}</span>`, label, cls);
+  if (id === 'info'){
+    const defs = s.defs || {}; const st = bonusStatus(D);
+    const sp = s.specials.map(n => { const k = Object.keys(defs).find(d => d.toLowerCase() === n.toLowerCase() || n.toLowerCase().startsWith(d.toLowerCase()));
       return `<span class="bchip" ${k ? `data-ref="compdef" data-name="${esc(x.kind)}|${esc(k)}" style="cursor:help"` : ''}>${esc(n)}</span>`; }).join('');
-  const row = (l, v, raw) => v === '' || v == null ? '' : `<dt>${l}</dt><dd>${raw ? v : esc(String(v))}</dd>`;
-  const ab = s.custom ? esc(s.abil) : ABIL.map(k => `${k} ${s.abil[k] == null ? '—' : s.abil[k]}`).join(', ');
-  const stats = s.custom ? `<div class="w-stats">${[['type', 'Type / size'], ['hd', 'HD'], ['hp', 'Max HP'], ['init', 'Init'], ['speed', 'Speed'], ['ac', 'AC'], ['bab', 'BAB / Grapple'], ['saves', 'Saves'], ['abil', 'Abilities']].map(([k, l]) => F(l, I(`${P('stats')}.${k}`, (x.stats || {})[k], 'placeholder="?"'))).join('')}</div>
-      <div class="fields" style="margin-top:8px">${F('Attacks', T(`${P('stats')}.attack`, (x.stats || {}).attack, 'rows="2"'), 'wide')}${F('Special qualities', T(`${P('stats')}.sq`, (x.stats || {}).sq, 'rows="2"'), 'wide')}${F('Skills', I(`${P('stats')}.skills`, (x.stats || {}).skills), 'wide')}${F('Feats', I(`${P('stats')}.feats`, (x.stats || {}).feats), 'wide')}</div>`
-    : `<dl class="statblock comp-sb">${row('Type', `${s.type}${x.kind === 'familiar' ? ' (magical beast)' : ''}`)}${row('Hit Dice', `${s.hd}${s.baseHd !== s.hd ? ` (base ${s.baseHd})` : ''}`)}${row('Speed', s.speed)}
-        ${row('Armor Class', `${s.ac}, touch ${s.touch}, flat-footed ${s.ff} <span class="hint">(natural ${sgn(s.nat)})</span>`, true)}${row('BAB / Grapple', `${sgn(s.bab)} / ${sgn(s.grapple)}`)}${row('Initiative', sgn(s.init))}
-        ${row('Attack', s.attack)}${row('Full attack', s.full)}${row('Space / reach', s.reach)}${row('Special attacks', s.sa)}${row('Special qualities', s.sq)}
-        ${row('Saves', `Fort ${sgn(s.fort)}, Ref ${sgn(s.ref)}, Will ${sgn(s.will)}`)}${row('Abilities', ab)}${row('Skills', s.skills)}${row('Feats', s.feats)}</dl>`;
-  const live = x.kind === 'familiar' && !x.away ? familiarBonuses({companions:[x]}) : [];
-  return `<section class="panel comp"><div class="ph"><h2>${esc(x.n || x.base || 'Companion')}</h2><div class="tools"><span class="pill acc">${esc(COMP_KIND[x.kind] || '')}</span>
-      <button class="btn sm" data-act="compInit" data-id="${x.id}">Add to initiative</button><button class="btn ghost sm" data-act="compDel" data-id="${x.id}">Remove</button></div></div>
-    <div class="pb grid" style="gap:12px">
+    const live = x.kind === 'familiar' && !x.away ? familiarBonuses({companions: [x]}) : [];
+    if (mode === 'compact') return panel('Companion', `<div class="pb cmp-mini">${imgBox('comp', x)}<div class="grid" style="gap:6px;min-width:0"><div><b>${esc(x.base || 'Custom')}</b> <span class="pill acc">${esc(COMP_KIND[x.kind] || '')}</span></div>
+        ${sp ? `<div class="bchips">${sp}</div>` : ''}${x.tricks ? `<div class="hint">Tricks: ${esc(x.tricks)}</div>` : ''}</div></div>`, tools, 'comp');
+    return panel('Companion', `<div class="pb grid" style="gap:12px">
       ${s.warn ? `<p class="hint" style="margin:0;color:var(--warn)">${esc(s.warn)}</p>` : ''}
       <div class="w-head"><div class="w-imgcol">${imgBox('comp', x)}</div><div class="grid" style="gap:10px;min-width:0">
-        <div class="fields">${F('Name', I(P('n'), x.n, 'placeholder="Give it a name"'), 'wide')}${!s.custom || x.base ? F('Creature ' + (animalByName(x.base) ? refA('animal', x.base, 'ⓘ') : ''), `<span class="out sm" style="min-width:0;padding:0 8px;font-size:14px;justify-content:flex-start">${esc(x.base || 'Custom')}</span>`) : ''}
-          ${F('Current HP', `<div class="row" style="flex-wrap:nowrap;gap:4px">${N(P('hp'), x.hp ?? (s.custom ? '' : s.hpMax), 'style="width:70px"')}<span class="hint">/ ${esc(s.hpMax || '?')}</span></div>`)}</div>
+        <div class="fields">${F('Name', I(P('n'), x.n, 'placeholder="Give it a name" data-rerender-bar="1"'), 'wide')}${!s.custom || x.base ? F('Creature ' + (animalByName(x.base) ? refA('animal', x.base, 'ⓘ') : ''), `<span class="out sm" style="min-width:0;padding:0 8px;font-size:14px;justify-content:flex-start">${esc(x.base || 'Custom')}</span>`) : ''}</div>
         ${s.level ? `<p class="hint" style="margin:0">Worked out for ${esc(s.level)}${x.kind === 'familiar' ? ': HP is half yours, BAB is yours, saves use the better of yours or its own' : x.kind === 'companion' ? '. Every 4 total HD it also gains +1 to an ability score (add it yourself)' : ''}.</p>` : ''}
         ${sp ? `<div><div class="cap">Special abilities</div><div class="bchips" style="margin-top:4px">${sp}</div></div>` : ''}
         ${x.kind === 'familiar' && s.masterText ? `<div><div class="cap">You gain</div><div class="row" style="gap:6px;margin-top:4px">${live.length ? bonusChips(live, st) : ''}<span class="hint">${esc(s.masterText)}${s.master.length ? ' (applied to your sheet)' : ' (situational, not added)'}</span>
           <label class="mini"><input type="checkbox" data-k="${P('away')}" data-rerender="1" ${x.away ? 'checked' : ''}> More than 1 mile away</label></div></div>` : ''}
       </div></div>
-      ${stats}
       ${x.kind === 'companion' || x.kind === 'mount' || x.kind === 'animal' ? F(`Tricks${s.tricks ? ` <span class="hint">(${s.tricks} bonus trick${s.tricks === 1 ? '' : 's'} plus any you teach)</span>` : ''} ${refA('skill', 'Handle Animal', 'ⓘ')}`, I(P('tricks'), x.tricks, 'placeholder="e.g. Attack, Come, Defend, Guard, Heel, Track"')) : ''}
-      ${F('Notes', LT(P('notes'), x.notes, 'Personality, equipment (barding, saddle), anything else…', 3))}</div></section>`;
+      ${F('Notes', LT(P('notes'), x.notes, 'Personality, anything else…', 3))}</div>`, tools, 'comp');
+  }
+  if (id === 'combat'){
+    const hpBox = `<div class="hp-box"><div class="hp-top"><span class="sb-l">Hit points</span>${V.hpMax !== '' ? `<span class="pill ${pct > .5 ? 'good' : pct > .25 ? 'warn' : 'bad'}">${num(hp) <= 0 ? (num(hp) < 0 ? 'Dying' : 'Disabled') : pct > .5 ? 'Healthy' : 'Bloodied'}</span>` : ''}</div>
+      <div class="hp-nums"><label class="hp-cur"><span class="vh">Current hit points</span>${N(P('hp'), hp, 'data-rerender="1"')}</label><span class="hp-sl">/</span><span class="hp-max">${V.hpMax === '' ? '?' : V.hpMax}</span></div>
+      <div class="meter ${pct <= .25 ? 'bad' : pct <= .5 ? 'warn' : ''}"><i style="width:${pct * 100}%"></i></div>
+      <div class="hp-ctl"><button class="btn sm hp-dmg" data-act="compDmg" data-id="${x.id}">Damage</button><input type="number" id="cmpDelta-${x.id}" placeholder="Amount" aria-label="Damage or healing amount"><button class="btn sm hp-heal" data-act="compHeal" data-id="${x.id}">Heal</button></div></div>`;
+    const boxes = [rollBox(V.ac, 'Armor class', '', 'acc'), rollBox(V.touch, 'Touch'), rollBox(V.ff, 'Flat-footed'), rollBox(V.init, 'Initiative', 'Initiative'),
+      sbox(`<span class="sb-big">${esc(String(numOr(V.speed, '—')))}</span>`, 'Speed (ft.)'), rollBox(V.bab === '' ? '' : sgn(num(V.bab)), 'Base attack'), rollBox(V.grapple, 'Grapple', 'Grapple')].join('');
+    if (mode === 'compact') return panel('Combat', `<div class="pb cc-wrap">${hpBox}<div class="sbox-grid cc-grid">${boxes}</div></div>`, tools);
+    const row = (l, v, raw) => v === '' || v == null ? '' : `<dt>${l}</dt><dd>${raw ? v : esc(String(v))}</dd>`;
+    const detail = s.custom ? `<div class="w-stats">${[['type', 'Type / size'], ['hd', 'HD'], ['hp', 'Max HP'], ['init', 'Init'], ['speed', 'Speed'], ['ac', 'AC (touch, flat-footed)'], ['bab', 'BAB / Grapple']].map(([k, l]) => F(l, I(`${P('stats')}.${k}`, (x.stats || {})[k], 'placeholder="?" data-rerender="1"'))).join('')}</div>`
+      : `<dl class="statblock comp-sb">${row('Type', `${s.type}${x.kind === 'familiar' ? ' (magical beast)' : ''}`)}${row('Hit Dice', `${s.hd}${s.baseHd !== s.hd ? ` (base ${s.baseHd})` : ''}`)}${row('Speed', s.speed)}
+        ${row('Armor Class', `${s.ac}, touch ${s.touch}, flat-footed ${s.ff} <span class="hint">(natural ${sgn(s.nat)})</span>`, true)}${row('BAB / Grapple', `${sgn(s.bab)} / ${sgn(s.grapple)}`)}${row('Initiative', sgn(s.init))}
+        ${row('Space / reach', s.reach)}${row('Special attacks', s.sa)}${row('Special qualities', s.sq)}</dl>`;
+    return panel('Combat', `<div class="pb cc-wrap">${hpBox}${detail}</div>`, tools);
+  }
+  if (id === 'abilities'){
+    if (mode === 'compact') return panel('Ability scores', `<div class="pb sbox-grid ab-grid">${ABIL.map(a => { const v = V.abil[a]; return `<div class="sbox ab-box"><div class="sb-l">${a.toUpperCase()}</div><div class="sb-v">${v == null ? '<span class="sb-big">—</span>' : `<span class="sb-big roll" data-bonus="${amod(v)}" data-label="${esc(compTitle(x))} · ${ABIL_FULL[a]} check" title="Click to roll">${v}</span>`}</div><div class="sb-sub">${v == null ? '' : sgn(amod(v))}</div></div>`; }).join('')}</div>`, tools);
+    const tbl = `<div class="tbl-wrap"><table class="st"><thead><tr><th>Ability</th><th>Score</th><th>Mod</th></tr></thead><tbody>${ABIL.map(a => { const v = V.abil[a]; return `<tr><td><b>${a.toUpperCase()}</b> <span class="hint">${ABIL_FULL[a]}</span></td><td>${v == null ? '—' : v}</td><td>${v == null ? '—' : `<span class="out sm roll" data-bonus="${amod(v)}" data-label="${esc(compTitle(x))} · ${ABIL_FULL[a]} check">${sgn(amod(v))}</span>`}</td></tr>`; }).join('')}</tbody></table></div>`;
+    return panel('Ability scores', (s.custom ? `<div class="pb">${F('Abilities (e.g. Str 12, Dex 15, Con 13, Int 2, Wis 12, Cha 6)', I(`${P('stats')}.abil`, (x.stats || {}).abil, 'data-rerender="1"'))}</div>` : '') + tbl, tools);
+  }
+  if (id === 'saves'){
+    const NAMES = {Fort: 'Fortitude', Ref: 'Reflex', Will: 'Will'};
+    const boxes = ['Fort', 'Ref', 'Will'].map(k => `<div class="sbox sv-box"><div class="sb-l">${NAMES[k]}</div><div class="sb-v">${V.sv[k] === '' ? '<span class="sb-big">—</span>' : `<span class="sb-big roll" data-bonus="${num(V.sv[k])}" data-label="${esc(compTitle(x))} · ${NAMES[k]} save" title="Click to roll">${sgn(num(V.sv[k]))}</span>`}</div><div class="sb-sub">&nbsp;</div></div>`).join('');
+    if (mode === 'compact') return panel('Saving throws', `<div class="pb sbox-grid sv-grid">${boxes}</div>`, tools);
+    return panel('Saving throws', `${s.custom ? `<div class="pb">${F('Saves (e.g. Fort +4, Ref +5, Will +1)', I(`${P('stats')}.saves`, (x.stats || {}).saves, 'data-rerender="1"'))}</div>` : ''}<div class="tbl-wrap"><table class="st"><thead><tr><th>Save</th><th>Total</th></tr></thead><tbody>${['Fort', 'Ref', 'Will'].map(k => `<tr><td><b>${NAMES[k]}</b></td><td>${V.sv[k] === '' ? '—' : `<span class="out sm roll" data-bonus="${num(V.sv[k])}" data-label="${esc(compTitle(x))} · ${NAMES[k]} save">${sgn(num(V.sv[k]))}</span>`}</td></tr>`).join('')}</tbody></table></div>`, tools);
+  }
+  if (id === 'attacks'){
+    const rows = V.attacks.map((a, j) => `<div class="ca-row"><div class="ca-n"><b>${esc(a.n)}</b><span class="hint">${esc([a.kind, a.extra].filter(Boolean).join(' · '))}</span></div>
+      <div class="ca-v"><span class="cap">Attack</span><span class="out sm roll" data-bonus="${a.bonus[0]}" data-label="${esc(compTitle(x))} · ${esc(a.n)}" title="Click to roll">${a.bonus.map(sgn).join('/')}</span></div>
+      <div class="ca-v"><span class="cap">Damage</span>${a.dmg ? `<button class="out sm ca-dmg" data-act="rollExpr" data-expr="${esc(a.dmg)}" data-label="${esc(compTitle(x))} · ${esc(a.n)} damage" title="Click to roll damage">${esc(a.dmg)}</button>` : '<span class="hint">—</span>'}</div></div>`).join('');
+    const list = `<div class="ca-list">${rows || `<div class="empty">${s.custom ? 'Type its attacks below, like “Bite +3 melee (1d6+1)”, and they become rollable here.' : 'No attacks listed for this creature.'}</div>`}</div>`;
+    if (mode === 'compact') return panel('Attacks', list, tools);
+    const text = s.custom ? `<div class="pb">${F('Attacks (e.g. Bite +3 melee (1d6+1); 2 claws +1 melee (1d4))', T(`${P('stats')}.attack`, (x.stats || {}).attack, 'rows="2" data-rerender="1"'))}</div>`
+      : `<dl class="statblock comp-sb pb" style="margin:0;border:0">${V.attackText ? `<dt>Attack</dt><dd>${esc(V.attackText)}</dd>` : ''}${V.fullText ? `<dt>Full attack</dt><dd>${esc(V.fullText)}</dd>` : ''}</dl>`;
+    return panel('Attacks', list + text, tools);
+  }
+  if (id === 'gear'){
+    if (mode === 'compact') return panel('Gear', `<div class="pb">${x.gear ? esc(x.gear).replace(/\n/g, '<br>') : '<span class="hint">Nothing listed.</span>'}</div>`, tools);
+    return panel('Gear', `<div class="pb">${T(P('gear'), x.gear || '', `rows="3" placeholder="${x.kind === 'mount' ? 'Saddle, bit and bridle, barding, saddlebags…' : 'Collar, barding, items it carries…'}"`)}</div>`, tools);
+  }
+  if (id === 'skills'){
+    const sk = s.custom ? (x.stats || {}).skills : s.skills, ft = s.custom ? (x.stats || {}).feats : s.feats;
+    if (mode === 'compact') return panel('Skills &amp; feats', `<div class="pb grid" style="gap:4px">${sk ? `<div><span class="cap">Skills</span> ${esc(sk)}</div>` : ''}${ft ? `<div><span class="cap">Feats</span> ${esc(ft)}</div>` : ''}${!sk && !ft ? '<span class="hint">None listed.</span>' : ''}</div>`, tools);
+    return panel('Skills &amp; feats', s.custom ? `<div class="pb fields">${F('Skills', I(`${P('stats')}.skills`, (x.stats || {}).skills), 'wide')}${F('Feats', I(`${P('stats')}.feats`, (x.stats || {}).feats), 'wide')}${F('Special qualities', T(`${P('stats')}.sq`, (x.stats || {}).sq, 'rows="2"'), 'wide')}</div>`
+      : `<dl class="statblock comp-sb pb" style="margin:0;border:0">${sk ? `<dt>Skills</dt><dd>${esc(sk)}</dd>` : ''}${ft ? `<dt>Feats</dt><dd>${esc(ft)}</dd>` : ''}</dl>`, tools);
+  }
+  return '';
+}
+
+function renderCompanions(c){
+  c.companions = c.companions || []; const L = compLevels(c);
+  const elig = [L.druid ? `animal companion (effective druid level ${L.druid})` : '', L.arcane ? `familiar (master level ${L.arcane})` : '', L.paladin >= 5 ? `special mount (paladin ${L.paladin})` : ''].filter(Boolean);
+  const blocks = c.companions.map(x => {
+    const inInit = !!compInitEntry(c, x);
+    const items = COMP_PANELS.map(p => { const m = compMode(x, p.id); if (m === 'hidden') return '';
+      return `<div class="sheet-sec sp-${p.size} sp-m-${m}" data-panel="${p.id}">${compPanel(c, x, p.id, m, compSeg(x, p, m))}</div>`; }).join('');
+    const hid = COMP_PANELS.filter(p => compMode(x, p.id) === 'hidden');
+    return `<div class="cmp-block"><div class="cmp-bar"><h2>${esc(compTitle(x))}</h2><span class="pill acc">${esc(COMP_KIND[x.kind] || '')}</span><span class="cmp-tools">
+        <button class="btn sm ${inInit ? '' : 'pri'}" data-act="compInit" data-id="${x.id}">${inInit ? 'Roll initiative again' : 'Add to initiative'}</button><button class="btn ghost sm" data-act="compDel" data-id="${x.id}">Remove</button></span></div>
+      <div class="sheet-grid">${items}</div>
+      ${hid.length ? `<p class="hint sp-foot">Hidden: ${hid.map(p => `<a href="#" data-cmpmode="${x.id}" data-panel="${p.id}" data-v="full">${esc(p.title)}</a>`).join(', ')} (click to show).</p>` : ''}</div>`; }).join('');
+  return `<div class="grid" style="gap:14px">
+    <div class="panel"><div class="ph"><h2>Companions</h2><div class="tools"><button class="btn sm pri" data-act="compAdd">Add from the rules</button><button class="btn sm" data-act="compCustom">Add custom</button></div></div>
+      <p class="pb hint" style="margin:0">${elig.length ? `Your classes give you: ${esc(elig.join(', '))}. Stats are worked out from the SRD tables for your level.` : 'Druids and rangers get animal companions, sorcerers and wizards get familiars, and paladins get a special mount at 5th level. You can also add any animal or a custom companion.'} Each box can be shown Full, Compact or hidden. Add a companion to initiative and its boxes also appear on Combat &amp; Effects.</p></div>
+    ${blocks || `<div class="panel"><div class="empty"><b>No companions yet.</b><br>Add an animal companion, familiar or mount from the SRD lists, or make a custom one (a cohort, hireling, summoned ally or pet).</div></div>`}</div>`;
+}
+// the initiative entry for a companion (linked by id; older entries by name)
+function compInitEntry(c, x){ const l = (c.combat || {}).list || []; return l.find(e => e.comp === x.id) || l.find(e => !e.comp && !e.me && e.n && e.n === compTitle(x)); }
+document.addEventListener('click', e => { const b = e.target.closest('[data-cmpmode]'); if (!b) return; e.preventDefault(); const c = APP_cur(); if (!c) return;
+  const x = (c.companions || []).find(v => v.id === b.dataset.cmpmode); if (!x) return; compMode(x, b.dataset.panel); x.layout.mode[b.dataset.panel] = b.dataset.v; markDirty(); renderAll(); });
+
+// companions in initiative also get boxes on Combat & Effects (each Full or Compact, compact to start)
+function trackerCompanions(c){
+  const out = [];
+  for (const x of c.companions || []){ if (!compInitEntry(c, x)) continue;
+    out.push({id: 'h-cmp-' + x.id, full: () => `<h2 class="trk-h">${esc(compTitle(x))} <span class="pill acc">${esc(COMP_KIND[x.kind] || 'Companion')}</span></h2>`});
+    for (const id of ['combat', 'abilities', 'saves', 'attacks']) out.push({id: `cmp-${x.id}-${id}`, full: () => compPanel(c, x, id, 'full'), compact: () => compPanel(c, x, id, 'compact'), def: 'compact'});
+  }
+  return out;
 }
 function openCompanionPicker(c){
   const L = compLevels(c); const adj = altAdj(); const entries = [];
@@ -3829,6 +4029,45 @@ function compactAttacks35(c){
     `<button class="btn sm pri" data-act="addAtk">Add weapon</button>`);
 }
 
+// ---- what a spell does in damage or healing, read from its SRD text ----
+const ENERGY = ['acid', 'cold', 'electricity', 'fire', 'sonic', 'force'];
+function spellDamage(sd, cl){
+  if (!sd) return null; cl = Math.max(1, cl || 1);
+  const txt = String(sd.d || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').replace(/–/g, '-');
+  const types = [];
+  for (const m of String(sd.sch || '').matchAll(/\[([^\]]+)\]/g)) m[1].split(/,\s*/).forEach(t => { t = t.toLowerCase(); if (ENERGY.includes(t) && !types.includes(t)) types.push(t); });
+  const heal = /\bcures?\b|\bheals?\b/i.test(txt) && /conjuration \(healing\)/i.test(sd.sch || '');
+  // first "NdM [+K] points of [type] damage [per (two|three) caster level(s)] [(maximum X)]" style phrase
+  const re = /(\d+)d(\d+)(?:\s*\+\s*(\d+))?\s+points?\s+of\s+(?:([a-z]+(?: energy)?)\s+)?(?:damage|nonlethal damage)(?:\s+per\s+(two|three|four)?\s*(?:caster\s+)?levels?)?(?:\s*\+\s*1\s+point\s+per\s+caster\s+level)?(?:[^.]*?\(maximum\s+(\+?\d+)(?:d\d+)?\))?/i;
+  const hre = /cures?\s+(\d+)d(\d+)(?:\s*\+\s*(\d+))?\s+points?\s+of\s+damage(\s*\+\s*1\s+point\s+per\s+caster\s+level)?(?:\s*\(maximum\s+\+?(\d+)\))?/i;
+  let expr = '', m;
+  if (heal && (m = txt.match(hre))){ const flat = m[4] ? Math.min(cl, num(m[5] || 99)) : 0; expr = `${m[1]}d${m[2]}${(num(m[3]) + flat) ? '+' + (num(m[3]) + flat) : ''}`; }
+  else if ((m = txt.match(re))){
+    const per = m[0].match(/per\s+(two|three|four)?\s*(?:caster\s+)?levels?/i), plusLvl = /\+\s*1\s+point\s+per\s+caster\s+level/i.test(m[0]);
+    const maxM = m[0].match(/\(maximum\s+(\+?)(\d+)/i);
+    let n = num(m[1]), flat = num(m[3]);
+    if (per && !plusLvl){ const div = {two: 2, three: 3, four: 4}[(per[1] || '').toLowerCase()] || 1; n = n * Math.max(1, Math.floor(cl / div)); if (maxM && !maxM[1]) n = Math.min(n, num(maxM[2])); }
+    if (plusLvl){ flat += maxM ? Math.min(cl, num(maxM[2])) : cl; }
+    expr = `${n}d${m[2]}${flat ? '+' + flat : ''}`;
+    const t = (m[4] || '').toLowerCase(); if (t && !/^(nonlethal)$/.test(t) && !types.includes(t)) types.push(t);
+  }
+  if (!expr && (m = txt.match(/(\d+) points? of damage per (?:caster )?level(?:[^.]*?maximum of (\d+))?/i))){ expr = String(Math.min(num(m[1]) * cl, m[2] ? num(m[2]) : Infinity)); }
+  if (/negative energy/i.test(txt) && /deals?|damage/i.test(txt) && !heal && !types.includes('negative energy') && expr) types.push('negative energy');
+  if (/divine power/i.test(txt) && types.includes('fire')) types.push('divine');
+  if (!expr && !types.length) return null;
+  return {expr, types, heal, save: sd.save && !/^none$/i.test(sd.save) ? sd.save : '', touch: (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i) || [])[1] ? (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i)[1].toLowerCase() + ' touch attack') : ''};
+}
+
+const DMG_LABEL = {acid: 'Acid', cold: 'Cold', electricity: 'Electricity', fire: 'Fire', sonic: 'Sonic', force: 'Force', 'negative energy': 'Negative energy', divine: 'Divine', bludgeoning: 'Bludgeoning', piercing: 'Piercing', slashing: 'Slashing'};
+// one line under a spell: damage type chips, the dice at this caster level (click to roll), save and attack type
+function spellDmgLine(s, cl){
+  const sd = IDX.spells.get(String(s.n || '').toLowerCase()); const x = spellDamage(sd, cl); if (!x) return '';
+  const chips = x.heal ? '<span class="dmg-chip t-heal">Healing</span>' : (x.types.length ? x.types : ['untyped']).map(t => `<span class="dmg-chip t-${t.replace(/\s+/g, '-')}">${esc(DMG_LABEL[t] || (t === 'untyped' ? 'Damage' : t[0].toUpperCase() + t.slice(1)))}</span>`).join('');
+  const roll = x.expr ? (/d/.test(x.expr) ? `<button class="out sm dmg-roll" data-act="rollExpr" data-expr="${esc(x.expr)}" data-label="${esc(s.n)} ${x.heal ? 'healing' : 'damage'}" title="${x.heal ? 'Healing' : 'Damage'} at caster level ${cl}. Click to roll.">${esc(x.expr)}</button>` : `<b class="dmg-flat">${esc(x.expr)}</b>`) : '';
+  const extra = [x.touch ? x.touch[0].toUpperCase() + x.touch.slice(1) : '', x.save ? 'Save: ' + x.save.replace(/;\s*see text/i, '') : ''].filter(Boolean).join(' · ');
+  return `<div class="dmg-line">${chips}${roll}${extra ? `<span class="hint">${esc(extra)}</span>` : ''}</div>`;
+}
+
 // spells ready to cast: slots, plus prepared spells (prepared casters) or spells known (spontaneous casters)
 function spellsReady35(c){
   const casters = c.classes.map(k => ({k, info: casterInfo(c, k, D)})).filter(x => x.info);
@@ -3843,7 +4082,7 @@ function spellsReady35(c){
     const rows = levels.map(L => `<div class="splv">${lvLabel(L)}</div>` + ready.filter(s => num(s.lvl) === L).map(s => {
       const i = book.list.indexOf(s), left = info.ci.spont ? null : Math.max(0, num(s.prep) - num(s.cast));
       const sd = IDX.spells.get(s.n.toLowerCase()); const meta = sd ? [sd.ct, sd.rng, sd.dur].filter(Boolean).join(' · ') : '';
-      return `<div class="sp rs-sp ${left === 0 ? 'spent' : ''}"><div>${refA('spell', s.n, s.n, !sd && libByName('spell', s.n) ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div></div>
+      return `<div class="sp rs-sp ${left === 0 ? 'spent' : ''}"><div>${refA('spell', s.n, s.n, !sd && libByName('spell', s.n) ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div>${spellDmgLine(s, info.cl)}</div>
         <div class="row" style="justify-content:flex-end;gap:6px">${left == null ? '' : `<span class="pill ${left ? 'acc' : ''}">${left} of ${num(s.prep)} left</span>`}<button class="btn sm pri" data-act="cast" data-cls="${k.n}" data-i="${i}">Cast</button></div></div>`; }).join('')).join('');
     const empty = info.ci.spont ? `No spells known yet. Add them on the <a href="#" data-tab="spells">Spells</a> page.` : `No spells prepared. Prepare them on the <a href="#" data-tab="spells">Spells</a> page.`;
     return panel(`${k.n} spells`, `<div class="pb"><div class="row hint" style="gap:14px;margin-bottom:8px"><span>Caster level <b>${info.cl}</b></span><span>${esc(info.ci.ab)} <b>${sgn(info.mod)}</b></span><span>${info.ci.spont ? 'Spells known' : 'Prepared spells'}</span>${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Spell failure ${D.asf}%</span>` : ''}</div>
@@ -3852,13 +4091,121 @@ function spellsReady35(c){
   }).join('');
 }
 
-// the bottom of Combat & Effects: everything you need on your turn without changing page
+// the rest of Combat & Effects: everything you need on your turn without changing page.
+// Each can be shown Full or Compact (see pagePanel in ui-other.js); all sit full width.
 function trackerExtras35(c){
-  const P = sheetPanels35(c);
-  return `<div class="trk-extra"><div class="splv trk-h">Your character</div>
-    ${P.combat}<div class="grid g2" style="align-items:start">${compactSaves35(c)}${compactAttacks35(c)}</div>
-    ${spellsReady35(c)}${renderItemSpells(c)}</div>`;
+  let P = null; const full = id => () => (P = P || sheetPanels35(c))[id];
+  const casters = () => c.classes.map(k => ({k, info: casterInfo(c, k, D)})).filter(x => x.info);
+  return [
+    {id: 'h-char', full: () => `<h2 class="trk-h">${esc(c.name || 'Your character')}</h2>`},
+    {id: 'combat', full: full('combat'), compact: () => compactCombat35(c), def: 'full'},
+    {id: 'saves', full: full('saves'), compact: () => compactSaves35(c), def: 'compact'},
+    {id: 'attacks', full: full('attacks'), compact: () => compactAttacks35(c), def: 'compact'},
+    {id: 'options', full: () => attackOptionsPanel(c, false), compact: () => attackOptionsPanel(c, true), def: 'full'},
+    {id: 'spells', full: () => casters().map(({k, info}) => spellClassPanel(c, k, info)).join(''), compact: () => spellsReady35(c), def: 'compact'},
+    {id: 'itemspells', full: () => renderItemSpells(c)},
+    ...trackerCompanions(c),
+  ];
 }
+
+// ===================== ATTACK OPTIONS & ATTACKS OF OPPORTUNITY (3.5 SRD) =====================
+// Situational modifiers you switch on during a fight (flanking, charging, Power Attack, sneak attack…).
+// Only the options this character can use are listed. They feed the normal bonus system, so every
+// attack, damage and AC number on every page includes them while they are on.
+// Saved on the character as c.combat.opts = {flank:true, pa:2, …}; c.combat.aoo = attacks of opportunity used this round.
+
+const hasFeat = (c, n) => (c.feats || []).some(f => normKey(f.n) === normKey(n));
+const clsLvl = (c, n) => num((c.classes.find(k => k.n === n) || {}).lvl);
+function combatOptsOf(c){ c.combat = c.combat || {round:0, turn:0, list:[]}; c.combat.opts = c.combat.opts || {}; return c.combat.opts; }
+
+function optDefs(c){
+  const tumble5 = num(((c.skills || {}).Tumble || {}).ranks) >= 5;
+  const anyRanged = (c.attacks || []).some(a => weaponInfo(a).ranged), bab = num(D.bab), cha = num(D.Cha);
+  const rogue = clsLvl(c, 'Rogue'), pal = clsLvl(c, 'Paladin'), precise = hasFeat(c, 'Precise Shot');
+  return [
+    {id: 'flank', g: 'Situation', label: 'Flanking', desc: '+2 on melee attacks. An ally threatens the same foe from the opposite side.', b: () => [B('atk.melee', 'untyped', 2)]},
+    {id: 'high', g: 'Situation', label: 'Higher ground', desc: '+1 on melee attacks against a foe below you.', b: () => [B('atk.melee', 'untyped', 1)]},
+    {id: 'charge', g: 'Situation', round: true, label: 'Charging', desc: '+2 on the charge attack, −2 to AC until your next turn.', b: () => [B('atk.melee', 'untyped', 2), B('ac', 'untyped', -2)]},
+    {id: 'defensive', g: 'Situation', round: true, label: 'Fighting defensively', desc: `−4 on attacks this round, +${tumble5 ? 3 : 2} dodge bonus to AC${tumble5 ? ' (5 ranks in Tumble)' : ''}.`, b: () => [B('atk', 'untyped', -4), B('ac', 'dodge', tumble5 ? 3 : 2)]},
+    {id: 'totaldef', g: 'Situation', round: true, label: 'Total defense', desc: `+${tumble5 ? 6 : 4} dodge bonus to AC${tumble5 ? ' (5 ranks in Tumble)' : ''}. You can't attack, including attacks of opportunity.`, b: () => [B('ac', 'dodge', tumble5 ? 6 : 4)]},
+    anyRanged && {id: 'intomelee', g: 'Situation', label: 'Shooting into melee', desc: precise ? 'No penalty: you have Precise Shot.' : '−4 on ranged attacks at a foe who is in melee with an ally.', b: () => precise ? [] : [B('atk.ranged', 'untyped', -4)]},
+    rogue && {id: 'sneak', g: 'Class', label: `Sneak attack (+${Math.ceil(rogue / 2)}d6)`, desc: 'Foe is flanked or denied its Dex bonus. Ranged only within 30 ft. Not against creatures immune to critical hits.', dice: `${Math.ceil(rogue / 2)}d6`},
+    pal && {id: 'smite', g: 'Class', round: true, label: 'Smite evil', desc: `+${Math.max(0, cha)} attack (Cha) and +${pal} damage on one melee attack against an evil foe. ${1 + Math.floor(pal / 5)} per day.`, b: () => [B('atk.melee', 'untyped', Math.max(0, cha)), B('dmg.melee', 'untyped', pal)]},
+    hasFeat(c, 'Power Attack') && {id: 'pa', g: 'Feats', n: true, max: Math.max(0, bab), label: 'Power Attack', desc: 'Take −N on melee attacks for +N damage (+2N with a two-handed weapon, no extra damage with a light weapon).'},
+    hasFeat(c, 'Combat Expertise') && {id: 'ce', g: 'Feats', n: true, max: Math.max(0, Math.min(5, bab)), label: 'Combat Expertise', desc: 'Take −N on attacks for a +N dodge bonus to AC (up to 5).', b: v => [B('atk', 'untyped', -v), B('ac', 'dodge', v)]},
+    hasFeat(c, 'Point Blank Shot') && anyRanged && {id: 'pbs', g: 'Feats', label: 'Point Blank Shot', desc: '+1 on ranged attack and damage rolls within 30 ft.', b: () => [B('atk.ranged', 'untyped', 1), B('dmg.ranged', 'untyped', 1)]},
+    hasFeat(c, 'Rapid Shot') && anyRanged && {id: 'rapid', g: 'Feats', label: 'Rapid Shot', desc: 'One extra ranged attack at your highest bonus on a full attack; −2 on all ranged attacks that round.', b: () => [B('atk.ranged', 'untyped', -2)]},
+  ].filter(Boolean);
+}
+// bonuses from the options that are on (called from collectBonuses)
+function combatOptBonuses(c){
+  const o = combatOptsOf(c), out = [];
+  for (const d of optDefs(c)){ const v = o[d.id]; if (!v || !d.b) continue; const n = d.n ? Math.min(num(v), d.max) : 1; if (d.n && !n) continue;
+    out.push({list: d.b(n), src: d.n ? `${d.label} (${n})` : d.label.replace(/ \(.*\)$/, ''), id: d.id}); }
+  return out;
+}
+// extras worked out per weapon in atkCalc: Power Attack, sneak attack dice, Rapid Shot's extra attack
+function atkOptExtras(c, a, kind, twoH){
+  const o = combatOptsOf(c), wi = weaponInfo(a), out = {atk: 0, dmg: 0, dice: '', extraAtk: false, atkParts: [], dmgParts: []};
+  if (kind === 'melee' && !wi.ranged && num(o.pa) && hasFeat(c, 'Power Attack')){
+    const n = Math.min(num(o.pa), num(D.bab)); const d = wi.light && !wi.natural ? 0 : twoH ? 2 * n : n;
+    out.atk -= n; out.dmg += d; out.atkParts.push([`Power Attack (−${n})`, -n]); out.dmgParts.push([`Power Attack${twoH ? ' ×2 (two hands)' : wi.light && !wi.natural ? ' (none with a light weapon)' : ''}`, d]); }
+  if (o.sneak && clsLvl(c, 'Rogue')){ out.dice = `${Math.ceil(clsLvl(c, 'Rogue') / 2)}d6`; out.dmgParts.push(['Sneak attack', '+' + out.dice]); }
+  if (o.rapid && hasFeat(c, 'Rapid Shot') && (wi.ranged || kind === 'ranged')) out.extraAtk = true;
+  return out;
+}
+
+// ---- attacks of opportunity: 1 a round, or 1 + Dex modifier with Combat Reflexes ----
+function aooMax(c){ return hasFeat(c, 'Combat Reflexes') ? 1 + Math.max(0, num(D.Dex)) : 1; }
+function aooBlock(c, compact){
+  const max = aooMax(c), used = Math.min(num(c.combat.aoo), max), left = max - used, td = !!combatOptsOf(c).totaldef;
+  const pips = Array.from({length: max}, (_, i) => `<span class="pip ${i < used ? 'used' : ''}"></span>`).join('');
+  return `<div class="aoo ${compact ? 'compact' : ''}"><span class="cap">Attacks of opportunity</span><span class="pips">${pips}</span><b>${left} of ${max} left</b>
+    <button class="btn sm ${left && !td ? 'pri' : ''}" data-aoo="use" ${left && !td ? '' : 'disabled'} title="${td ? 'Not while using total defense' : 'Use one and roll your main melee attack'}">Make attack of opportunity</button>
+    ${used ? '<button class="btn sm ghost" data-aoo="undo" title="Give one back">Undo</button>' : ''}
+    ${compact ? '' : `<span class="hint">${hasFeat(c, 'Combat Reflexes') ? `Combat Reflexes: 1 + Dex modifier (${sgn(num(D.Dex))}). You can also make them while flat-footed.` : 'One per round (Combat Reflexes gives more). Resets when the round moves on.'}</span>`}</div>`;
+}
+
+function attackOptionsPanel(c, compact){
+  const o = combatOptsOf(c), defs = optDefs(c);
+  const ctl = d => d.n
+    ? `<select data-optn="${d.id}" aria-label="${esc(d.label)}">${Array.from({length: d.max + 1}, (_, i) => `<option value="${i}" ${num(o[d.id]) === i ? 'selected' : ''}>${i ? '−' + i : 'Off'}</option>`).join('')}</select>`
+    : `<input type="checkbox" data-opt="${d.id}" ${o[d.id] ? 'checked' : ''} aria-label="${esc(d.label)}">`;
+  const on = d => d.n ? num(o[d.id]) > 0 : !!o[d.id];
+  let body;
+  if (compact){
+    body = `<div class="pb opt-chips">${defs.map(d => d.n
+      ? `<label class="opt-chip ${on(d) ? 'on' : ''}" title="${esc(d.desc)}">${esc(d.label)} ${ctl(d)}</label>`
+      : `<button class="opt-chip ${on(d) ? 'on' : ''}" data-opt="${d.id}" aria-pressed="${on(d)}" title="${esc(d.desc)}">${esc(d.label)}${d.round ? ' <small>this round</small>' : ''}</button>`).join('')}</div>${aooBlock(c, true)}`;
+  } else {
+    const groups = ['Situation', 'Class', 'Feats'].map(g => { const list = defs.filter(d => d.g === g); if (!list.length) return '';
+      return `<div class="splv">${g === 'Feats' ? 'Your feats' : g === 'Class' ? 'Your class' : 'Situation'}</div>` + list.map(d => `<label class="opt-row ${on(d) ? 'on' : ''}">${ctl(d)}<span><b>${esc(d.label)}</b>${d.round ? ' <span class="pill">this round</span>' : ''}<span class="hint">${esc(d.desc)}</span></span></label>`).join(''); }).join('');
+    body = `${aooBlock(c, false)}<div class="opt-list">${groups}</div>
+      <p class="hint pb" style="margin:0">Options switched on here are included in every attack, damage and AC number. Ones marked <b>this round</b> switch off when the round moves on. Hover a total to see what's adding up.</p>`;
+  }
+  const n = defs.filter(on).length;
+  return panel('Attack options', body, n ? `<button class="btn sm ghost" data-opt="clear">Clear ${n}</button>` : '');
+}
+
+// switching options
+function setOpt(id, v){ const c = APP_cur(); if (!c) return; const o = combatOptsOf(c);
+  if (id === 'clear'){ c.combat.opts = {}; }
+  else { if (v) o[id] = v; else delete o[id];
+    if (id === 'totaldef' && v){ delete o.defensive; delete o.charge; } if ((id === 'defensive' || id === 'charge') && v) delete o.totaldef; }
+  markDirty(); renderAll(); }
+document.addEventListener('change', e => { const t = e.target;
+  if (t.dataset && t.dataset.opt && t.type === 'checkbox'){ setOpt(t.dataset.opt, t.checked); }
+  if (t.dataset && t.dataset.optn){ setOpt(t.dataset.optn, num(t.value)); } });
+document.addEventListener('click', e => { const b = e.target.closest('button[data-opt]'); if (b){ e.preventDefault(); const c = APP_cur(); setOpt(b.dataset.opt, b.dataset.opt === 'clear' ? 0 : !combatOptsOf(c)[b.dataset.opt]); return; }
+  const a = e.target.closest('[data-aoo]'); if (!a) return; e.preventDefault(); const c = APP_cur(); if (!c) return;
+  if (a.dataset.aoo === 'undo'){ c.combat.aoo = Math.max(0, num(c.combat.aoo) - 1); markDirty(); renderAll(); return; }
+  if (num(c.combat.aoo) >= aooMax(c)) return; c.combat.aoo = num(c.combat.aoo) + 1;
+  const w = c.attacks.find(x => x.eq && !weaponInfo(x).ranged) || c.attacks.find(x => !weaponInfo(x).ranged);
+  markDirty(); renderAll();
+  if (w){ const r = atkCalc(c, w, D); rollToast(`Attack of opportunity · ${w.n}`, r.first); } else toast('Attack of opportunity used.');
+});
+// called when the round moves on
+function roundResetOpts(c){ const o = combatOptsOf(c); optDefs(c).forEach(d => { if (d.round) delete o[d.id]; }); c.combat.aoo = 0; }
 
 // ===================== RESTING =====================
 // Rest buttons sit under the round box. Each ruleset says which rests it has (module.rests);
@@ -3886,7 +4233,7 @@ function longRestPlan35(c){
     c.items.forEach(it => { if (it.used) it.used = {}; });
     timed.forEach(e => { e.rounds = 0; e.expired = true; });
     c.effects = c.effects.filter(e => !tired.includes(e));
-    c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me);
+    c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); c.combat.opts = {}; c.combat.aoo = 0;
   }};
 }
 
@@ -3949,7 +4296,7 @@ registerRuleset({
     {id: 'bonuses',   title: 'Bonuses in effect',    size: 'full'},
     {id: 'special',   title: 'Special abilities & class features', size: 'full'},
   ],
-  tabs: {skills: renderSkills, spells: renderSpells, tracker: c => renderTracker(c) + trackerExtras35(c), items: renderItems, companions: renderCompanions},
+  tabs: {skills: renderSkills, spells: renderSpells, tracker: c => renderTracker(c, trackerExtras35(c)), items: renderItems, companions: renderCompanions},
 });
 
 // ===================== SIDEBAR MENU + TURN ORDER IN THE TOP BAR =====================
@@ -4047,6 +4394,11 @@ $('#main').addEventListener('input', e => {
     if (v > cap){ v = cap; setPath(c, k, v); el.value = v; toast(why, 'warn'); }
     if (am[2] === 'lvlUp' && v < 0){ v = 0; setPath(c, k, 0); el.value = 0; }
   }
+  // prepared spells can't go over the spell slots for that level (unless the limit is switched off)
+  const pm = k.match(/^spells\.(.+)\.list\.(\d+)\.prep$/);
+  if (pm && prepLimitOn(c) && v !== ''){ const book = c.spells[pm[1]], sp = book && book.list[+pm[2]];
+    if (sp){ const room = prepRoom(c, pm[1], num(sp.lvl), !!sp.dom, +pm[2]); if (v > room){ v = room; setPath(c, k, v); el.value = v;
+      const kk = c.classes.find(x => x.n === pm[1]); toast(`${prepLimitText(casterInfo(c, kk, D), num(sp.lvl))} ${room ? `${esc(sp.n)} set to ${room}.` : `No room left for ${esc(sp.n)}.`} Lower another spell first, or turn off <b>Limit prepared spells</b>.`, 'warn'); } } }
   const tm = k.match(/^attacks\.(\d+)\.(two|hands)$/);
   if (tm){ const a = c.attacks[+tm[1]]; if (a && a.eq){ const need = weaponInfo(a).hands; if (handsUsed(c, a.id).used + need > 2){ setPath(c, k, tm[2] === 'two' ? false : 1); el.checked = false; toast(`Not enough free hands to wield <b>${esc(a.n)}</b> that way.`, 'warn'); } else relabelHands(c); } }
   const lm = k.match(/^items\.(\d+)\.loc$/);
@@ -4075,8 +4427,16 @@ function addToItems(c, name, type, w, extra = {}){ if (c.items.some(i => i.n.toL
 function addEffect(c, eff){ c.effects.push(Object.assign({id:uid('e'), note:'', expired:false}, eff)); }
 function castCL(c){ let best = 0; for (const k of c.classes){ const info = casterInfo(c, k, D); if (info) best = Math.max(best, info.cl); } return best || totalLevel(c); }
 
+// damage or heal a companion; keeps its initiative entry's HP note in step
+function compHp(c, b, sign){
+  const x = (c.companions || []).find(v => v.id === b.dataset.id); if (!x) return 'noRender'; const el = document.getElementById('cmpDelta-' + x.id); const a = num(el && el.value); if (!a) return 'noRender';
+  const V = compNums(compStats(c, x), x), max = V.hpMax === '' ? Infinity : num(V.hpMax), cur = num(x.hp ?? (V.hpMax === '' ? 0 : V.hpMax));
+  x.hp = sign < 0 ? cur - a : Math.min(Math.max(cur, max), cur + a);
+  const e = compInitEntry(c, x); if (e) e.hp = `${x.hp}/${V.hpMax}`;
+  toast(`<b>${esc(compTitle(x))}</b> ${sign < 0 ? 'took' : 'healed'} <b>${a}</b>`);
+}
 function nextRound(c){
-  c.combat.round++; const ended = [];
+  c.combat.round++; const ended = []; if (typeof roundResetOpts === 'function') roundResetOpts(c);
   for (const e of c.effects){ if (e.expired || e.rounds == null) continue; e.rounds = Math.max(0, num(e.rounds) - 1); if (e.rounds <= 0){ e.expired = true; ended.push(e.n); } }
   if (ended.length) toast(`<b>${ended.map(esc).join(', ')}</b> ${ended.length === 1 ? 'has' : 'have'} ended.`, 'warn');
   if (ended.includes('Barbarian Rage') && num((c.classes.find(k => k.n === 'Barbarian') || {}).lvl) < 17 && !c.effects.some(e => !e.expired && e.n === 'Fatigued')){
@@ -4101,12 +4461,14 @@ const ACT = {
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
   wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; },
   npcInit: (c, b) => { const x = wArr(c, b.dataset.kind || 'npc').find(v => v.id === b.dataset.id); const m = parseInt(String((x.stats || {}).init || '0').replace('–', '-')) || 0; const r = rollD(20);
-    c.combat.list.push({id:uid('i'), n:x.n || 'NPC', init:r + m, mod:m, hp:(x.stats || {}).hp || ''}); toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. Added to the Combat tab.`); },
+    c.combat.list.push({id:uid('i'), n:x.n || 'NPC', init:r + m, mod:m, hp:(x.stats || {}).hp || ''}); toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
   compAdd: c => { openCompanionPicker(c); return 'noRender'; },
   compCustom: c => { c.companions = c.companions || []; c.companions.push(newCustomComp()); },
   compDel: (c, b) => { if (!armConfirm(b, 'Remove? Click again')) return 'noRender'; const x = (c.companions || []).find(v => v.id === b.dataset.id); if (x) IMG.drop(x.img); c.companions = c.companions.filter(v => v.id !== b.dataset.id); },
   compInit: (c, b) => { const x = (c.companions || []).find(v => v.id === b.dataset.id); const s = compStats(c, x); const m = parseInt(String(s.init || '0').replace('–', '-')) || 0; const r = rollD(20);
-    c.combat.list.push({id:uid('i'), n:x.n || x.base || 'Companion', init:r + m, mod:m, hp:x.hp ?? s.hpMax ?? ''}); toast(`<b>${esc(x.n || x.base || 'Companion')}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. Added to the Combat tab.`); },
+    const ex = compInitEntry(c, x); if (ex){ ex.init = r + m; ex.mod = m; ex.comp = x.id; } else c.combat.list.push({id:uid('i'), n:x.n || x.base || 'Companion', comp:x.id, init:r + m, mod:m, hp:`${x.hp ?? s.hpMax ?? ''}/${s.hpMax ?? ''}`}); toast(`<b>${esc(x.n || x.base || 'Companion')}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
+  compDmg: (c, b) => compHp(c, b, -1), compHeal: (c, b) => compHp(c, b, 1),
+  rollExpr: (c, b) => { const x = rollExpr(b.dataset.expr); if (x) toast(`<span class="cap" style="color:inherit;opacity:.8">${esc(b.dataset.label || 'Roll')}</span><br><b>${x.total}</b> &nbsp;<span style="opacity:.75">${esc(b.dataset.expr)} → [${x.rolls.join(', ')}]${x.bonus ? ' ' + sgn(x.bonus) : ''}</span>`); return 'noRender'; },
   putAway: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); a.eq = ''; relabelHands(c); },
   wieldAtk: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); if (!equipAttack(c, a)) return 'noRender'; },
   addAmmo: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); const k = ammoKind(a); const w = IDX.weapons.get(AMMO_SRD[k].toLowerCase());
@@ -4161,7 +4523,7 @@ const ACT = {
       subFn:(e, fv) => e.type === 'custom' ? (e.lib.lvl || 'Custom') : fv.cl === '*' ? e.sub : 'Level ' + e.data.c[fv.cl],
       onPick:(e, bg) => { const fl = $('#pf-cl', bg).value; const book = c.spells[cls] || (c.spells[cls] = {list:[], used:{}});
         const lvl = e.type === 'custom' ? (parseInt(String(e.lib.lvl).match(/\d/)) || 0) : (e.data.c[fl === '*' ? key : fl] ?? Object.values(e.data.c)[0] ?? 0);
-        book.list.push({id:uid('p'), n:e.name, lvl, prep:1, cast:0, dom: fl !== key && fl !== '*'}); markDirty(); renderAll(); return true; }}); return 'noRender'; },
+        { const dom = fl !== key && fl !== '*'; const room = prepLimitOn(c) ? prepRoom(c, cls, lvl, dom) : 1; book.list.push({id:uid('p'), n:e.name, lvl, prep: room > 0 ? 1 : 0, cast:0, dom}); } markDirty(); renderAll(); return true; }}); return 'noRender'; },
   delSpell: (c, b) => c.spells[b.dataset.cls].list.splice(+b.dataset.i, 1),
   cast: (c, b) => { const cls = b.dataset.cls; const book = c.spells[cls]; const s = book.list[+b.dataset.i]; const info = casterInfo(c, c.classes.find(k => k.n === cls), D);
     const slot = info.slots.find(x => x.lvl === num(s.lvl)); const used = num(book.used[s.lvl]);
@@ -4179,7 +4541,7 @@ const ACT = {
   prevRound: c => { prevRound(c); c.combat.turn = 0; },
   rollMyInit: c => { const r = rollD(20); let me = c.combat.list.find(x => x.me); if (!me){ me = {id:uid('i'), n:c.name, me:true, hp:''}; c.combat.list.push(me); }
     me.init = r + D.init; me.mod = D.init; me.n = c.name; toast(`Initiative <b>${me.init}</b> <span style="opacity:.75">d20 ${r} ${sgn(D.init)}</span>`); },
-  endCombat: (c, b) => { if (!armConfirm(b, 'End? Click again')) return 'noRender'; c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); },
+  endCombat: (c, b) => { if (!armConfirm(b, 'End? Click again')) return 'noRender'; c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); c.combat.opts = {}; c.combat.aoo = 0; },
   addInit: c => { const n = $('#newInitName').value.trim(); if (!n) { $('#newInitName').focus(); return 'noRender'; } c.combat.list.push({id:uid('i'), n, init: num($('#newInitVal').value), hp:''}); setTimeout(() => $('#newInitName') && $('#newInitName').focus(), 0); },
   delInit: (c, b) => { c.combat.list = c.combat.list.filter(x => x.id !== b.dataset.id); },
   sortInit: () => {},
