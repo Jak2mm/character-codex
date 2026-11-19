@@ -183,6 +183,7 @@ function bgSVG(id, a, b){
 // ---------- applying the theme ----------
 const THEME_VARS = ['paper', 'sheet', 'ink', 'ink-2', 'rule', 'rule-2', 'tab', 'tab-fg', 'accent', 'accent-soft', 'gold', 'gold-soft'];
 let themeFontsLoaded = '';
+const GLASS = {l: '66%', d: '58%', bl: '70%', bd: '56%'}; // how solid boxes and bars are over a painted background (light / dark)
 function applyCharTheme(c){
   const root = document.documentElement, T = themeOf(c), dark = isDarkMode(), V = buildPalette(T, dark);
   THEME_VARS.forEach(k => root.style.removeProperty('--' + k)); if (V) THEME_VARS.forEach(k => V[k] && root.style.setProperty('--' + k, V[k]));
@@ -203,12 +204,14 @@ function applyCharTheme(c){
   const paper = cs.getPropertyValue('--paper').trim();
   let bgImage = '', op = 0;
   if (T.bg === 'image' && T.bgImg && IMG.src(T.bgImg)){ bgImage = `url("${IMG.src(T.bgImg)}")`; op = Math.min(.45, Math.max(.05, num(T.bgStrength) / 100)); B.dataset.bgkind = 'image'; }
-  else if (T.bg === 'scene'){ const [pr, pg, pb] = hex2rgb(paper); const artBg = !T.P.classic && SCENE_ART[T.P.id]; root.style.setProperty('--glass', dark ? '72%' : '80%'); /* how see-through boxes are over a painted background */ const wash = `rgba(${pr},${pg},${pb},${artBg ? (dark ? .06 : .1) : dark ? .22 : .3})`; // painted backgrounds show almost at full strength
+  else if (T.bg === 'scene'){ const [pr, pg, pb] = hex2rgb(paper); const artBg = !T.P.classic && SCENE_ART[T.P.id]; root.style.setProperty('--glass', dark ? GLASS.d : GLASS.l); root.style.setProperty('--glass-bar', dark ? GLASS.bd : GLASS.bl); /* how see-through boxes are over a painted background */ const artLum = artBg ? (SCENE_ART_LUM[T.P.id] ?? .3) : 0; /* bright pictures get a darker wash in dark mode */ const wash = `rgba(${pr},${pg},${pb},${artBg ? (dark ? Math.min(.62, Math.max(.06, (artLum - .12) * 1.9)) : .1) : dark ? .22 : .3})`; // painted backgrounds show almost at full strength
     const art = !T.P.classic && SCENE_ART[T.P.id]; // a painted background, when the theme has one
     bgImage = art ? `linear-gradient(${wash},${wash}), url("${art}")` : `linear-gradient(${wash},${wash}), ${svgURL(sceneSVG(T.P.classic ? 'default' : T.P.id, {accent: accentC, gold: deco, tab: cs.getPropertyValue('--tab').trim()}, dark))}`; op = 1; B.dataset.bgkind = art ? 'scene-art' : 'scene'; }
   else if (T.bg !== 'none' && T.bg !== 'image'){ const s = bgSVG(T.bg, cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--gold').trim()); if (s){ bgImage = svgURL(s); op = dark ? .13 : .1; B.dataset.bgkind = 'pattern'; } }
   if (bgImage){ root.style.setProperty('--bg-img', bgImage); root.style.setProperty('--bg-op', String(op)); B.classList.add('has-bg'); }
   else { root.style.removeProperty('--bg-img'); B.classList.remove('has-bg'); delete B.dataset.bgkind; }
+  // over a painted background in light mode the boxes are see-through, so hints and accent text are darkened a little to stay easy to read
+  if (V && !dark && T.bg === 'scene' && !T.P.classic && SCENE_ART[T.P.id]){ root.style.setProperty('--ink-2', mix(V['ink-2'], V.ink, .4)); root.style.setProperty('--accent', mix(V.accent, V.ink, .3)); }
   void paper;
 }
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyCharTheme(APP_cur())); } catch {}
