@@ -86,7 +86,8 @@ const ACT = {
     for (const n of c.npcs){ if (n.loc === b.dataset.id) n.loc = ''; if (n.fac === b.dataset.id) n.fac = ''; } for (const l of c.locations) if (l.parent === b.dataset.id) l.parent = ''; for (const f of c.factions){ if (f.leader === b.dataset.id) f.leader = ''; if (f.hq === b.dataset.id) f.hq = ''; } },
   wLogAdd: (c, b) => { const t = $('#wlog-new').value.trim(); if (!t){ $('#wlog-new').focus(); return 'noRender'; } const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log = x.log || []; x.log.unshift({date: today(), text: t}); toast('Added to what you know.'); },
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
-  wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; },
+  wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; delete x.crop; },
+  wImgCrop: (c, b) => { openCropper(wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id)); return 'noRender'; },
   npcInit: (c, b) => { const x = wArr(c, b.dataset.kind || 'npc').find(v => v.id === b.dataset.id); const m = parseInt(String((x.stats || {}).init || '0').replace('–', '-')) || 0; const r = rollD(20);
     const k = b.dataset.kind === 'pc' ? 'pc' : 'npc'; const ex = c.combat.list.find(e => e[k] === x.id);
     if (ex){ ex.init = r + m; ex.mod = m; } else c.combat.list.push({id:uid('i'), n:x.n || 'NPC', [k]:x.id, init:r + m, mod:m, hp:(x.stats || {}).hp || ''});
