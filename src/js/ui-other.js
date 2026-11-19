@@ -59,15 +59,18 @@ function renderTracker(c, extras = []){
     ${N('combat.list.' + cb.list.indexOf(x) + '.init', x.init, 'aria-label="Initiative" data-rerender="1"')}
     <div class="modcol">${N('combat.list.' + cb.list.indexOf(x) + '.mod', x.mod, 'aria-label="Init modifier (tiebreak)" placeholder="mod"')}</div>
     <div class="hpcol">${I('combat.list.' + cb.list.indexOf(x) + '.hp', x.hp, 'placeholder="HP / notes" aria-label="HP or notes"')}</div>
-    <button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('');
-  const active = c.effects.filter(e => !e.expired), expired = c.effects.filter(e => e.expired);
+    ${effMenuBtn(c, x)}
+    <button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button>${initEffectPills(c, initTid(x))}</div>`).join('');
+  const byName = (a, b) => a.n.localeCompare(b.n) || num(b.rounds) - num(a.rounds);
+  const active = c.effects.filter(e => !e.expired).sort(byName), expired = c.effects.filter(e => e.expired).sort(byName);
   const effRow = e => { const i = c.effects.indexOf(e); const pct = e.rounds != null && e.total ? Math.max(0, e.rounds / e.total) : 1;
     const t = e.kind === 'spell' ? 'spell' : e.kind === 'condition' ? 'cond' : null;
     return `<div class="eff ${e.expired ? 'expired' : ''}"><div>
         <div class="row" style="gap:6px">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`}<span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
           ${e.expired ? '<span class="pill bad">ended</span>' : e.rounds == null ? '<span class="pill">no countdown</span>' : `<span class="pill good">${fmtRounds(e.rounds)} left</span>`}</div>
         ${e.rounds != null ? `<div class="meter ${pct < .25 ? 'bad' : pct < .5 ? 'warn' : 'acc'}" style="margin-top:6px"><i style="width:${pct * 100}%"></i></div>` : ''}
-        ${effectBonusLine(c, e)}
+        <div class="who-line"><span class="cap">On</span>${whoChips(c, e)}<button class="btn sm ghost" data-tgtmenu="${e.id}" title="Choose who this is on">Change ▾</button></div>
+        ${effOnSelf(e) ? effectBonusLine(c, e) : ''}
         <div style="margin-top:6px">${I('effects.' + i + '.note', e.note, 'placeholder="Effect notes (bonus, save DC, source)…"')}</div></div>
       <div class="ctl">${e.expired ? `<button class="btn sm" data-act="effRenew" data-id="${e.id}">Renew</button>` : `<span class="hint">rounds</span>${N('effects.' + i + '.rounds', e.rounds, 'min="0" aria-label="Rounds remaining" data-rerender="1"')}`}
         <button class="btn ghost sm" data-act="delEff" data-id="${e.id}" aria-label="Remove effect">✕</button></div></div>`; };
@@ -91,13 +94,13 @@ function renderTracker(c, extras = []){
   const roundC = panel('Round counter', `<div class="pb round-c"><span class="cap">Round</span><b class="n">${cb.round}</b>
       <button class="btn sm pri" data-act="nextTurn">Next turn</button><button class="btn sm" data-act="prevRound">Undo round</button><button class="btn sm" data-act="rollMyInit">Roll my initiative (${sgn(D.init)})</button><button class="btn sm ghost" data-act="endCombat">End encounter</button>${barbLvl && !raging ? '<button class="btn sm gold" data-act="rage">Rage</button>' : ''}</div>`);
   const effRowC = e => { const t = e.kind === 'spell' ? 'spell' : e.kind === 'condition' ? 'cond' : null;
-    return `<div class="effc ${e.expired ? 'expired' : ''}"><span class="effc-n">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`}</span><span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
+    return `<div class="effc ${e.expired ? 'expired' : ''}"><span class="effc-n">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`} <button class="who-btn" data-tgtmenu="${e.id}" title="Who it is on (click to change)">${esc(effWho(e).map(w => targetName(c, w, e)).join(', '))} ▾</button></span><span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
       ${e.expired ? `<button class="btn sm" data-act="effRenew" data-id="${e.id}">Renew</button>` : e.rounds == null ? '<span class="pill">no countdown</span>' : `<span class="pill good">${fmtRounds(e.rounds)} left</span>`}
       <button class="btn ghost sm" data-act="delEff" data-id="${e.id}" aria-label="Remove effect">✕</button></div>`; };
   const effC = panel('Active spells &amp; conditions', `<div class="list">${active.map(effRowC).join('') || '<div class="empty">Nothing affecting you right now.</div>'}</div>
       ${expired.length ? `<div class="splv row" style="justify-content:space-between"><span>Ended</span><button class="btn sm" data-act="clearExpired">Clear ended</button></div><div class="list">${expired.map(effRowC).join('')}</div>` : ''}`,
     `<button class="btn sm pri" data-act="addCond">Add condition</button><button class="btn sm" data-act="addSpellEff">Add spell effect</button><button class="btn sm" data-act="addCustomEff">Custom</button>`);
-  const initC = panel('Initiative order', `<div class="list">${order.map((x, i) => `<div class="initc ${cur(i) ? 'cur' : ''}"><span class="pos">${i + 1}</span><b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b><span class="rc-init" title="Initiative">${esc(String(x.init ?? ''))}</span>${x.hp ? `<span class="hint">${esc(x.hp)}</span>` : '<span></span>'}<button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('') || '<div class="empty">No one in initiative yet.</div>'}</div>
+  const initC = panel('Initiative order', `<div class="list">${order.map((x, i) => `<div class="initc ${cur(i) ? 'cur' : ''}"><span class="pos">${i + 1}</span><b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b><span class="rc-init" title="Initiative">${esc(String(x.init ?? ''))}</span>${x.hp ? `<span class="hint">${esc(x.hp)}</span>` : '<span></span>'}${effMenuBtn(c, x)}<button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button>${initEffectPills(c, initTid(x))}</div>`).join('') || '<div class="empty">No one in initiative yet.</div>'}</div>
       <div class="pb row" style="border-top:1px solid var(--rule-2)"><input type="text" id="newInitName" placeholder="Name (e.g. Orc #2)" style="flex:2;min-width:140px"><input type="number" id="newInitVal" placeholder="Init" style="width:80px"><button class="btn sm pri" data-act="addInit">Add</button></div>`,
     `<button class="btn sm ghost" data-act="clearInit">Clear</button>`);
   const list = [

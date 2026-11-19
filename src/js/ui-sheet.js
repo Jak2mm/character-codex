@@ -60,7 +60,7 @@ function atkCalc(c, a, D){
   if (twf && D.res){ D.res['atk:' + a.id] = {total: ra.total + twf, applied: [...ra.applied, {src:'Two-weapon fighting' + (a.eq === 'off' ? ' (off hand)' : ' (main hand)'), ty:'untyped', v:twf}], supp: ra.supp}; }
   const tb = r => r.applied.map(b => [`${b.src} (${b.ty})`, num(b.v)]); const nz = ps => ps.filter(p => p[2] === 'base' || num(p[1]) !== 0);
   const offHand = a.eq === 'off' || (a.eq === undefined && a.off); const twoH = a.eq === 'both' ? (weaponInfo(a).hands === 2 && !weaponInfo(a).ranged) : a.two;
-  const X = typeof atkOptExtras === 'function' ? atkOptExtras(c, a, kind, twoH) : {atk:0, dmg:0, dice:'', extraAtk:false, atkParts:[], dmgParts:[]};
+  const X = typeof atkOptExtras === 'function' ? atkOptExtras(c, a, kind, twoH) : {atk:0, dmg:0, dice:'', xdice:[], notes:[], extraAtk:false, atkParts:[], dmgParts:[]};
   const extra = D.sizeAC + num(a.enh) + num(a.misc) + ra.total + twf + X.atk;
   const first = D.bab + abm + extra;
   const maxAtk = a.eq === 'off' && c.twf ? offHandAttacks(c) : 4;
@@ -68,11 +68,11 @@ function atkCalc(c, a, D){
   if (X.extraAtk) it.unshift(sgn(first));
   let sb = a.nostr ? 0 : D.Str; if (!a.nostr && twoH && sb > 0) sb = Math.floor(sb * 1.5); if (offHand && sb > 0) sb = Math.floor(sb / 2);
   const db = sb + num(a.enh) + num(a.dmgMisc) + rd.total + X.dmg;
-  const dmg = (a.dmg || '—') + (a.dmg && db ? (db > 0 ? '+' + db : '–' + Math.abs(db)) : '') + (a.dmg && X.dice ? ` +${X.dice} sneak` : '') + (a.xdmg ? ' ' + a.xdmg : '');
+  const dmg = (a.dmg || '—') + (a.dmg && db ? (db > 0 ? '+' + db : '–' + Math.abs(db)) : '') + (a.dmg && X.dice ? ` +${X.dice} sneak` : '') + (a.dmg && X.xdice && X.xdice.length ? X.xdice.map(d => ' +' + d).join('') : '') + (a.xdmg ? ' ' + a.xdmg : '');
   if (D.why){
     D.why['atk:' + a.id] = {parts: nz([['Base attack bonus', D.bab, 'base'], [a.ab === 'None' ? 'No ability' : `${a.ab} modifier`, abm, 'base'], [`Size (${D.size})`, D.sizeAC], ['Enhancement', num(a.enh)], ...tb(ra), ['Two-weapon fighting', twf], ...X.atkParts, ['Misc (your entry)', num(a.misc)]]), total:first,
       note: (X.extraAtk ? 'Rapid Shot adds one extra attack at your highest bonus. ' : '') + (it.length > 1 ? `Extra attacks at −5 each: ${it.join('/')}.` : '')};
-    D.why['dmg:' + a.id] = {parts: nz([['Weapon dice', a.dmg || '—', 'base'], [a.nostr ? 'No Str (your choice)' : `Str modifier${twoH && D.Str > 0 ? ' ×1½ (two hands)' : offHand && D.Str > 0 ? ' ×½ (off hand)' : ''}`, sb], ['Enhancement', num(a.enh)], ...tb(rd), ...X.dmgParts.filter(p => typeof p[1] === 'string' || p[1]), ['Misc (your entry)', num(a.dmgMisc)]]), total:dmg};
+    D.why['dmg:' + a.id] = {parts: nz([['Weapon dice', a.dmg || '—', 'base'], [a.nostr ? 'No Str (your choice)' : `Str modifier${twoH && D.Str > 0 ? ' ×1½ (two hands)' : offHand && D.Str > 0 ? ' ×½ (off hand)' : ''}`, sb], ['Enhancement', num(a.enh)], ...tb(rd), ...X.dmgParts.filter(p => typeof p[1] === 'string' || p[1]), ['Misc (your entry)', num(a.dmgMisc)]]), total:dmg, note: (X.notes || []).join(' ')};
   }
   return {first, bonus: it.join('/'), dmg};
 }

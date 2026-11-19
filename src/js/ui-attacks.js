@@ -91,6 +91,8 @@ function ammoRow(c, a){
   return `<div class="ammo row"><span class="cap">Ammo</span>
     <select data-act-change="pickAmmo" data-id="${a.id}" style="width:auto;max-width:220px" aria-label="Ammunition">${list.map(it => `<option value="${it.id}" ${cur && it.id === cur.id ? 'selected' : ''}>${esc(it.n)}</option>`).join('')}</select>
     <input type="number" min="0" style="width:72px" data-ammocount="${a.id}" data-item="${cur.id}" value="${ammoCount(cur)}" aria-label="Ammunition left"><span class="hint">left · 1 used per attack roll</span>
+    <select data-ammoplus="${cur.id}" style="width:auto" aria-label="Ammunition enhancement" title="Magic ammunition: its enhancement bonus (only the better of the weapon's and the ammunition's counts)">${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}" ${num(cur.plus) === v ? 'selected' : ''}>${v ? '+' + v : 'Not magic'}</option>`).join('')}</select>
+    <select data-ammosp="${cur.id}" style="width:auto" aria-label="Ammunition special ability">${['', 'flaming', 'frost', 'shock', 'flaming burst', 'icy burst', 'shocking burst', 'holy', 'unholy', 'axiomatic', 'anarchic'].map(v => `<option value="${v}" ${(cur.sp || '') === v ? 'selected' : ''}>${v ? v[0].toUpperCase() + v.slice(1) : 'No special ability'}</option>`).join('')}</select>
     ${getRef('item', cur.n) ? refA('item', cur.n, 'ⓘ') : ''}</div>`;
 }
 function handsSummary(c){

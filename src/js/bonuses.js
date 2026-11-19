@@ -171,7 +171,7 @@ function collectBonuses(c){
   for (const f of c.feats){ const fn = FEAT_BONUS[normKey(f.n)]; if (fn){ const ch = String(f.note || '').trim(); add(fn(ch), f.n + (ch ? ` (${ch})` : ''), 'feat:' + normKey(f.n) + ':' + normKey(ch), 'feat', f.id); }
     if (f.bon) add(f.bon, f.n, 'feat:' + f.id, 'feat', f.id); }
   // active effects
-  for (const e of c.effects){ if (e.expired) continue; const bl = effectBonuses(c, e); if (bl.b.length) add(bl.b, e.n, (bl.group ? 'grp:' + bl.group : 'eff:' + normKey(e.n)), 'effect', e.id); }
+  for (const e of c.effects){ if (e.expired || (typeof effOnSelf === 'function' && !effOnSelf(e))) continue; const bl = effectBonuses(c, e); if (bl.b.length) add(bl.b, e.n, (bl.group ? 'grp:' + bl.group : 'eff:' + normKey(e.n)), 'effect', e.id); }
   // race
   const rb = RACE_BONUS[c.race]; if (rb) add(rb(), c.race + ' (racial)', 'race', 'race');
   // classes
@@ -188,7 +188,7 @@ function collectBonuses(c){
   const rk = name => { const m = name.match(/^(\w+) \((.+)\)$/); if (m && SUBSKILLS[m[1]]) return num((c.subskills.find(s => s.base === m[1] && s.sub === m[2]) || {}).ranks); return num((c.skills[name] || {}).ranks); };
   SYNERGY.forEach(([a, b]) => { if (rk(a) >= 5) add([B('skill:' + b, 'synergy', 2)], `${a} 5+ ranks (synergy)`, 'syn:' + a + '>' + b, 'synergy'); });
   // conditions that remove Dex from AC
-  const noDex = c.effects.some(e => !e.expired && (COND_BONUS[normKey(e.n)] || {}).noDex);
+  const noDex = c.effects.some(e => !e.expired && (typeof effOnSelf !== 'function' || effOnSelf(e)) && (COND_BONUS[normKey(e.n)] || {}).noDex);
   return {list: out, noDex};
 }
 function itemBonuses(it){

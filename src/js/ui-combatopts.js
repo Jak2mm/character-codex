@@ -36,12 +36,34 @@ function combatOptBonuses(c){
 }
 // extras worked out per weapon in atkCalc: Power Attack, sneak attack dice, Rapid Shot's extra attack
 function atkOptExtras(c, a, kind, twoH){
-  const o = combatOptsOf(c), wi = weaponInfo(a), out = {atk: 0, dmg: 0, dice: '', extraAtk: false, atkParts: [], dmgParts: []};
+  const o = combatOptsOf(c), wi = weaponInfo(a), out = {atk: 0, dmg: 0, dice: '', xdice: [], notes: [], extraAtk: false, atkParts: [], dmgParts: []};
   if (kind === 'melee' && !wi.ranged && num(o.pa) && hasFeat(c, 'Power Attack')){
     const n = Math.min(num(o.pa), num(D.bab)); const d = wi.light && !wi.natural ? 0 : twoH ? 2 * n : n;
     out.atk -= n; out.dmg += d; out.atkParts.push([`Power Attack (−${n})`, -n]); out.dmgParts.push([`Power Attack${twoH ? ' ×2 (two hands)' : wi.light && !wi.natural ? ' (none with a light weapon)' : ''}`, d]); }
   if (o.sneak && clsLvl(c, 'Rogue')){ out.dice = `${Math.ceil(clsLvl(c, 'Rogue') / 2)}d6`; out.dmgParts.push(['Sneak attack', '+' + out.dice]); }
   if (o.rapid && hasFeat(c, 'Rapid Shot') && (wi.ranged || kind === 'ranged')) out.extraAtk = true;
+  // ammunition: its enhancement bonus (only the better of bow's or arrow's counts), its special abilities, and spells on it
+  const am = ammoMods(c, a);
+  if (am){
+    if (am.enh > num(a.enh)){ const d = am.enh - num(a.enh); out.atk += d; out.dmg += d; const t = `Ammunition enhancement +${am.enh}, ${am.name} (only the better of weapon ${sgn(num(a.enh))} and ammunition counts)`; out.atkParts.push([t, d]); out.dmgParts.push([t, d]); }
+    am.dice.forEach(x => { out.xdice.push(x.d + ' ' + x.t); out.dmgParts.push([x.src, '+' + x.d + ' ' + x.t]); });
+    out.notes.push(...am.notes);
+  }
+  return out;
+}
+// what the loaded ammunition adds: "+1 arrows", "flaming bolts", custom ammo, and Flame Arrow cast or applied as an oil
+function ammoMods(c, a){
+  if (typeof ammoKind !== 'function' || !ammoKind(a)) return null; const it = ammoFor(c, a);
+  const out = {enh: 0, dice: [], notes: [], name: it ? it.n.replace(/\s*\(\d+\)/, '') : 'Ammunition'};
+  if (it){
+    const L = it.lib ? libById(it.lib) : null, n = it.n.toLowerCase();
+    out.enh = Math.max(num(it.plus), num((n.match(/\+(\d)\b/) || [])[1]), L && L.wpn ? num(L.wpn.enh) : 0);
+    const specials = Object.keys(WEAPON_SPECIALS).filter(k => new RegExp('\\b' + k + '\\b').test(n) || (L && L.wpn && (L.wpn.specials || []).map(x => String(x).toLowerCase()).includes(k)) || String(it.sp || '').toLowerCase() === k);
+    specials.sort((x, y) => y.length - x.length).forEach(k => { if (specials.some(o => o !== k && o.includes(k))) return; const sp = WEAPON_SPECIALS[k];
+      const m = String(sp.x || '').match(/\+(\d+d\d+)\s+(\w+)/); if (m) out.dice.push({d: m[1], t: m[2], src: `${out.name} (${k})`}); if (sp.note) out.notes.push(`${k}: ${sp.note}`); });
+  }
+  const fa = c.effects.find(e => !e.expired && normKey(e.n) === 'flame arrow' && (typeof effOnSelf !== 'function' || effOnSelf(e)));
+  if (fa && !out.dice.some(x => x.t === 'fire')) out.dice.push({d: '1d6', t: 'fire', src: 'Flame Arrow (on your ammunition)'});
   return out;
 }
 
@@ -94,5 +116,10 @@ document.addEventListener('click', e => { const b = e.target.closest('button[dat
   markDirty(); renderAll();
   if (w){ const r = atkCalc(c, w, D); rollToast(`Attack of opportunity · ${w.n}`, r.first); } else toast('Attack of opportunity used.');
 });
+// magic ammunition picked in the ammo row
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || !(t.dataset.ammoplus || t.dataset.ammosp)) return; const c = APP_cur(); if (!c) return;
+  const it = c.items.find(i => i.id === (t.dataset.ammoplus || t.dataset.ammosp)); if (!it) return;
+  if (t.dataset.ammoplus){ if (num(t.value)) it.plus = num(t.value); else delete it.plus; } else { if (t.value) it.sp = t.value; else delete it.sp; }
+  markDirty(); renderAll(); });
 // called when the round moves on
 function roundResetOpts(c){ const o = combatOptsOf(c); optDefs(c).forEach(d => { if (d.round) delete o[d.id]; }); c.combat.aoo = 0; }

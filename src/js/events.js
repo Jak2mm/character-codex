@@ -59,6 +59,9 @@ function compHp(c, b, sign){
   const e = compInitEntry(c, x); if (e) e.hp = `${x.hp}/${V.hpMax}`;
   toast(`<b>${esc(compTitle(x))}</b> ${sign < 0 ? 'took' : 'healed'} <b>${a}</b>`);
 }
+// who a new effect goes on, when it is added from someone's row in the initiative order
+function effTargetFor(c, b){ const t = b && b.dataset && b.dataset.tid; if (!t || t === 'self') return {who: {}, title: ''};
+  return {who: {who: [t], whoN: {[t]: targetName(c, t)}}, title: ` on ${targetName(c, t)}`}; }
 function nextRound(c){
   c.combat.round++; const ended = []; if (typeof roundResetOpts === 'function') roundResetOpts(c);
   for (const e of c.effects){ if (e.expired || e.rounds == null) continue; e.rounds = Math.max(0, num(e.rounds) - 1); if (e.rounds <= 0){ e.expired = true; ended.push(e.n); } }
@@ -85,7 +88,9 @@ const ACT = {
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
   wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; },
   npcInit: (c, b) => { const x = wArr(c, b.dataset.kind || 'npc').find(v => v.id === b.dataset.id); const m = parseInt(String((x.stats || {}).init || '0').replace('–', '-')) || 0; const r = rollD(20);
-    c.combat.list.push({id:uid('i'), n:x.n || 'NPC', init:r + m, mod:m, hp:(x.stats || {}).hp || ''}); toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
+    const k = b.dataset.kind === 'pc' ? 'pc' : 'npc'; const ex = c.combat.list.find(e => e[k] === x.id);
+    if (ex){ ex.init = r + m; ex.mod = m; } else c.combat.list.push({id:uid('i'), n:x.n || 'NPC', [k]:x.id, init:r + m, mod:m, hp:(x.stats || {}).hp || ''});
+    toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
   compAdd: c => { openCompanionPicker(c); return 'noRender'; },
   compCustom: c => { c.companions = c.companions || []; c.companions.push(newCustomComp()); },
   compDel: (c, b) => { if (!armConfirm(b, 'Remove? Click again')) return 'noRender'; const x = (c.companions || []).find(v => v.id === b.dataset.id); if (x) IMG.drop(x.img); c.companions = c.companions.filter(v => v.id !== b.dataset.id); },
@@ -166,15 +171,15 @@ const ACT = {
   rollMyInit: c => { const r = rollD(20); let me = c.combat.list.find(x => x.me); if (!me){ me = {id:uid('i'), n:c.name, me:true, hp:''}; c.combat.list.push(me); }
     me.init = r + D.init; me.mod = D.init; me.n = c.name; toast(`Initiative <b>${me.init}</b> <span style="opacity:.75">d20 ${r} ${sgn(D.init)}</span>`); },
   endCombat: (c, b) => { if (!armConfirm(b, 'End? Click again')) return 'noRender'; c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); c.combat.opts = {}; c.combat.aoo = 0; },
-  addInit: c => { const n = $('#newInitName').value.trim(); if (!n) { $('#newInitName').focus(); return 'noRender'; } c.combat.list.push({id:uid('i'), n, init: num($('#newInitVal').value), hp:''}); setTimeout(() => $('#newInitName') && $('#newInitName').focus(), 0); },
+  addInit: c => { const n = $('#newInitName').value.trim(); if (!n) { $('#newInitName').focus(); return 'noRender'; } if (typeof isClose === 'function') isClose(); c.combat.list.push(initEntryFromPick(c, n, $('#newInitVal').value.trim())); setTimeout(() => $('#newInitName') && $('#newInitName').focus(), 0); },
   delInit: (c, b) => { c.combat.list = c.combat.list.filter(x => x.id !== b.dataset.id); },
   sortInit: () => {},
   clearInit: (c, b) => { if (!armConfirm(b)) return 'noRender'; c.combat.list = []; c.combat.turn = 0; },
-  addCond: c => openPicker({title:'Add a condition', kind:'cond', noCat:true, onPick: e => { addEffect(c, {n:e.name, kind:'condition', rounds:null, total:null, ...(e.type === 'custom' ? {lib:e.key} : {})}); markDirty(); renderAll(); }}),
-  addSpellEff: c => openPicker({title:'Track a spell effect', kind:'spell', filters:[{id:'cl2', label:'Caster level', options:Array.from({length:20}, (_, i) => [i + 1, 'Caster level ' + (i + 1)]), value:castCL(c)}],
+  addCond: (c, b) => { const tw = effTargetFor(c, b); openPicker({title:'Add a condition' + tw.title, kind:'cond', noCat:true, onPick: e => { addEffect(c, {n:e.name, kind:'condition', rounds:null, total:null, ...(e.type === 'custom' ? {lib:e.key} : {}), ...tw.who}); markDirty(); renderAll(); }}); return 'noRender'; },
+  addSpellEff: (c, b) => { const tw = effTargetFor(c, b); openPicker({title:'Track a spell effect' + tw.title, kind:'spell', filters:[{id:'cl2', label:'Caster level', options:Array.from({length:20}, (_, i) => [i + 1, 'Caster level ' + (i + 1)]), value:castCL(c)}],
     subFn: e => e.type === 'custom' ? (e.lib.dur || 'Custom') : (e.data.dur || ''),
     onPick:(e, bg) => { const cl = num($('#pf-cl2', bg).value); const sd = e.type === 'custom' ? e.lib : e.data; const dur = parseDuration(sd.dur, cl);
-      addEffect(c, {n:e.name, kind:'spell', cl, rounds:dur.rounds, total:dur.rounds, note:`CL ${cl} · ${dur.text}`}); markDirty(); renderAll(); }}),
+      addEffect(c, {n:e.name, kind:'spell', cl, rounds:dur.rounds, total:dur.rounds, note:`CL ${cl} · ${dur.text}`, ...tw.who}); markDirty(); renderAll(); }}); return 'noRender'; },
   addCustomEff: c => addEffect(c, {n:'New effect', kind:'custom', rounds:10, total:10, note:''}),
   delEff: (c, b) => { c.effects = c.effects.filter(e => e.id !== b.dataset.id); },
   effRenew: (c, b) => { const e = c.effects.find(x => x.id === b.dataset.id); e.rounds = e.total || 10; e.expired = false; },
