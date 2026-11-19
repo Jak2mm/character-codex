@@ -1,5 +1,5 @@
 // ===================== UI HELPERS =====================
-const TABS = [['sheet','Character'],['skills','Skills & Feats'],['spells','Spells'],['tracker','Combat & Effects'],['items','Items'],['notes','Notes'],['quests','Quests'],['library','Custom Library'],['rules','Rules Lookup']];
+const TABS = [['sheet','Character'],['skills','Skills & Feats'],['spells','Spells'],['tracker','Combat & Effects'],['items','Items'],['notes','Notes'],['quests','Quests'],['library','Custom Library'],['rules','Rules Lookup'],['options','Options']];
 // sub-tabs shown as titles at the top of a top-level tab
 const SUBTABS = {sheet:[['sheet','Character'],['companions','Companions']], notes:[['notes','Game Notes'],['players','Players'],['npcs','NPCs'],['locations','Locations'],['factions','Factions'],['maps','Maps']]};
 const PARENT = {}; for (const [p, l] of Object.entries(SUBTABS)) for (const [k] of l) PARENT[k] = p;
@@ -88,9 +88,9 @@ function renderCharBar(){
 function renderTabs(){ renderSidebar(); }
 function renderAll(){
   renderCharBar(); renderTabs();
-  const c = APP_cur(); const m = $('#main');
+  const c = APP_cur(); const m = $('#main'); if (window.THEMES_READY) applyCharTheme(c);
   if (!c){ m.innerHTML = `<div class="panel"><div class="empty"><b>No characters yet.</b><br>Choose <b>New character</b> above to start a sheet, or <b>Import</b> one you exported earlier.</div></div>`; return; }
-  const R0 = {sheet:renderSheet, skills:renderSkills, spells:renderSpells, tracker:renderTracker, items:renderItems, notes:renderNotes, companions:renderCompanions, quests:renderQuests, players:renderPlayers, npcs:renderNpcs, locations:renderLocations, factions:renderFactions, maps:renderMaps, library:renderLibrary, rules:renderRules}; const tabsRS = ruleset(c).tabs || {}; const R = tabsRS[APP.tab] || R0[APP.tab] || renderSheet;
+  const R0 = {sheet:renderSheet, skills:renderSkills, spells:renderSpells, tracker:renderTracker, items:renderItems, notes:renderNotes, companions:renderCompanions, quests:renderQuests, players:renderPlayers, npcs:renderNpcs, locations:renderLocations, factions:renderFactions, maps:renderMaps, library:renderLibrary, rules:renderRules, options:renderOptionsPage}; const tabsRS = ruleset(c).tabs || {}; const R = tabsRS[APP.tab] || R0[APP.tab] || renderSheet;
   if (PARENT[APP.tab]){ APP.lastSub[PARENT[APP.tab]] = APP.tab; try { localStorage.setItem('ccodex-subtabs', JSON.stringify(APP.lastSub)); } catch {} }
   if (APP.tab !== 'sheet') APP.sheetEdit = false;
   D = derive(c); m.innerHTML = subTabBar() + R(c); updateOutputs(); applyTASizes();

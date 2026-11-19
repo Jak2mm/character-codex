@@ -34,7 +34,7 @@ const IMG = {
     for (const x of c.companions || []) x.img = take(x.img);
     return moved;
   },
-  keysOf(c){ const ks = [c.portrait]; for (const k of ['players', 'npcs', 'locations', 'factions', 'companions']) for (const x of c[k] || []) ks.push(x.img); for (const m of c.maps || []){ ks.push(m.img); if (m.tiles) ks.push(...(m.tiles.keys || [])); }
+  keysOf(c){ const ks = [c.portrait, (c.theme || {}).bgImg]; for (const k of ['players', 'npcs', 'locations', 'factions', 'companions']) for (const x of c[k] || []) ks.push(x.img); for (const m of c.maps || []){ ks.push(m.img); if (m.tiles) ks.push(...(m.tiles.keys || [])); }
     return ks.filter(k => k && !String(k).startsWith('data:')); },
   saveLocal(){ const pairs = [...IMG.dirty].filter(k => IMG.cache[k]).map(k => [k, IMG.cache[k]]); if (!pairs.length) return;
     Promise.all(pairs.map(([k, v]) => IDB.put(k, v))).catch(() => { for (const [k, v] of pairs){ try { localStorage.setItem('ccodex-' + k, v); } catch {} } }); },

@@ -6,7 +6,7 @@ const startPrefOn = () => { try { return localStorage.getItem(START_PREF) !== 'o
 APP.startView = 'menu'; APP.startQ = ''; APP.startSort = 'recent';
 
 // ---- appearance (also the base the class/race themes will build on) ----
-function applyTheme(t){ t = t || 'auto'; if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); }
+function applyTheme(t){ t = t || 'auto'; if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); if (window.THEMES_READY && document.body) applyCharTheme(APP_cur()); }
 function themePref(){ try { return localStorage.getItem(THEME_PREF) || 'auto'; } catch { return 'auto'; } }
 applyTheme(themePref());
 
@@ -54,7 +54,7 @@ function startOptions(){
   const n = Object.keys(APP.chars).length;
   return `<div class="st-page"><div class="st-head"><button class="btn sm" data-st="menu">‹ Back</button><h2>Options</h2><span></span></div>
     <section class="st-opt"><h3>Appearance</h3><div class="seg" role="radiogroup" aria-label="Appearance">${[['auto', 'Match my device'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => `<button class="${t === v ? 'on' : ''}" data-st="theme" data-v="${v}" role="radio" aria-checked="${t === v}">${l}</button>`).join('')}</div>
-      <p class="hint">Class and race themes, and your own colours, are coming in a later update.</p></section>
+      <p class="hint">Each character's theme (colours, fonts, borders and background) is on the <b>Options</b> page in the menu.</p></section>
     <section class="st-opt"><h3>Start screen</h3><label class="mini"><input type="checkbox" id="st-pref" ${startPrefOn() ? 'checked' : ''}> Show this screen when the app opens</label>
       <p class="hint">You can always get back here by clicking <b>Character Codex</b> at the top of the app.</p></section>
     <section class="st-opt"><h3>Backups</h3><p class="hint" style="margin-top:0">Your characters are saved on this device. A backup file holds every character, your homebrew and all pictures, so you can keep a copy or move everything to another device.</p>
