@@ -726,6 +726,11 @@ body.has-bg :is(.subtabs,.trk-h,.cmp-bar,.sp-foot){background:color-mix(in srgb,
 /* ===== Adventure layout: a scene behind glassy framed boxes ===== */
 body.has-bg[data-bgkind="scene"]::before{background-size:cover;background-position:center bottom;opacity:1}
 body.has-bg[data-bgkind="scene-art"]::before{background-size:cover;background-position:center;opacity:1}
+/* painted backgrounds: see-through boxes (fields and stat boxes stay nearly solid so text stays sharp) */
+@media (min-width:901px){
+body[data-bgkind="scene-art"][data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) var(--glass,76%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+body[data-bgkind="scene-art"][data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 72%,transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+body[data-bgkind="scene-art"][data-style="adventure"] .panel :is(input,select,textarea,.sbox,.hp-box,.rs-slot){background-color:color-mix(in srgb,var(--sheet) 92%,transparent)}}
 body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 96%,transparent)}
 body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 94%,transparent)}
 @media (min-width:901px){body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 88%,transparent)}body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 82%,transparent)}body[data-style="adventure"] :is(.panel,.top,.sidebar){-webkit-backdrop-filter:blur(10px) saturate(.8);backdrop-filter:blur(10px) saturate(.8)}}
