@@ -537,13 +537,22 @@ input[type=text],input[type=search],input[type=date],input[type=number],input:no
 .sbox.acc{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .sb-v{display:flex;align-items:baseline;justify-content:center;gap:2px;min-height:34px}
 .sb-big{font-family:var(--f-label);font-weight:700;font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums;padding:0 6px;border-radius:var(--r-sm)}
-.sb-big{border:1px solid transparent;min-width:2.4em;text-align:center}
+.sb-big{border:1px solid transparent;min-width:min(2.4em,100%);max-width:100%;text-align:center;box-sizing:border-box}
+.sb-v{max-width:100%}
+.ab-box.temp .sb-big{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+.ab-box.temp .sb-sub{color:var(--accent)}
+.ab-grid{container-type:inline-size}
+@container (max-width:420px){.ab-box .sb-big{font-size:22px;padding:0 3px}}
 .sb-big.roll{cursor:pointer;border-color:var(--rule);background:var(--sheet)}
 .sb-big.roll:hover{background:var(--accent-soft);border-color:var(--accent)}
 .sb-l{font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);line-height:1.2}
 .sb-l .tag,.sbox .sb-l a.tag{text-align:center;background:none;color:var(--ink-2);padding:0;min-width:0;font-size:11px;font-weight:600}
-.ab-box .sb-l .tag{color:var(--ink);font-size:13px;font-weight:700}
-.sb-score{font-family:var(--f-label);font-weight:700;font-size:14px;color:var(--ink-2);display:flex;gap:4px;align-items:center}
+.sb-sub{font-family:var(--f-label);font-weight:700;font-size:14px;color:var(--ink-2);display:flex;gap:4px;align-items:center;justify-content:center;white-space:nowrap;min-height:20px;max-width:100%;overflow:hidden}
+.sv-box .sb-sub{font-size:12px;font-weight:600;letter-spacing:.03em}
+.sv-grid{container-type:inline-size}
+@container (max-width:420px){.sv-base{display:none}.sv-box .sb-big{font-size:22px;padding:0 3px}}
+.ab-box .sb-l .tag,.sv-box .sb-l .tag{color:var(--ink);font-size:13px;font-weight:700}
+button.pill{border:0;cursor:pointer;font:inherit;font-family:var(--f-label);font-weight:600;font-size:11.5px}
 .cc-wrap{display:grid;gap:10px}
 .cc-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .cc-grid .sbox{justify-content:flex-start}.cc-grid .sb-l{overflow-wrap:anywhere}
