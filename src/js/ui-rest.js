@@ -24,7 +24,7 @@ function longRestPlan35(c){
     c.items.forEach(it => { if (it.used) it.used = {}; });
     timed.forEach(e => { e.rounds = 0; e.expired = true; });
     c.effects = c.effects.filter(e => !tired.includes(e));
-    c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me);
+    c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); c.combat.opts = {}; c.combat.aoo = 0;
   }};
 }
 

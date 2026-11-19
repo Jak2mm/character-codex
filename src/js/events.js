@@ -18,6 +18,11 @@ $('#main').addEventListener('input', e => {
     if (v > cap){ v = cap; setPath(c, k, v); el.value = v; toast(why, 'warn'); }
     if (am[2] === 'lvlUp' && v < 0){ v = 0; setPath(c, k, 0); el.value = 0; }
   }
+  // prepared spells can't go over the spell slots for that level (unless the limit is switched off)
+  const pm = k.match(/^spells\.(.+)\.list\.(\d+)\.prep$/);
+  if (pm && prepLimitOn(c) && v !== ''){ const book = c.spells[pm[1]], sp = book && book.list[+pm[2]];
+    if (sp){ const room = prepRoom(c, pm[1], num(sp.lvl), !!sp.dom, +pm[2]); if (v > room){ v = room; setPath(c, k, v); el.value = v;
+      const kk = c.classes.find(x => x.n === pm[1]); toast(`${prepLimitText(casterInfo(c, kk, D), num(sp.lvl))} ${room ? `${esc(sp.n)} set to ${room}.` : `No room left for ${esc(sp.n)}.`} Lower another spell first, or turn off <b>Limit prepared spells</b>.`, 'warn'); } } }
   const tm = k.match(/^attacks\.(\d+)\.(two|hands)$/);
   if (tm){ const a = c.attacks[+tm[1]]; if (a && a.eq){ const need = weaponInfo(a).hands; if (handsUsed(c, a.id).used + need > 2){ setPath(c, k, tm[2] === 'two' ? false : 1); el.checked = false; toast(`Not enough free hands to wield <b>${esc(a.n)}</b> that way.`, 'warn'); } else relabelHands(c); } }
   const lm = k.match(/^items\.(\d+)\.loc$/);
@@ -46,8 +51,16 @@ function addToItems(c, name, type, w, extra = {}){ if (c.items.some(i => i.n.toL
 function addEffect(c, eff){ c.effects.push(Object.assign({id:uid('e'), note:'', expired:false}, eff)); }
 function castCL(c){ let best = 0; for (const k of c.classes){ const info = casterInfo(c, k, D); if (info) best = Math.max(best, info.cl); } return best || totalLevel(c); }
 
+// damage or heal a companion; keeps its initiative entry's HP note in step
+function compHp(c, b, sign){
+  const x = (c.companions || []).find(v => v.id === b.dataset.id); if (!x) return 'noRender'; const el = document.getElementById('cmpDelta-' + x.id); const a = num(el && el.value); if (!a) return 'noRender';
+  const V = compNums(compStats(c, x), x), max = V.hpMax === '' ? Infinity : num(V.hpMax), cur = num(x.hp ?? (V.hpMax === '' ? 0 : V.hpMax));
+  x.hp = sign < 0 ? cur - a : Math.min(Math.max(cur, max), cur + a);
+  const e = compInitEntry(c, x); if (e) e.hp = `${x.hp}/${V.hpMax}`;
+  toast(`<b>${esc(compTitle(x))}</b> ${sign < 0 ? 'took' : 'healed'} <b>${a}</b>`);
+}
 function nextRound(c){
-  c.combat.round++; const ended = [];
+  c.combat.round++; const ended = []; if (typeof roundResetOpts === 'function') roundResetOpts(c);
   for (const e of c.effects){ if (e.expired || e.rounds == null) continue; e.rounds = Math.max(0, num(e.rounds) - 1); if (e.rounds <= 0){ e.expired = true; ended.push(e.n); } }
   if (ended.length) toast(`<b>${ended.map(esc).join(', ')}</b> ${ended.length === 1 ? 'has' : 'have'} ended.`, 'warn');
   if (ended.includes('Barbarian Rage') && num((c.classes.find(k => k.n === 'Barbarian') || {}).lvl) < 17 && !c.effects.some(e => !e.expired && e.n === 'Fatigued')){
@@ -72,12 +85,14 @@ const ACT = {
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
   wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; },
   npcInit: (c, b) => { const x = wArr(c, b.dataset.kind || 'npc').find(v => v.id === b.dataset.id); const m = parseInt(String((x.stats || {}).init || '0').replace('–', '-')) || 0; const r = rollD(20);
-    c.combat.list.push({id:uid('i'), n:x.n || 'NPC', init:r + m, mod:m, hp:(x.stats || {}).hp || ''}); toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. Added to the Combat tab.`); },
+    c.combat.list.push({id:uid('i'), n:x.n || 'NPC', init:r + m, mod:m, hp:(x.stats || {}).hp || ''}); toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
   compAdd: c => { openCompanionPicker(c); return 'noRender'; },
   compCustom: c => { c.companions = c.companions || []; c.companions.push(newCustomComp()); },
   compDel: (c, b) => { if (!armConfirm(b, 'Remove? Click again')) return 'noRender'; const x = (c.companions || []).find(v => v.id === b.dataset.id); if (x) IMG.drop(x.img); c.companions = c.companions.filter(v => v.id !== b.dataset.id); },
   compInit: (c, b) => { const x = (c.companions || []).find(v => v.id === b.dataset.id); const s = compStats(c, x); const m = parseInt(String(s.init || '0').replace('–', '-')) || 0; const r = rollD(20);
-    c.combat.list.push({id:uid('i'), n:x.n || x.base || 'Companion', init:r + m, mod:m, hp:x.hp ?? s.hpMax ?? ''}); toast(`<b>${esc(x.n || x.base || 'Companion')}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. Added to the Combat tab.`); },
+    const ex = compInitEntry(c, x); if (ex){ ex.init = r + m; ex.mod = m; ex.comp = x.id; } else c.combat.list.push({id:uid('i'), n:x.n || x.base || 'Companion', comp:x.id, init:r + m, mod:m, hp:`${x.hp ?? s.hpMax ?? ''}/${s.hpMax ?? ''}`}); toast(`<b>${esc(x.n || x.base || 'Companion')}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
+  compDmg: (c, b) => compHp(c, b, -1), compHeal: (c, b) => compHp(c, b, 1),
+  rollExpr: (c, b) => { const x = rollExpr(b.dataset.expr); if (x) toast(`<span class="cap" style="color:inherit;opacity:.8">${esc(b.dataset.label || 'Roll')}</span><br><b>${x.total}</b> &nbsp;<span style="opacity:.75">${esc(b.dataset.expr)} → [${x.rolls.join(', ')}]${x.bonus ? ' ' + sgn(x.bonus) : ''}</span>`); return 'noRender'; },
   putAway: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); a.eq = ''; relabelHands(c); },
   wieldAtk: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); if (!equipAttack(c, a)) return 'noRender'; },
   addAmmo: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); const k = ammoKind(a); const w = IDX.weapons.get(AMMO_SRD[k].toLowerCase());
@@ -132,7 +147,7 @@ const ACT = {
       subFn:(e, fv) => e.type === 'custom' ? (e.lib.lvl || 'Custom') : fv.cl === '*' ? e.sub : 'Level ' + e.data.c[fv.cl],
       onPick:(e, bg) => { const fl = $('#pf-cl', bg).value; const book = c.spells[cls] || (c.spells[cls] = {list:[], used:{}});
         const lvl = e.type === 'custom' ? (parseInt(String(e.lib.lvl).match(/\d/)) || 0) : (e.data.c[fl === '*' ? key : fl] ?? Object.values(e.data.c)[0] ?? 0);
-        book.list.push({id:uid('p'), n:e.name, lvl, prep:1, cast:0, dom: fl !== key && fl !== '*'}); markDirty(); renderAll(); return true; }}); return 'noRender'; },
+        { const dom = fl !== key && fl !== '*'; const room = prepLimitOn(c) ? prepRoom(c, cls, lvl, dom) : 1; book.list.push({id:uid('p'), n:e.name, lvl, prep: room > 0 ? 1 : 0, cast:0, dom}); } markDirty(); renderAll(); return true; }}); return 'noRender'; },
   delSpell: (c, b) => c.spells[b.dataset.cls].list.splice(+b.dataset.i, 1),
   cast: (c, b) => { const cls = b.dataset.cls; const book = c.spells[cls]; const s = book.list[+b.dataset.i]; const info = casterInfo(c, c.classes.find(k => k.n === cls), D);
     const slot = info.slots.find(x => x.lvl === num(s.lvl)); const used = num(book.used[s.lvl]);
@@ -150,7 +165,7 @@ const ACT = {
   prevRound: c => { prevRound(c); c.combat.turn = 0; },
   rollMyInit: c => { const r = rollD(20); let me = c.combat.list.find(x => x.me); if (!me){ me = {id:uid('i'), n:c.name, me:true, hp:''}; c.combat.list.push(me); }
     me.init = r + D.init; me.mod = D.init; me.n = c.name; toast(`Initiative <b>${me.init}</b> <span style="opacity:.75">d20 ${r} ${sgn(D.init)}</span>`); },
-  endCombat: (c, b) => { if (!armConfirm(b, 'End? Click again')) return 'noRender'; c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); },
+  endCombat: (c, b) => { if (!armConfirm(b, 'End? Click again')) return 'noRender'; c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); c.combat.opts = {}; c.combat.aoo = 0; },
   addInit: c => { const n = $('#newInitName').value.trim(); if (!n) { $('#newInitName').focus(); return 'noRender'; } c.combat.list.push({id:uid('i'), n, init: num($('#newInitVal').value), hp:''}); setTimeout(() => $('#newInitName') && $('#newInitName').focus(), 0); },
   delInit: (c, b) => { c.combat.list = c.combat.list.filter(x => x.id !== b.dataset.id); },
   sortInit: () => {},

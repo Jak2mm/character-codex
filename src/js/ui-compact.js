@@ -68,6 +68,45 @@ function compactAttacks35(c){
     `<button class="btn sm pri" data-act="addAtk">Add weapon</button>`);
 }
 
+// ---- what a spell does in damage or healing, read from its SRD text ----
+const ENERGY = ['acid', 'cold', 'electricity', 'fire', 'sonic', 'force'];
+function spellDamage(sd, cl){
+  if (!sd) return null; cl = Math.max(1, cl || 1);
+  const txt = String(sd.d || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').replace(/–/g, '-');
+  const types = [];
+  for (const m of String(sd.sch || '').matchAll(/\[([^\]]+)\]/g)) m[1].split(/,\s*/).forEach(t => { t = t.toLowerCase(); if (ENERGY.includes(t) && !types.includes(t)) types.push(t); });
+  const heal = /\bcures?\b|\bheals?\b/i.test(txt) && /conjuration \(healing\)/i.test(sd.sch || '');
+  // first "NdM [+K] points of [type] damage [per (two|three) caster level(s)] [(maximum X)]" style phrase
+  const re = /(\d+)d(\d+)(?:\s*\+\s*(\d+))?\s+points?\s+of\s+(?:([a-z]+(?: energy)?)\s+)?(?:damage|nonlethal damage)(?:\s+per\s+(two|three|four)?\s*(?:caster\s+)?levels?)?(?:\s*\+\s*1\s+point\s+per\s+caster\s+level)?(?:[^.]*?\(maximum\s+(\+?\d+)(?:d\d+)?\))?/i;
+  const hre = /cures?\s+(\d+)d(\d+)(?:\s*\+\s*(\d+))?\s+points?\s+of\s+damage(\s*\+\s*1\s+point\s+per\s+caster\s+level)?(?:\s*\(maximum\s+\+?(\d+)\))?/i;
+  let expr = '', m;
+  if (heal && (m = txt.match(hre))){ const flat = m[4] ? Math.min(cl, num(m[5] || 99)) : 0; expr = `${m[1]}d${m[2]}${(num(m[3]) + flat) ? '+' + (num(m[3]) + flat) : ''}`; }
+  else if ((m = txt.match(re))){
+    const per = m[0].match(/per\s+(two|three|four)?\s*(?:caster\s+)?levels?/i), plusLvl = /\+\s*1\s+point\s+per\s+caster\s+level/i.test(m[0]);
+    const maxM = m[0].match(/\(maximum\s+(\+?)(\d+)/i);
+    let n = num(m[1]), flat = num(m[3]);
+    if (per && !plusLvl){ const div = {two: 2, three: 3, four: 4}[(per[1] || '').toLowerCase()] || 1; n = n * Math.max(1, Math.floor(cl / div)); if (maxM && !maxM[1]) n = Math.min(n, num(maxM[2])); }
+    if (plusLvl){ flat += maxM ? Math.min(cl, num(maxM[2])) : cl; }
+    expr = `${n}d${m[2]}${flat ? '+' + flat : ''}`;
+    const t = (m[4] || '').toLowerCase(); if (t && !/^(nonlethal)$/.test(t) && !types.includes(t)) types.push(t);
+  }
+  if (!expr && (m = txt.match(/(\d+) points? of damage per (?:caster )?level(?:[^.]*?maximum of (\d+))?/i))){ expr = String(Math.min(num(m[1]) * cl, m[2] ? num(m[2]) : Infinity)); }
+  if (/negative energy/i.test(txt) && /deals?|damage/i.test(txt) && !heal && !types.includes('negative energy') && expr) types.push('negative energy');
+  if (/divine power/i.test(txt) && types.includes('fire')) types.push('divine');
+  if (!expr && !types.length) return null;
+  return {expr, types, heal, save: sd.save && !/^none$/i.test(sd.save) ? sd.save : '', touch: (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i) || [])[1] ? (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i)[1].toLowerCase() + ' touch attack') : ''};
+}
+
+const DMG_LABEL = {acid: 'Acid', cold: 'Cold', electricity: 'Electricity', fire: 'Fire', sonic: 'Sonic', force: 'Force', 'negative energy': 'Negative energy', divine: 'Divine', bludgeoning: 'Bludgeoning', piercing: 'Piercing', slashing: 'Slashing'};
+// one line under a spell: damage type chips, the dice at this caster level (click to roll), save and attack type
+function spellDmgLine(s, cl){
+  const sd = IDX.spells.get(String(s.n || '').toLowerCase()); const x = spellDamage(sd, cl); if (!x) return '';
+  const chips = x.heal ? '<span class="dmg-chip t-heal">Healing</span>' : (x.types.length ? x.types : ['untyped']).map(t => `<span class="dmg-chip t-${t.replace(/\s+/g, '-')}">${esc(DMG_LABEL[t] || (t === 'untyped' ? 'Damage' : t[0].toUpperCase() + t.slice(1)))}</span>`).join('');
+  const roll = x.expr ? (/d/.test(x.expr) ? `<button class="out sm dmg-roll" data-act="rollExpr" data-expr="${esc(x.expr)}" data-label="${esc(s.n)} ${x.heal ? 'healing' : 'damage'}" title="${x.heal ? 'Healing' : 'Damage'} at caster level ${cl}. Click to roll.">${esc(x.expr)}</button>` : `<b class="dmg-flat">${esc(x.expr)}</b>`) : '';
+  const extra = [x.touch ? x.touch[0].toUpperCase() + x.touch.slice(1) : '', x.save ? 'Save: ' + x.save.replace(/;\s*see text/i, '') : ''].filter(Boolean).join(' · ');
+  return `<div class="dmg-line">${chips}${roll}${extra ? `<span class="hint">${esc(extra)}</span>` : ''}</div>`;
+}
+
 // spells ready to cast: slots, plus prepared spells (prepared casters) or spells known (spontaneous casters)
 function spellsReady35(c){
   const casters = c.classes.map(k => ({k, info: casterInfo(c, k, D)})).filter(x => x.info);
@@ -82,7 +121,7 @@ function spellsReady35(c){
     const rows = levels.map(L => `<div class="splv">${lvLabel(L)}</div>` + ready.filter(s => num(s.lvl) === L).map(s => {
       const i = book.list.indexOf(s), left = info.ci.spont ? null : Math.max(0, num(s.prep) - num(s.cast));
       const sd = IDX.spells.get(s.n.toLowerCase()); const meta = sd ? [sd.ct, sd.rng, sd.dur].filter(Boolean).join(' · ') : '';
-      return `<div class="sp rs-sp ${left === 0 ? 'spent' : ''}"><div>${refA('spell', s.n, s.n, !sd && libByName('spell', s.n) ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div></div>
+      return `<div class="sp rs-sp ${left === 0 ? 'spent' : ''}"><div>${refA('spell', s.n, s.n, !sd && libByName('spell', s.n) ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div>${spellDmgLine(s, info.cl)}</div>
         <div class="row" style="justify-content:flex-end;gap:6px">${left == null ? '' : `<span class="pill ${left ? 'acc' : ''}">${left} of ${num(s.prep)} left</span>`}<button class="btn sm pri" data-act="cast" data-cls="${k.n}" data-i="${i}">Cast</button></div></div>`; }).join('')).join('');
     const empty = info.ci.spont ? `No spells known yet. Add them on the <a href="#" data-tab="spells">Spells</a> page.` : `No spells prepared. Prepare them on the <a href="#" data-tab="spells">Spells</a> page.`;
     return panel(`${k.n} spells`, `<div class="pb"><div class="row hint" style="gap:14px;margin-bottom:8px"><span>Caster level <b>${info.cl}</b></span><span>${esc(info.ci.ab)} <b>${sgn(info.mod)}</b></span><span>${info.ci.spont ? 'Spells known' : 'Prepared spells'}</span>${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Spell failure ${D.asf}%</span>` : ''}</div>
@@ -91,10 +130,19 @@ function spellsReady35(c){
   }).join('');
 }
 
-// the bottom of Combat & Effects: everything you need on your turn without changing page
+// the rest of Combat & Effects: everything you need on your turn without changing page.
+// Each can be shown Full or Compact (see pagePanel in ui-other.js); all sit full width.
 function trackerExtras35(c){
-  const P = sheetPanels35(c);
-  return `<div class="trk-extra"><div class="splv trk-h">Your character</div>
-    ${P.combat}<div class="grid g2" style="align-items:start">${compactSaves35(c)}${compactAttacks35(c)}</div>
-    ${spellsReady35(c)}${renderItemSpells(c)}</div>`;
+  let P = null; const full = id => () => (P = P || sheetPanels35(c))[id];
+  const casters = () => c.classes.map(k => ({k, info: casterInfo(c, k, D)})).filter(x => x.info);
+  return [
+    {id: 'h-char', full: () => `<h2 class="trk-h">${esc(c.name || 'Your character')}</h2>`},
+    {id: 'combat', full: full('combat'), compact: () => compactCombat35(c), def: 'full'},
+    {id: 'saves', full: full('saves'), compact: () => compactSaves35(c), def: 'compact'},
+    {id: 'attacks', full: full('attacks'), compact: () => compactAttacks35(c), def: 'compact'},
+    {id: 'options', full: () => attackOptionsPanel(c, false), compact: () => attackOptionsPanel(c, true), def: 'full'},
+    {id: 'spells', full: () => casters().map(({k, info}) => spellClassPanel(c, k, info)).join(''), compact: () => spellsReady35(c), def: 'compact'},
+    {id: 'itemspells', full: () => renderItemSpells(c)},
+    ...trackerCompanions(c),
+  ];
 }

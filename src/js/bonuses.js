@@ -180,6 +180,8 @@ function collectBonuses(c){
     const tab = row ? num(String(row[8]).replace('–', '-')) : 0; if (tab) add([B('ac', 'untyped', tab)], 'Monk AC bonus (level)', 'monklvl', 'class');
     const spd = row ? num(String(row[9])) : 0; if (spd) add([B('speed', 'untyped', spd)], 'Monk fast movement', 'monkspd', 'class'); }
   const barb = cl('Barbarian'); if (barb && !/heavy|half-plate|full plate|splint|banded/i.test(c.armor.n || '')) add([B('speed', 'untyped', 10)], 'Barbarian fast movement', 'barbspd', 'class');
+  // attack options switched on during a fight (flanking, charging, Combat Expertise…)
+  if (typeof combatOptBonuses === 'function') for (const o of combatOptBonuses(c)) add(o.list, o.src, 'opt:' + o.id, 'combat');
   // familiar's gift to its master (Alertness-style bonuses)
   if (typeof familiarBonuses === 'function') familiarBonuses(c).forEach(b => out.push(b));
   // synergies

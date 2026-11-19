@@ -6,14 +6,30 @@ function renderSpells(c){
     You can still track spell effects on you (from allies, potions or scrolls) on the <b>Combat &amp; Effects</b> tab.</div>`);
   return `<div class="grid" style="gap:14px">${casters.map(({k, info}) => spellClassPanel(c, k, info)).join('')}${itemSp}</div>`;
 }
+// ---- how many spells a prepared caster may prepare (3.5: one per spell slot; a cleric's domain slot takes only domain spells) ----
+const prepLimitOn = c => c.prepLimit !== false;
+function prepUsed(book, lvl, skip = -1){ let all = 0, plain = 0; book.list.forEach((s, i) => { if (i === skip || num(s.lvl) !== lvl) return; const p = num(s.prep); all += p; if (!s.dom) plain += p; }); return {all, plain}; }
+// how many copies of one spell can be prepared, given everything else already prepared at that level
+function prepRoom(c, cls, lvl, isDom, skip = -1){
+  const k = c.classes.find(x => x.n === cls), info = k && casterInfo(c, k, D); if (!info || info.ci.spont) return Infinity;
+  const sl = info.slots.find(x => x.lvl === lvl); if (!sl || sl.total == null || !sl.scoreOK) return 0;
+  const u = prepUsed(c.spells[cls], lvl, skip); const all = sl.total - u.all, plain = sl.total - sl.dom - u.plain;
+  return Math.max(0, isDom ? all : Math.min(all, plain));
+}
+function prepLimitText(info, lvl){ const sl = info.slots.find(x => x.lvl === lvl) || {};
+  if (sl.total == null || !sl.scoreOK) return `You can't prepare ${lvLabel(lvl).toLowerCase()} spells yet${sl.total != null ? ' (your casting score is too low)' : ''}.`;
+  return `You can prepare ${sl.total - sl.dom} ${lvl === 0 ? '0-level' : ord(lvl) + '-level'} spell${sl.total - sl.dom === 1 ? '' : 's'} a day${sl.dom ? ` plus ${sl.dom} domain spell` : ''} (one per spell slot).`; }
+
 function spellClassPanel(c, k, info){
   const book = c.spells[k.n] || (c.spells[k.n] = {list:[], used:{}});
+  const lim = !info.ci.spont && prepLimitOn(c);
   const slots = info.slots.map(s => {
     const used = num(book.used[s.lvl]); const tot = s.total;
     const pips = tot == null ? '' : `<div class="pips">${Array.from({length: tot}, (_, i) => `<button class="pip ${i < used ? 'used' : ''}" data-act="pip" data-cls="${k.n}" data-lvl="${s.lvl}" data-n="${i}" aria-label="Slot ${i + 1}"></button>`).join('')}</div>`;
     return `<div class="slot has-why" style="${tot == null ? 'opacity:.4' : ''}" data-ref="bd" data-name="slot:${esc(k.n)}:${s.lvl}"><div class="lv">${s.lvl === 0 ? '0' : ord(s.lvl)}</div>
       <div class="ct">${tot == null ? '—' : `${Math.max(0, tot - used)}<span class="hint" style="font-size:13px">/${tot}</span>`}</div>
-      <div class="dc">DC ${s.dc}${s.dom ? ' · +1 domain' : ''}${s.bonus ? ` · +${s.bonus} bonus` : ''}</div>${!s.scoreOK && tot != null ? '<div class="dc" style="color:var(--bad)">score too low</div>' : ''}${pips}</div>`;
+      <div class="dc">DC ${s.dc}${s.dom ? ' · +1 domain' : ''}${s.bonus ? ` · +${s.bonus} bonus` : ''}</div>${!s.scoreOK && tot != null ? '<div class="dc" style="color:var(--bad)">score too low</div>' : ''}
+      ${info.ci.spont || tot == null ? '' : (() => { const p = prepUsed(book, s.lvl).all, cap = s.scoreOK ? tot : 0; return `<div class="dc prep-n ${p > cap ? 'over' : p === cap && cap ? 'full' : ''}" title="Spells prepared at this level">prepared ${p}/${cap}</div>`; })()}${pips}</div>`;
   }).join('');
   const knownLine = info.known ? `<p class="hint" style="margin:6px 0 0">Spells known: ${info.known.map((n, i) => n == null ? null : `${i === 0 ? '0' : ord(i)}: ${n}`).filter(Boolean).join(' · ')}</p>` : '';
   const levels = [...new Set(book.list.map(s => num(s.lvl)))].sort((a, b) => a - b);
@@ -21,22 +37,22 @@ function spellClassPanel(c, k, info){
     const i = book.list.indexOf(s); const sd = IDX.spells.get(s.n.toLowerCase()); const custom = !sd && libByName('spell', s.n);
     const meta = sd ? [sd.sch, sd.ct, sd.rng, sd.dur].filter(Boolean).join(' · ') : custom ? [custom.sch, custom.dur].filter(Boolean).join(' · ') : '';
     const left = info.ci.spont ? null : Math.max(0, num(s.prep) - num(s.cast));
-    return `<div class="sp"><div>${refA('spell', s.n, s.n, custom ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div></div>
+    return `<div class="sp"><div>${refA('spell', s.n, s.n, custom ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div>${spellDmgLine(s, info.cl)}</div>
       <div class="row" style="justify-content:flex-end;gap:4px">
-        ${info.ci.spont ? '' : `<span class="hint">prep</span><input type="number" style="width:52px" data-k="spells.${k.n}.list.${i}.prep" data-num="1" id="k-sp-${s.id}" value="${num(s.prep)}" min="0"><span class="pill ${left ? 'acc' : ''}">${left} left</span>`}
+        ${info.ci.spont ? '' : `<span class="hint">prep</span><input type="number" style="width:52px" data-k="spells.${k.n}.list.${i}.prep" data-num="1" data-rerender="1" id="k-sp-${s.id}" value="${num(s.prep)}" min="0"${lim ? ` max="${num(s.prep) + prepRoom(c, k.n, num(s.lvl), !!s.dom, i)}"` : ''}><span class="pill ${left ? 'acc' : ''}">${left} left</span>`}
         <button class="btn sm pri" data-act="cast" data-cls="${k.n}" data-i="${i}">Cast</button>
         <button class="btn ghost sm" data-act="delSpell" data-cls="${k.n}" data-i="${i}" aria-label="Remove spell">✕</button></div></div>`; }).join('')).join('');
   const domains = k.n === 'Cleric' ? `<div class="row" style="margin-top:8px"><span class="cap">Domains</span>${[0, 1].map(i => `<div style="width:150px">${S('domains.' + i, c.domains[i] || '', [['', '— choose —'], ...DOMAINS], 'data-rerender="1"')}</div>${c.domains[i] ? refA('domain', c.domains[i], 'ⓘ') : ''}`).join('')}</div>` : '';
   return panel(`${k.n} spells`, `<div class="pb">
       <div class="row" style="gap:16px;margin-bottom:8px"><span><span class="cap">Caster level</span> <b>${info.cl}</b></span><span><span class="cap">Casting ability</span> <b>${info.ci.ab} ${sgn(info.mod)}</b></span>
-        <span><span class="cap">Type</span> <b>${info.ci.spont ? 'Spontaneous (spells known)' : 'Prepared'}</b></span>${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Arcane spell failure ${D.asf}%</span>` : ''}</div>
+        <span><span class="cap">Type</span> <b>${info.ci.spont ? 'Spontaneous (spells known)' : 'Prepared'}</b></span>${info.ci.spont ? '' : `<label class="mini prep-lim" title="When on, you can only prepare as many spells as you have spell slots (3.5 rules). Turn off for house rules or special cases such as a specialist wizard's extra slot."><input type="checkbox" data-k="prepLimit" data-rerender="1" ${lim ? 'checked' : ''}> Limit prepared spells to slots</label>`}${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Arcane spell failure ${D.asf}%</span>` : ''}</div>
       <div class="slots">${slots}</div>${knownLine}${domains}</div>
     <div class="list" style="border-top:1px solid var(--rule)">${list || `<div class="empty">No spells on your list yet. <b>Add spells</b> opens the ${esc(k.n.toLowerCase())} spell list with full descriptions.</div>`}</div>`,
     `<button class="btn sm pri" data-act="addSpell" data-cls="${k.n}">Add spells</button><button class="btn sm" data-act="rest" data-cls="${k.n}" title="Restore all slots and prepared spells">Rest</button>`);
 }
 
 // ===================== TRACKER TAB =====================
-function renderTracker(c){
+function renderTracker(c, extras = []){
   const cb = c.combat; const order = [...cb.list].sort((a, b) => num(b.init) - num(a.init) || num(b.mod) - num(a.mod));
   const initRows = order.map((x, i) => `<div class="init ${i === cb.turn % Math.max(1, order.length) && cb.round > 0 ? 'cur' : ''}">
     <span class="pos">${i + 1}</span><div>${I('combat.list.' + cb.list.indexOf(x) + '.n', x.n, 'aria-label="Name"')}</div>
@@ -70,8 +86,40 @@ function renderTracker(c){
   const effP = panel('Active spells &amp; conditions', `<div class="list">${active.map(effRow).join('') || '<div class="empty">Nothing affecting you right now. Add a condition (shaken, prone, fatigued…), a spell effect, or cast a spell from the <b>Spells</b> tab to track it here.</div>'}</div>
       ${expired.length ? `<div class="splv row" style="justify-content:space-between"><span>Ended</span><button class="btn sm" data-act="clearExpired">Clear ended</button></div><div class="list">${expired.map(effRow).join('')}</div>` : ''}`,
     `<button class="btn sm pri" data-act="addCond">Add condition</button><button class="btn sm" data-act="addSpellEff">Add spell effect</button><button class="btn sm" data-act="addCustomEff">Custom</button>`);
-  return `<div class="grid" style="gap:14px">${roundP}<div class="grid g2" style="align-items:start">${effP}${initP}</div></div>`;
+  // compact versions: one line per effect / combatant, no notes or explanations
+  const cur = i => i === cb.turn % Math.max(1, order.length) && cb.round > 0;
+  const roundC = panel('Round counter', `<div class="pb round-c"><span class="cap">Round</span><b class="n">${cb.round}</b>
+      <button class="btn sm pri" data-act="nextTurn">Next turn</button><button class="btn sm" data-act="prevRound">Undo round</button><button class="btn sm" data-act="rollMyInit">Roll my initiative (${sgn(D.init)})</button><button class="btn sm ghost" data-act="endCombat">End encounter</button>${barbLvl && !raging ? '<button class="btn sm gold" data-act="rage">Rage</button>' : ''}</div>`);
+  const effRowC = e => { const t = e.kind === 'spell' ? 'spell' : e.kind === 'condition' ? 'cond' : null;
+    return `<div class="effc ${e.expired ? 'expired' : ''}"><span class="effc-n">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`}</span><span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
+      ${e.expired ? `<button class="btn sm" data-act="effRenew" data-id="${e.id}">Renew</button>` : e.rounds == null ? '<span class="pill">no countdown</span>' : `<span class="pill good">${fmtRounds(e.rounds)} left</span>`}
+      <button class="btn ghost sm" data-act="delEff" data-id="${e.id}" aria-label="Remove effect">✕</button></div>`; };
+  const effC = panel('Active spells &amp; conditions', `<div class="list">${active.map(effRowC).join('') || '<div class="empty">Nothing affecting you right now.</div>'}</div>
+      ${expired.length ? `<div class="splv row" style="justify-content:space-between"><span>Ended</span><button class="btn sm" data-act="clearExpired">Clear ended</button></div><div class="list">${expired.map(effRowC).join('')}</div>` : ''}`,
+    `<button class="btn sm pri" data-act="addCond">Add condition</button><button class="btn sm" data-act="addSpellEff">Add spell effect</button><button class="btn sm" data-act="addCustomEff">Custom</button>`);
+  const initC = panel('Initiative order', `<div class="list">${order.map((x, i) => `<div class="initc ${cur(i) ? 'cur' : ''}"><span class="pos">${i + 1}</span><b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b><span class="rc-init" title="Initiative">${esc(String(x.init ?? ''))}</span>${x.hp ? `<span class="hint">${esc(x.hp)}</span>` : '<span></span>'}<button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('') || '<div class="empty">No one in initiative yet.</div>'}</div>
+      <div class="pb row" style="border-top:1px solid var(--rule-2)"><input type="text" id="newInitName" placeholder="Name (e.g. Orc #2)" style="flex:2;min-width:140px"><input type="number" id="newInitVal" placeholder="Init" style="width:80px"><button class="btn sm pri" data-act="addInit">Add</button></div>`,
+    `<button class="btn sm ghost" data-act="clearInit">Clear</button>`);
+  const list = [
+    {id: 'round', full: () => roundP, compact: () => roundC, def: 'full'},
+    {id: 'effects', full: () => effP, compact: () => effC, def: 'full'},
+    {id: 'init', full: () => initP, compact: () => initC, def: 'full'},
+    ...extras];
+  return `<div class="grid trk-page" style="gap:14px">${list.map(p => pagePanel(c, 'tracker', p)).join('')}</div>`;
 }
+
+// a panel on a page other than the Character sheet that can be shown Full or Compact.
+// p = {id, full(), compact(), def}; the choice is saved per character in c.pageLayout[page][id]
+function pagePanel(c, page, p){
+  const L = ((c.pageLayout = c.pageLayout || {})[page] = c.pageLayout[page] || {});
+  const mode = p.compact ? (L[p.id] || p.def || 'full') : 'full';
+  const html = mode === 'compact' ? p.compact() : p.full(); if (!html) return '';
+  if (!p.compact) return html;
+  const seg = `<span class="sp-mode" role="group" aria-label="View">${[['full', 'Full'], ['compact', 'Compact']].map(([v, l]) => `<button class="${mode === v ? 'on' : ''}" data-pg="${page}" data-panel="${p.id}" data-v="${v}" aria-pressed="${mode === v}">${l}</button>`).join('')}</span>`;
+  return html.split('<div class="tools">').join('<div class="tools">' + seg);
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if (!b) return; e.preventDefault(); const c = APP_cur(); if (!c) return;
+  const L = ((c.pageLayout = c.pageLayout || {})[b.dataset.pg] = c.pageLayout[b.dataset.pg] || {}); L[b.dataset.panel] = b.dataset.v; markDirty(); renderAll(); });
 
 // ===================== ITEMS TAB =====================
 function drawLoad(c, D){
