@@ -393,7 +393,8 @@ kbd{font-family:ui-monospace,monospace;font-size:11px;border:1px solid var(--rul
 .w-list{overflow-y:auto;min-height:0;flex:1}
 .w-item{display:flex;gap:10px;align-items:center;padding:7px 10px;border-bottom:1px solid var(--rule-2);color:var(--ink);text-decoration:none}
 .w-item:hover{background:var(--accent-soft)} .w-item.act{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
-.w-item img,.w-ph{width:36px;height:36px;object-fit:cover;flex:none;border:1px solid var(--rule)}
+.w-item img,.w-ph,.w-thumb{width:36px;height:36px;object-fit:cover;flex:none;border:1px solid var(--rule)}
+.w-thumb{display:block;overflow:hidden;position:relative;border-radius:4px}.w-thumb img{width:100%;height:100%;object-fit:cover;display:block;border:0}
 .w-ph{display:flex;align-items:center;justify-content:center;font-family:var(--f-label);font-weight:700;font-size:18px;background:var(--rule-2);color:var(--ink-2)}
 .w-t{display:flex;flex-direction:column;min-width:0;flex:1}.w-t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.w-t .hint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .w-head{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:start}
@@ -660,6 +661,11 @@ button.pill{border:0;cursor:pointer;font:inherit;font-family:var(--f-label);font
 .pm-row input{width:auto;margin:3px 0 0}
 .pm-row .hint{display:block;font-size:12px}
 .pm-foot{display:flex;gap:6px;padding:8px 10px;flex-wrap:wrap}
+.crop-wrap{display:flex;justify-content:center}
+.crop-frame{width:min(300px,70vw);aspect-ratio:1;overflow:hidden;border:2px solid var(--ink);border-radius:var(--r-sm);cursor:grab;touch-action:none;background:var(--paper);position:relative}
+.crop-frame.drag{cursor:grabbing}
+.crop-frame img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;pointer-events:none}
+.crop-zoom,.crop-prev{gap:10px;align-items:center}
 .round-c{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .round-c .n{font-family:var(--f-label);font-size:30px;line-height:1;margin-right:8px;font-variant-numeric:tabular-nums}
 .effc{display:grid;grid-template-columns:minmax(0,1fr) auto auto 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
@@ -3034,7 +3040,7 @@ function worldRef(key){
     : [x.type, x.attitude ? x.attitude + ' to you' : '', x.leader ? 'led by ' + wName(c, 'npc', x.leader) : '', x.hq ? 'based at ' + wName(c, 'loc', x.hq) : ''];
   const stats = kind === 'npc' || kind === 'pc' ? NPC_STATS.filter(([k]) => (x.stats || {})[k]).map(([k, l]) => `${l} ${esc(x.stats[k])}`).join(' · ') : '';
   return {title: x.n || 'Unnamed', sub: {pc:'Player character', npc:'NPC', loc:'Location', fac:'Faction'}[kind] + ' · click to open',
-    html: `${x.img ? `<img src="${IMG.src(x.img)}" alt="" style="float:right;width:84px;height:84px;object-fit:cover;margin:0 0 6px 10px;border:1px solid var(--rule)">` : ''}
+    html: `${x.img ? `<span class="w-thumb" style="float:right;width:84px;height:84px;margin:0 0 6px 10px">${cropImg(x)}</span>` : ''}
       <p class="hint" style="margin-top:0">${esc(bits.filter(Boolean).join(' · '))}</p>${stats ? `<p style="font-size:13px">${stats}</p>` : ''}
       <div class="rt">${x.opinion ? `<p><b>Your opinion:</b> ${esc(x.opinion)}</p>` : ''}${x.desc ? `<p>${esc(x.desc).replace(/\n/g, '<br>')}</p>` : ''}${last ? `<p><b>Latest${last.date ? ' (' + esc(last.date) + ')' : ''}:</b> ${esc(last.text)}</p>` : ''}${!x.desc && !last ? '<p class="hint">Nothing written yet.</p>' : ''}</div>`};
 }
@@ -3052,7 +3058,7 @@ function worldList(kind, c){
     const pill = kind === 'loc' ? `<span class="pill ${x.status === 'visited' ? 'good' : x.status === 'cleared' ? 'acc' : x.status === 'avoid' ? 'bad' : ''}">${(LOC_STATUS.find(s => s[0] === x.status) || ['', ''])[1]}</span>`
       : kind === 'pc' ? (x.status === 'dead' ? '<span class="pill bad">dead</span>' : x.status === 'left' ? '<span class="pill">left</span>' : x.trust ? `<span class="pill ${TRUST_PILL[x.trust]}">${(TRUST.find(t => t[0] === x.trust) || [])[1]}</span>` : '')
       : kind === 'npc' && x.status === 'dead' ? '<span class="pill bad">dead</span>' : x.attitude ? `<span class="pill ${ATT_PILL[x.attitude]}">${x.attitude}</span>` : '';
-    return `<a href="#" class="w-item ${x.id === sel ? 'act' : ''}" data-wsel="${kind}:${x.id}">${x.img ? `<img src="${IMG.src(x.img)}" alt="">` : `<span class="w-ph">${esc((x.n || '?').slice(0, 1).toUpperCase())}</span>`}
+    return `<a href="#" class="w-item ${x.id === sel ? 'act' : ''}" data-wsel="${kind}:${x.id}">${x.img ? `<span class="w-thumb">${cropImg(x)}</span>` : `<span class="w-ph">${esc((x.n || '?').slice(0, 1).toUpperCase())}</span>`}
       <span class="w-t"><b>${esc(x.n || 'Unnamed')}</b><span class="hint">${esc(sub.filter(Boolean).join(' · '))}</span></span>${pill}</a>`; }).join('')
     || `<div class="empty">${q ? 'Nothing matches that search.' : `No ${WK[kind].plural.toLowerCase()} yet.`}</div>`;
 }
@@ -3063,10 +3069,14 @@ function logBlock(kind, i, x){
     <div class="w-log">${(x.log || []).map((l, j) => `<div class="w-log-e"><div class="row" style="justify-content:space-between"><input type="date" data-k="${arr}.${i}.log.${j}.date" id="k-wl-${x.id}-${j}" value="${esc(l.date)}" style="width:auto;padding:2px 4px"><button class="btn ghost sm" data-act="wLogDel" data-kind="${kind}" data-id="${x.id}" data-j="${j}" aria-label="Delete entry">✕</button></div>
       ${LT(`${arr}.${i}.log.${j}.text`, l.text, 'Click to write…', 2)}</div>`).join('') || '<p class="hint" style="margin:6px 0 0">Nothing logged yet. Each entry is dated, so you can see how your knowledge grew.</p>'}</div></div>`;
 }
+// which part of a picture shows in its square frame: x.crop = {x, y} (0–100, the point kept in view) and z (zoom, 1–4)
+function cropStyle(cr){ if (!cr) return ''; const x = Math.max(0, Math.min(100, num(cr.x ?? 50))), y = Math.max(0, Math.min(100, num(cr.y ?? 50))), z = Math.max(1, Math.min(4, num(cr.z) || 1));
+  return `object-position:${x}% ${y}%;transform-origin:${x}% ${y}%;${z > 1 ? `transform:scale(${z});` : ''}`; }
+const cropImg = (x, alt = '', cls = '') => `<img src="${IMG.src(x.img)}" alt="${esc(alt)}" ${cls ? `class="${cls}"` : ''} style="${cropStyle(x.crop)}">`;
 function imgBox(kind, x){
-  return `<div class="w-img">${x.img ? `<img src="${IMG.src(x.img)}" alt="Picture of ${esc(x.n)}" class="w-zoom">` : `<label for="wimg-${x.id}" class="portrait-empty"><span class="pe-icon" aria-hidden="true"></span><b>Add picture</b></label>`}</div>
+  return `<div class="w-img">${x.img ? cropImg(x, 'Picture of ' + (x.n || ''), 'w-zoom') : `<label for="wimg-${x.id}" class="portrait-empty"><span class="pe-icon" aria-hidden="true"></span><b>Add picture</b></label>`}</div>
     <input type="file" accept="image/*" hidden id="wimg-${x.id}" data-wimg="${kind}:${x.id}">
-    ${x.img ? `<div class="row" style="justify-content:center;gap:4px"><label for="wimg-${x.id}" class="btn sm">Change</label><button class="btn ghost sm" data-act="wImgDel" data-kind="${kind}" data-id="${x.id}">Remove</button></div>` : ''}`;
+    ${x.img ? `<div class="row" style="justify-content:center;gap:4px"><label for="wimg-${x.id}" class="btn sm">Change</label><button class="btn sm" data-act="wImgCrop" data-kind="${kind}" data-id="${x.id}" title="Choose which part of the picture shows">Adjust</button><button class="btn ghost sm" data-act="wImgDel" data-kind="${kind}" data-id="${x.id}">Remove</button></div>` : ''}`;
 }
 const chipLink = (kind, x) => `<a href="#" class="bchip w-chip" data-wjump="${kind}:${x.id}">${esc(x.n || 'Unnamed')}</a>`;
 function worldDetail(kind, c, x, i){
@@ -3129,9 +3139,37 @@ document.addEventListener('input', e => {
 document.addEventListener('change', async e => { const t = e.target.dataset && e.target.dataset.wimg; if (!t) return; const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   if (!/^image\//.test(f.type)){ toast('That file isn\'t an image.', 'warn'); return; }
   const [kind, id] = t.split(':'); const c = APP_cur(); const x = wArr(c, kind).find(v => v.id === id);
-  try { const d = await imageToDataURL(f, 360); IMG.drop(x.img); x.img = IMG.put(d); markDirty(); renderAll(); } catch { toast('That image couldn\'t be read.', 'warn'); } });
+  try { const d = await imageToDataURL(f, 600); IMG.drop(x.img); x.img = IMG.put(d); delete x.crop; markDirty(); renderAll();
+    const im = new Image(); im.src = d; await im.decode(); if (Math.abs(im.naturalWidth / im.naturalHeight - 1) > .15) openCropper(x); } catch { toast('That image couldn\'t be read.', 'warn'); } });
 document.addEventListener('click', e => { const im = e.target.closest('.w-zoom'); if (!im) return;
   openModal(`<div class="modal narrow" role="dialog"><div class="mh"><h3>Picture</h3><button class="btn ghost" data-close>Close</button></div><div class="mprev" style="text-align:center"><img src="${im.src}" alt="" style="max-height:70vh"></div></div>`); });
+
+// ---- choose which part of a picture shows in its square: drag to move, slider to zoom ----
+function openCropper(x){
+  if (!x || !x.img) return; const cr = Object.assign({x: 50, y: 50, z: 1}, x.crop || {});
+  const bg = openModal(`<div class="modal narrow" role="dialog" aria-label="Adjust picture"><div class="mh"><h3>Adjust picture</h3><button class="btn ghost" data-close>Close</button></div>
+    <div class="mform"><p class="hint" style="margin:0">Drag the picture to choose what shows in the square, and zoom in for a face or upper body. The whole picture is kept; this only changes the framing.</p>
+      <div class="crop-wrap"><div class="crop-frame" id="cr-frame"><img src="${IMG.src(x.img)}" alt="" draggable="false" id="cr-img"></div></div>
+      <label class="row crop-zoom"><span class="cap">Zoom</span><input type="range" id="cr-z" min="1" max="4" step="0.05" value="${cr.z}" style="flex:1"><span id="cr-zv" class="hint">${cr.z.toFixed(1)}×</span></label>
+      <div class="row crop-prev"><span class="cap">Preview</span><span class="w-thumb" style="width:36px;height:36px"><img id="cr-p1" src="${IMG.src(x.img)}" alt=""></span><span class="w-thumb" style="width:84px;height:84px"><img id="cr-p2" src="${IMG.src(x.img)}" alt=""></span></div></div>
+    <div class="mfoot"><button class="btn ghost" id="cr-reset">Reset</button><div class="row"><button class="btn" data-close>Cancel</button><button class="btn pri" id="cr-save">Save</button></div></div></div>`);
+  $$('[data-close]', bg).forEach(b => b.addEventListener('click', closeModal));
+  const frame = $('#cr-frame', bg), imgs = [$('#cr-img', bg), $('#cr-p1', bg), $('#cr-p2', bg)];
+  const draw = () => { const st = cropStyle(cr); imgs.forEach(i => i.setAttribute('style', st)); $('#cr-zv', bg).textContent = (+cr.z).toFixed(1) + '×'; };
+  draw();
+  let drag = null;
+  frame.addEventListener('pointerdown', e => { drag = {x: e.clientX, y: e.clientY, cx: cr.x, cy: cr.y}; frame.setPointerCapture(e.pointerId); frame.classList.add('drag'); });
+  frame.addEventListener('pointermove', e => { if (!drag) return; const r = frame.getBoundingClientRect(), k = 100 / (r.width * (+cr.z));
+    // dragging the picture right shows more of its left side
+    cr.x = Math.max(0, Math.min(100, drag.cx - (e.clientX - drag.x) * k * 1.6)); cr.y = Math.max(0, Math.min(100, drag.cy - (e.clientY - drag.y) * k * 1.6)); draw(); });
+  const end = () => { drag = null; frame.classList.remove('drag'); }; frame.addEventListener('pointerup', end); frame.addEventListener('pointercancel', end);
+  frame.addEventListener('wheel', e => { e.preventDefault(); cr.z = Math.max(1, Math.min(4, +cr.z - Math.sign(e.deltaY) * .1)); $('#cr-z', bg).value = cr.z; draw(); }, {passive: false});
+  frame.tabIndex = 0; frame.addEventListener('keydown', e => { const d = {ArrowLeft: [-3, 0], ArrowRight: [3, 0], ArrowUp: [0, -3], ArrowDown: [0, 3]}[e.key]; if (!d) return; e.preventDefault(); cr.x = Math.max(0, Math.min(100, cr.x + d[0])); cr.y = Math.max(0, Math.min(100, cr.y + d[1])); draw(); });
+  $('#cr-z', bg).addEventListener('input', e => { cr.z = +e.target.value; draw(); });
+  $('#cr-reset', bg).addEventListener('click', () => { cr.x = 50; cr.y = 50; cr.z = 1; $('#cr-z', bg).value = 1; draw(); });
+  $('#cr-save', bg).addEventListener('click', () => { cr.x = Math.round(cr.x); cr.y = Math.round(cr.y); cr.z = Math.round(cr.z * 100) / 100;
+    if (cr.x === 50 && cr.y === 50 && cr.z === 1) delete x.crop; else x.crop = {x: cr.x, y: cr.y, z: cr.z}; markDirty(); closeModal(); renderAll(); });
+}
 
 // ===================== # MENTIONS IN NOTES =====================
 // Type # in a note (or any linked text box) to pick an NPC, location, faction, player or map from a list.
@@ -4653,7 +4691,8 @@ const ACT = {
     for (const n of c.npcs){ if (n.loc === b.dataset.id) n.loc = ''; if (n.fac === b.dataset.id) n.fac = ''; } for (const l of c.locations) if (l.parent === b.dataset.id) l.parent = ''; for (const f of c.factions){ if (f.leader === b.dataset.id) f.leader = ''; if (f.hq === b.dataset.id) f.hq = ''; } },
   wLogAdd: (c, b) => { const t = $('#wlog-new').value.trim(); if (!t){ $('#wlog-new').focus(); return 'noRender'; } const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log = x.log || []; x.log.unshift({date: today(), text: t}); toast('Added to what you know.'); },
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
-  wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; },
+  wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; delete x.crop; },
+  wImgCrop: (c, b) => { openCropper(wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id)); return 'noRender'; },
   npcInit: (c, b) => { const x = wArr(c, b.dataset.kind || 'npc').find(v => v.id === b.dataset.id); const m = parseInt(String((x.stats || {}).init || '0').replace('–', '-')) || 0; const r = rollD(20);
     const k = b.dataset.kind === 'pc' ? 'pc' : 'npc'; const ex = c.combat.list.find(e => e[k] === x.id);
     if (ex){ ex.init = r + m; ex.mod = m; } else c.combat.list.push({id:uid('i'), n:x.n || 'NPC', [k]:x.id, init:r + m, mod:m, hp:(x.stats || {}).hp || ''});
