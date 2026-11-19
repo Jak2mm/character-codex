@@ -20,25 +20,36 @@
     ],
     "security": {
       "csp": null
-    }
+    },
+    "withGlobalTauri": true
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": [
+      "nsis",
+      "msi"
+    ],
     "publisher": "Character Codex contributors",
     "copyright": "MIT License. Rules text: Open Game License v1.0a.",
     "category": "Game",
-    "shortDescription": "3.5 SRD character sheets",
+    "shortDescription": "Tabletop character sheets",
     "longDescription": "Character sheets, spells, combat tracker, notes, maps and rules lookup for the 3.5 System Reference Document.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.png",
+      "icons/icon.icns",
       "icons/icon.ico"
     ],
     "windows": {
-      "nsis": { "installMode": "currentUser" }
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    },
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "10.15"
     }
   }
 }
