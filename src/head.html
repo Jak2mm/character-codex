@@ -263,7 +263,7 @@ table.st tr:last-child td{border-bottom:none}
 /* tracker */
 .round-big{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .round-big .n{font-family:var(--f-label);font-weight:700;font-size:64px;line-height:.9;font-variant-numeric:tabular-nums}
-.init{display:grid;grid-template-columns:28px minmax(0,1fr) 64px 70px 90px 30px;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.init{display:grid;grid-template-columns:28px minmax(110px,.8fr) 64px 70px minmax(140px,1.4fr) auto 30px;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .init.cur{background:var(--gold-soft);box-shadow:inset 4px 0 0 var(--gold)}
 .init .pos{font-family:var(--f-label);font-weight:700;color:var(--ink-2);text-align:center}
 .eff{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:8px 10px;border-bottom:1px solid var(--rule-2)}
@@ -281,7 +281,7 @@ table.st tr:last-child td{border-bottom:none}
 .it .w{text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:640px){
   .it{grid-template-columns:minmax(0,1fr) 54px 64px 30px}.it .loc,.it .wt-total{display:none}
-  .init{grid-template-columns:24px minmax(0,1fr) 56px 30px}.init .hpcol,.init .modcol{display:none}
+  .init{grid-template-columns:24px minmax(0,1fr) 56px auto 30px}.init .hpcol,.init .modcol{display:none}
 }
 .items-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr);align-items:start}
 @media (max-width:900px){.items-grid{grid-template-columns:minmax(0,1fr)}.items-grid>:last-child{order:-1}}
@@ -627,12 +627,29 @@ button.pill{border:0;cursor:pointer;font:inherit;font-family:var(--f-label);font
 .dmg-roll{cursor:pointer;background:var(--sheet);color:var(--ink);font-size:13px;height:22px;min-width:0}
 .dmg-roll:hover{background:var(--accent-soft)}
 .dmg-flat{font-family:var(--f-label);font-size:14px}
+.init-effs{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px;margin-top:-2px}
+.initc .init-effs{grid-column:2/-1}
+.eff-pill{font-size:12px;padding:1px 8px;border-radius:9px;background:var(--rule-2);color:var(--ink);border:1px solid var(--rule)}
+.eff-pill small{color:var(--ink-2)}
+.eff-pill.spell{background:var(--accent-soft);border-color:var(--accent)} .eff-pill.cond{background:var(--warn-soft);border-color:var(--warn)}
+.eff-btn{white-space:nowrap}.eff-btn.has{border-color:var(--accent);color:var(--accent)}
+.who-line{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px}
+.who-chip{font-size:12.5px;padding:1px 8px;border-radius:9px;background:var(--rule-2);border:1px solid var(--rule)}
+.who-chip.self{background:var(--accent-soft);border-color:var(--accent)}
+.who-btn{border:0;background:transparent;color:var(--ink-2);font-size:12.5px;cursor:pointer;padding:0 4px;text-decoration:underline dotted}
+.pop-menu{position:fixed;z-index:70;background:var(--sheet);border:1px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);max-width:min(360px,calc(100vw - 16px));max-height:min(60vh,420px);overflow:auto}
+.pm-h{padding:8px 10px;border-bottom:1px solid var(--rule);font-size:13.5px}
+.pm-list{display:grid}
+.pm-row{display:flex;gap:8px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid var(--rule-2);cursor:pointer;font-size:14px}
+.pm-row input{width:auto;margin:3px 0 0}
+.pm-row .hint{display:block;font-size:12px}
+.pm-foot{display:flex;gap:6px;padding:8px 10px;flex-wrap:wrap}
 .round-c{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .round-c .n{font-family:var(--f-label);font-size:30px;line-height:1;margin-right:8px;font-variant-numeric:tabular-nums}
 .effc{display:grid;grid-template-columns:minmax(0,1fr) auto auto 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .effc.expired{opacity:.6}
 .effc-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.initc{display:grid;grid-template-columns:24px minmax(0,1fr) auto minmax(0,1fr) 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.initc{display:grid;grid-template-columns:24px minmax(0,1fr) auto minmax(0,1fr) auto 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .initc .pos{color:var(--ink-2);font-family:var(--f-label);font-weight:700}
 .initc.cur{background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold)}
 .initc b.me{color:var(--accent)}
