@@ -40,7 +40,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 .charbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:1;min-width:0}
 .charbar select{max-width:240px}
 .sync{font-size:12px;color:var(--ink-2);font-family:var(--f-label);letter-spacing:.06em;text-transform:uppercase}
-.sync.ok::before{content:"● ";color:var(--good)} .sync.busy::before{content:"● ";color:var(--warn)} .sync.local::before{content:"● ";color:var(--ink-2)}
+.sync.ok::before{content:"● ";color:var(--good)} .sync.busy::before{content:"● ";color:var(--warn)} .sync.local::before{content:"● ";color:var(--ink-2)} .sync.warn::before{content:"● ";color:var(--bad)} .sync.warn{color:var(--bad);cursor:pointer}
+.saveloc{display:grid;gap:2px;margin-top:6px;padding:8px 10px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sheet)}
+.saveloc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.saveloc.needs-permission,.saveloc.missing,.saveloc.error{border-color:var(--bad);background:var(--bad-soft)}
+.st-saveloc .cap{font-size:15px}
 .roundchip{display:flex;align-items:stretch;border:1px solid var(--rule);background:var(--sheet);min-width:250px}
 .rc-round{display:flex;flex-direction:column;align-items:stretch;border-right:1px solid var(--rule-2);flex:none}
 .roundchip .lab{background:var(--tab);color:var(--tab-fg);font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;padding:3px 8px;text-align:center}
@@ -721,6 +725,7 @@ body.has-bg :is(.subtabs,.trk-h,.cmp-bar,.sp-foot){background:color-mix(in srgb,
 
 /* ===== Adventure layout: a scene behind glassy framed boxes ===== */
 body.has-bg[data-bgkind="scene"]::before{background-size:cover;background-position:center bottom;opacity:1}
+body.has-bg[data-bgkind="scene-art"]::before{background-size:cover;background-position:center;opacity:1}
 body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 96%,transparent)}
 body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 94%,transparent)}
 @media (min-width:901px){body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 88%,transparent)}body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 82%,transparent)}body[data-style="adventure"] :is(.panel,.top,.sidebar){-webkit-backdrop-filter:blur(10px) saturate(.8);backdrop-filter:blur(10px) saturate(.8)}}
