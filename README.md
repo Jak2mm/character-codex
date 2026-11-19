@@ -22,7 +22,8 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 - **Companions.** Under **Character → Companions**, add an animal companion (all SRD choices, including the higher-level alternatives), a familiar or a paladin's special mount. Their Hit Dice, natural armor, ability scores, attacks, saves and special abilities (link, share spells, evasion and so on) are worked out from the SRD tables for your druid, ranger, sorcerer/wizard or paladin level. A familiar's gift to you (for example a toad's +3 hit points) is added to your sheet, and you can switch it off while the familiar is more than a mile away. You can also add any animal unchanged, or a custom companion with stats you type in. Each one has a picture, current HP, tricks, notes and an **Add to initiative** button.
 - **Skills and feats.** Class skills are marked, with max ranks and a skill-point counter. Craft, Knowledge, Perform and Profession support multiple specialties.
 - **Spells.** Spells per day include bonus spells and cleric domain slots, with save DCs for each spell level. You can track prepared spells or spells known, tick off used slots, and rest to restore them.
-- **Combat and effects.** Initiative order, a turn and round counter, and active spells and conditions. Casting a spell with a duration starts a countdown automatically, based on caster level. Each new round ticks every effect down by one.
+- **Menu.** Every page is listed in a sidebar that you can hide with the ☰ button. Character and Notes expand to show their sections (Companions; Game Notes, Players, NPCs, Locations, Factions, Maps). On a phone the menu slides in over the page.
+- **Combat and effects.** Initiative order, a turn and round counter (the round box at the top shows the round number beside who is up now and who is next, with a **Next turn** button that moves on to the next round after the last combatant), and active spells and conditions. Casting a spell with a duration starts a countdown automatically, based on caster level. Each new round ticks every effect down by one.
 - **Items.** An inventory with locations (worn, carried, backpack, mount, stored), coins, total weight and light, medium or heavy load from your Strength and size. Tick **Ignore all weight** if your table doesn't track encumbrance.
 - **Notes and quests.** Searchable session notes (text boxes keep the size you give them, and grow as you type), and quests with objectives, progress bars and status. The Notes tab also holds **Players, NPCs, Locations, Factions and Maps**, chosen from the titles at the top of the tab.
 - **Players.** Track the other characters in your party: who plays them, race, class, party role, how you feel about them, your opinion, stats as you learn them, and a dated log.
@@ -54,10 +55,11 @@ Characters are saved in **your browser's local storage** on the device you use, 
 ```
 index.html            Built, self-contained app (this is what people open)
 src/head.html         Page title, fonts and all CSS (design tokens at the top)
-src/body.html         Static page shell: top bar, tabs, tooltip and modal roots
+src/body.html         Static page shell: top bar, sidebar, tooltip and modal roots
 src/js/app-shell.js   Install-as-app support (offline service worker, Install button) and Windows/Android differences
 src/js/rulesets/      One file per ruleset (rules data, calculations, sheet panels, tabs); dnd35.js is the 3.5 SRD
 src/js/ui-start.js    Start screen: Continue, New, Load, Options (appearance, backups)
+src/js/ui-nav.js      Sidebar menu, and the turn order shown in the round box
 src/js/ui-panels.js   Character-sheet layout engine: panel order, width, collapse, hide (Customise sheet)
 src/js/core.js        Rules data helpers, character model and derived calculations (AC, saves, skills, spells, load)
 src/js/bonuses.js     Typed bonuses for items, feats, spells, conditions, races and classes, plus the stacking rules

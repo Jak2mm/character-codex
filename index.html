@@ -43,7 +43,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:1240px;margin:0 auto}
 
 /* top bar */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--paper);padding-block:10px 0;border-bottom:1px solid var(--rule)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--paper);padding-block:10px;border-bottom:1px solid var(--rule)}
 .brand{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
 .brand h1{font-family:var(--f-label);font-weight:700;font-size:22px;letter-spacing:.06em;text-transform:uppercase;margin:0;white-space:nowrap}
 .brand h1 b{background:var(--tab);color:var(--tab-fg);padding:0 6px;margin-right:6px}
@@ -51,12 +51,56 @@ button,input,select,textarea{font:inherit;color:inherit}
 .charbar select{max-width:240px}
 .sync{font-size:12px;color:var(--ink-2);font-family:var(--f-label);letter-spacing:.06em;text-transform:uppercase}
 .sync.ok::before{content:"● ";color:var(--good)} .sync.busy::before{content:"● ";color:var(--warn)} .sync.local::before{content:"● ";color:var(--ink-2)}
-.roundchip{display:flex;align-items:center;gap:4px;border:1px solid var(--rule);background:var(--sheet);padding:2px 4px 2px 0}
-.roundchip .lab{background:var(--tab);color:var(--tab-fg);font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px;padding:5px 8px}
-.roundchip .num{font-family:var(--f-label);font-weight:700;font-size:20px;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
-.tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px;scrollbar-width:thin}
-.tabs button{border:1px solid var(--rule);border-bottom:none;background:transparent;font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:14px;padding:7px 12px;cursor:pointer;white-space:nowrap;color:var(--ink-2)}
-.tabs button[aria-selected="true"]{background:var(--tab);color:var(--tab-fg);border-color:var(--tab)}
+.roundchip{display:flex;align-items:stretch;border:1px solid var(--rule);background:var(--sheet);min-width:250px}
+.rc-round{display:flex;flex-direction:column;align-items:stretch;border-right:1px solid var(--rule-2);flex:none}
+.roundchip .lab{background:var(--tab);color:var(--tab-fg);font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;padding:3px 8px;text-align:center}
+.rc-num{display:flex;align-items:center;justify-content:center;flex:1;padding:0 6px 0 0}
+.rc-num #rPrev{padding:2px 6px}
+.roundchip .num{font-family:var(--f-label);font-weight:700;font-size:24px;min-width:2ch;text-align:center;font-variant-numeric:tabular-nums}
+.rc-turn{display:flex;align-items:center;gap:6px;flex:1;min-width:0;padding:3px 4px 3px 8px}
+.rc-lines{flex:1;min-width:0;cursor:pointer}
+.rc-line{display:flex;align-items:baseline;gap:6px;font-size:14px;line-height:1.3;min-width:0}
+.rc-line .k{font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--ink-2);width:3.6em;flex:none}
+.rc-line b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:16em}
+.rc-line b.me{color:var(--accent)} .rc-line b.none{color:var(--ink-2);font-weight:400}
+.rc-line.nx{font-size:13px;color:var(--ink-2)} .rc-line.nx b{font-weight:600}
+.rc-init{font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink-2);border:1px solid var(--rule);padding:0 4px;flex:none}
+.rc-empty{border:0;background:transparent;padding:2px 0;font-size:13px;color:var(--ink-2);cursor:pointer;text-align:left}
+.rc-empty:hover,.rc-lines:hover b{text-decoration:underline}
+
+/* sidebar menu */
+:root{--sidew:224px}
+.nav-tog{padding:4px 7px;line-height:0}
+.nav-tog[aria-expanded="true"]{background:var(--tab);color:var(--tab-fg);border-color:var(--tab)}
+.sidebar{position:fixed;left:0;bottom:0;top:var(--toph,110px);width:var(--sidew);background:var(--sheet);border-right:1px solid var(--rule);overflow-y:auto;z-index:25;padding:8px 0 24px;display:none;overscroll-behavior:contain}
+body.side-open .sidebar{display:block}
+body.side-open #main{margin-left:max(calc(var(--sidew) + 4px),calc((100% - 1240px) / 2))}
+.nv-title{display:flex;align-items:center;justify-content:space-between;padding:2px 8px 6px 14px;font-family:var(--f-label);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:var(--ink-2)}
+.nv-list,.nv-sub{list-style:none;margin:0;padding:0}
+.nv-head{display:flex;align-items:stretch}
+.nv-link{display:flex;align-items:center;gap:6px;width:100%;border:0;border-left:4px solid transparent;background:transparent;text-align:left;cursor:pointer;color:var(--ink);padding:8px 10px 8px 12px;font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:14px}
+.nv-link>span:first-child{flex:1;min-width:0}
+.nv-link:hover{background:var(--rule-2)}
+.nv-top[aria-current="page"]{border-left-color:var(--tab);background:var(--rule-2);font-weight:700}
+.nv-group.open .nv-top[aria-current="page"]{background:transparent}
+.nv-caret{border:0;background:transparent;cursor:pointer;color:var(--ink-2);width:36px;flex:none;font-size:13px}
+.nv-caret:hover{background:var(--rule-2);color:var(--ink)}
+.nv-caret span{display:inline-block;transition:transform .15s}
+.nv-group.open .nv-caret span{transform:rotate(90deg)}
+.nv-child{padding:6px 10px 6px 30px;font-size:13px;letter-spacing:.06em;color:var(--ink-2)}
+.nv-child[aria-current="page"]{border-left-color:var(--tab);background:var(--tab);color:var(--tab-fg);font-weight:700}
+.nv-link .badge{display:inline-block;min-width:18px;padding:0 4px;font-size:11px;background:var(--gold);color:var(--sheet);border-radius:9px;text-align:center;letter-spacing:0}
+.nv-link .n{display:inline-block;min-width:18px;padding:0 5px;font-size:11px;letter-spacing:0;border-radius:9px;background:var(--rule-2);color:var(--ink-2);text-align:center}
+.nv-child[aria-current="page"] .n{background:var(--gold);color:var(--sheet)}
+.nv-close{font-size:16px;padding:0 8px}
+.side-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:44}
+@media (max-width:900px){
+  .sidebar{display:block;top:0;z-index:45;width:min(290px,86vw);transform:translateX(-102%);transition:transform .2s ease;padding-top:calc(10px + env(safe-area-inset-top,0px));box-shadow:none;visibility:hidden}
+  body.side-open .sidebar{transform:none;box-shadow:4px 0 18px rgba(0,0,0,.25);visibility:visible}
+  body.side-open #main{margin-left:auto}
+}
+@media (prefers-reduced-motion:reduce){.sidebar,.nv-caret span{transition:none}}
+@media print{.sidebar,.side-scrim,.nav-tog,.rc-turn{display:none!important} body.side-open #main{margin-left:auto}}
 .prc-link{font-weight:700;border-left:3px solid var(--gold)!important}
 .prc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
 .prc-card{border:1px solid var(--rule);padding:10px 12px;background:var(--sheet)}
@@ -139,7 +183,6 @@ body.st-open{overflow:hidden}
 .comp-sb{margin:0}
 .comp .bchips .bchip[data-ref]{text-decoration:underline dotted}
 @media (max-width:520px){.subtabs button{font-size:13px;padding:5px 9px}}
-.tabs .badge{display:inline-block;min-width:18px;padding:0 4px;margin-left:5px;font-size:11px;background:var(--gold);color:var(--sheet);border-radius:9px;text-align:center}
 
 /* controls */
 .btn{border:1px solid var(--rule);background:var(--sheet);padding:5px 10px;cursor:pointer;font-family:var(--f-label);font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:13px;white-space:nowrap}
@@ -480,6 +523,7 @@ table.bdt th,table.bdt td{border-bottom:1px solid var(--rule-2);padding:3px 5px;
 <body>
 <div class="top"><div class="wrap">
   <div class="brand">
+    <button class="btn nav-tog" id="navToggle" aria-controls="sidebar" aria-expanded="false" aria-label="Menu" title="Show menu"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     <h1 title="Start screen" role="button" tabindex="0"><b id="brandRs" title="Ruleset of the open character">3.5</b>Character Codex</h1>
     <div class="charbar">
       <select id="charSel" aria-label="Character"></select>
@@ -492,15 +536,17 @@ table.bdt th,table.bdt td{border-bottom:1px solid var(--rule-2);padding:3px 5px;
       <span id="delWrap"><button class="btn ghost" id="delChar">Delete</button></span>
       <span class="sync local" id="sync">Loading…</span>
     </div>
-    <div class="roundchip" title="Combat round. Advancing it counts down spell and condition durations.">
-      <span class="lab">Round</span>
-      <button class="btn sm ghost" id="rPrev" aria-label="Previous round">−</button>
-      <span class="num" id="rNum">0</span>
-      <button class="btn sm pri" id="rNext">Next round</button>
+    <div class="roundchip">
+      <div class="rc-round" title="Combat round. Each new round counts down spell and condition durations.">
+        <span class="lab">Round</span>
+        <span class="rc-num"><button class="btn sm ghost" id="rPrev" aria-label="Undo round" title="Undo round">−</button><span class="num" id="rNum">0</span></span>
+      </div>
+      <div class="rc-turn" id="turnInfo" aria-live="polite" hidden></div>
     </div>
   </div>
-  <nav class="tabs" role="tablist" id="tabs"></nav>
 </div></div>
+<nav class="sidebar" id="sidebar" aria-label="Pages"></nav>
+<div class="side-scrim" id="sideScrim" hidden></div>
 <main class="wrap" id="main"></main>
 <div id="tip" hidden></div>
 <div id="toasts" aria-live="polite"></div>
@@ -1596,14 +1642,11 @@ function atkCalc(c, a, D){
 function renderCharBar(){
   const sel = $('#charSel'); const list = charList();
   sel.innerHTML = list.map(c => `<option value="${c.id}" ${c.id === APP.curId ? 'selected' : ''}>${esc(c.name || 'Unnamed')} — ${esc(c.classes.map(k => k.n + ' ' + k.lvl).join(' / '))} (${esc(rsOf(c).short)})</option>`).join('') || '<option>No characters</option>';
-  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0;
+  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0; renderTurnInfo();
   const br = $('#brandRs'); if (br) br.textContent = APP_cur() ? rsOf(APP_cur()).short.replace(/ SRD$/, '') : 'CC';
   $('#delWrap').innerHTML = '<button class="btn ghost" id="delChar">Delete</button>';
 }
-function renderTabs(){
-  const c = APP_cur(); const effN = c ? c.effects.filter(e => !e.expired).length : 0;
-  $('#tabs').innerHTML = TABS.map(([k, l]) => `<button role="tab" aria-selected="${(PARENT[APP.tab] || APP.tab) === k}" data-tab="${k}">${l}${k === 'tracker' && effN ? `<span class="badge">${effN}</span>` : ''}</button>`).join('');
-}
+function renderTabs(){ renderSidebar(); }
 function renderAll(){
   renderCharBar(); renderTabs();
   const c = APP_cur(); const m = $('#main');
@@ -3636,6 +3679,81 @@ registerRuleset({
   tabs: {skills: renderSkills, spells: renderSpells, tracker: renderTracker, items: renderItems, companions: renderCompanions},
 });
 
+// ===================== SIDEBAR MENU + TURN ORDER IN THE TOP BAR =====================
+// The page menu is a sidebar that can be retracted with the ☰ button. Pages with sections
+// (Character, Notes) expand to show them. On wide screens it sits beside the page and the
+// open/closed choice is remembered; on narrow screens it slides in over the page.
+const NAV_PREF = 'ccodex-sidebar', NAVGROUP_PREF = 'ccodex-navgroups';
+const NAV_WIDE = '(min-width:901px)';
+APP.navGroups = (() => { try { return JSON.parse(localStorage.getItem(NAVGROUP_PREF) || '{}') || {}; } catch { return {}; } })();
+
+const navWide = () => matchMedia(NAV_WIDE).matches;
+const sideIsOpen = () => document.body.classList.contains('side-open');
+function setSide(open, remember){
+  document.body.classList.toggle('side-open', !!open);
+  const t = document.getElementById('navToggle'); if (t){ t.setAttribute('aria-expanded', String(!!open)); t.title = open ? 'Hide menu' : 'Show menu'; }
+  const s = document.getElementById('sideScrim'); if (s) s.hidden = !(open && !navWide());
+  if (remember && navWide()){ try { localStorage.setItem(NAV_PREF, open ? 'open' : 'closed'); } catch {} }
+  setTopH();
+}
+function sideDefault(){ let p = null; try { p = localStorage.getItem(NAV_PREF); } catch {} return navWide() && p !== 'closed'; }
+function setTopH(){ const t = document.querySelector('.top'); if (t) document.documentElement.style.setProperty('--toph', (t.offsetHeight || 0) + 'px'); }
+
+function navCount(c, k){
+  if (!c) return 0; const a = k === 'companions' ? c.companions : k === 'notes' ? c.notes : ['players', 'npcs', 'locations', 'factions', 'maps'].includes(k) ? c[k] : null;
+  return a ? a.length : 0;
+}
+function renderSidebar(){
+  const el = document.getElementById('sidebar'); if (!el) return;
+  const c = APP_cur(); const effN = c ? c.effects.filter(e => !e.expired).length : 0;
+  const cur = APP.tab, curParent = PARENT[cur] || cur;
+  const link = (k, l, cls, extra = '') => `<button class="nv-link ${cls}" data-tab="${k}" ${(cls === 'nv-child' ? cur === k : curParent === k) ? 'aria-current="page"' : ''}><span>${l}</span>${extra}</button>`;
+  const items = TABS.map(([k, l]) => {
+    const badge = k === 'tracker' && effN ? `<span class="badge" title="${effN} active effect${effN === 1 ? '' : 's'}">${effN}</span>` : '';
+    if (!SUBTABS[k]) return `<li>${link(k, l, 'nv-top', badge)}</li>`;
+    const open = APP.navGroups[k] != null ? !!APP.navGroups[k] : curParent === k;
+    const kids = SUBTABS[k].map(([sk, sl]) => { const n = navCount(c, sk); return `<li>${link(sk, sl, 'nv-child', n ? `<span class="n">${n}</span>` : '')}</li>`; }).join('');
+    return `<li class="nv-group ${open ? 'open' : ''}"><div class="nv-head">${link(k, l, 'nv-top', badge)}
+      <button class="nv-caret" data-nav="group" data-g="${k}" aria-expanded="${open}" aria-controls="nv-${k}" title="${open ? 'Hide' : 'Show'} ${esc(l)} sections"><span aria-hidden="true">▸</span></button></div>
+      <ul class="nv-sub" id="nv-${k}" ${open ? '' : 'hidden'}>${kids}</ul></li>`;
+  }).join('');
+  el.innerHTML = `<div class="nv-title"><span>Pages</span><button class="btn ghost sm nv-close" data-nav="close" aria-label="Hide menu" title="Hide menu">‹</button></div><ul class="nv-list">${items}</ul>`;
+}
+
+// ---- turn order shown in the round box: who is up now, and who is next ----
+function initOrder(c){ return [...(c.combat.list || [])].sort((a, b) => num(b.init) - num(a.init) || num(b.mod) - num(a.mod)); }
+function renderTurnInfo(){
+  const el = document.getElementById('turnInfo'); if (!el) return; const c = APP_cur();
+  if (!c){ el.innerHTML = ''; el.hidden = true; return; } el.hidden = false;
+  const order = initOrder(c), n = order.length, cb = c.combat;
+  const who = x => x ? `<b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b>${x.init !== '' && x.init != null ? `<span class="rc-init" title="Initiative">${esc(String(x.init))}</span>` : ''}` : '<b class="none">—</b>';
+  // with no one in initiative the button just moves the round on (handy for counting down spell durations)
+  if (!n){ el.innerHTML = `<button class="rc-empty" data-tab="tracker" title="Open Combat & Effects to add combatants">No one in initiative · <u>add</u></button>
+    <button class="btn sm pri" id="rTurn" title="Move to the next round">${cb.round > 0 ? 'Next round' : 'Start'}</button>`; return; }
+  const started = cb.round > 0, i = started ? cb.turn % n : 0, now = order[i], next = n > 1 ? order[(i + 1) % n] : null;
+  el.innerHTML = `<div class="rc-lines" data-tab="tracker" title="Open the initiative order">
+      <div class="rc-line"><span class="k">${started ? 'Now' : 'First'}</span>${who(now)}</div>
+      <div class="rc-line nx"><span class="k">Next</span>${next ? who(next) : '<b class="none">—</b>'}</div></div>
+    <button class="btn sm pri" id="rTurn" title="${started ? 'End this turn and move to the next in initiative' : 'Start combat at round 1'}">${started ? 'Next turn' : 'Start'}</button>`;
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('#navToggle')){ setSide(!sideIsOpen(), true); return; }
+  if (e.target.closest('#sideScrim')){ setSide(false); return; }
+  const b = e.target.closest('[data-nav]');
+  if (b){ e.preventDefault();
+    if (b.dataset.nav === 'close'){ setSide(false, true); document.getElementById('navToggle').focus(); return; }
+    if (b.dataset.nav === 'group'){ const g = b.dataset.g; const open = APP.navGroups[g] != null ? !!APP.navGroups[g] : (PARENT[APP.tab] || APP.tab) === g;
+      APP.navGroups[g] = !open; try { localStorage.setItem(NAVGROUP_PREF, JSON.stringify(APP.navGroups)); } catch {} renderSidebar(); const f = document.querySelector(`[data-nav="group"][data-g="${g}"]`); if (f) f.focus(); return; }
+  }
+  if (e.target.closest('#rTurn')){ const c = APP_cur(); if (!c) return; ACT.nextTurn(c); markDirty(); renderAll(); return; }
+  // picking a page in the slide-in menu closes it (on wide screens it stays put)
+  if (e.target.closest('#sidebar [data-tab]') && !navWide()) setTimeout(() => setSide(false), 0);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sideIsOpen() && !navWide() && !document.querySelector('#modalRoot .modal') && !APP.startOpen) setSide(false); });
+let navWasWide = navWide();
+window.addEventListener('resize', () => { const w = navWide(); if (w !== navWasWide){ navWasWide = w; setSide(sideDefault()); } setTopH(); });
+
 // ===================== INPUT BINDING =====================
 let barTimer = null;
 function readVal(el){ if (el.type === 'checkbox') return el.checked; if (el.dataset.num) return el.value === '' ? '' : num(el.value); return el.value; }
@@ -3869,7 +3987,7 @@ document.addEventListener('click', e => {
   const roll = e.target.closest('.roll'); if (roll){ const row = roll.closest('[data-atk]'); const c0 = APP_cur();
     if (row && roll.classList.contains('atkb') && c0){ const a = c0.attacks.find(x => x.id === row.dataset.atk); if (a && !fireAmmo(c0, a)) return; }
     rollToast(roll.dataset.label || 'Roll', num(roll.dataset.bonus)); return; }
-  const tab = e.target.closest('[data-tab]'); if (tab){ let t = tab.dataset.tab; if (tab.closest('#tabs') && SUBTABS[t]) t = APP.lastSub[t] || t; APP.tab = t; renderAll(); window.scrollTo({top:0}); return; }
+  const tab = e.target.closest('[data-tab]'); if (tab){ let t = tab.dataset.tab; if (tab.closest('#sidebar .nv-top, .rc-turn') && SUBTABS[t]) t = APP.lastSub[t] || t; APP.tab = t; renderAll(); window.scrollTo({top:0}); return; }
   const b = e.target.closest('[data-act]'); if (!b) return; const c = APP_cur(); if (!c) return;
   const fn = ACT[b.dataset.act]; if (!fn) return;
   const r = fn(c, b); if (r === 'noRender') return;
@@ -3917,7 +4035,6 @@ $('#impFile').addEventListener('change', async e => {
     c.lastOpened = Date.now(); markDirty(c.id); if (APP.startOpen) closeStart(); renderAll(); toast(`Imported <b>${esc(c.name)}</b>.`);
   } catch (err){ toast('That file couldn\'t be read as a character export. ' + esc(err.message || ''), 'warn'); }
 });
-$('#rNext').addEventListener('click', () => { const c = APP_cur(); if (!c) return; ACT.nextRound(c); markDirty(); renderAll(); });
 $('#rPrev').addEventListener('click', () => { const c = APP_cur(); if (!c) return; ACT.prevRound(c); markDirty(); renderAll(); });
 
 // ===================== BOOT =====================
@@ -3927,6 +4044,7 @@ try { APP.notesHelpHidden = localStorage.getItem('ccodex-noteshelp') === '1'; } 
 try { const t = localStorage.getItem('ccodex-tab'); if (t && ALL_TABS.includes(t)) APP.tab = t; const ls = JSON.parse(localStorage.getItem('ccodex-subtabs') || '{}'); for (const k in ls) if (ALL_TABS.includes(ls[k])) APP.lastSub[k] = ls[k]; } catch {}
 if (location.hash && ALL_TABS.includes(location.hash.slice(1))) APP.tab = location.hash.slice(1);
 if (!Object.keys(APP.chars).length){ const ex = exampleChar(); APP.chars[ex.id] = ex; APP.curId = ex.id; }
+setSide(sideDefault());
 renderAll();
 connectDb();
 if (startPrefOn()) openStart('menu');
