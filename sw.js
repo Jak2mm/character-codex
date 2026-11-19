@@ -1,7 +1,7 @@
 // Service worker for the installable web app (PWA): lets the Codex open offline.
 // The page itself is fetched fresh whenever you're online, so a new upload shows up straight away;
 // the saved copy is only used when there's no connection. Built by tools/build.py (version below).
-const VERSION = '9a9ac955a894';
+const VERSION = '644977e17add';
 const CACHE = 'ccodex-' + VERSION, FONTS = 'ccodex-fonts';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/favicon-64.png'];
 

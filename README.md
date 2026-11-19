@@ -52,14 +52,16 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 - **Multiple characters**, plus **export and import** as JSON files.
 - Light and dark themes, and layouts for desktop and mobile.
 
-## Install it as an app (Windows, Android and more)
+## Install it as an app (Windows, Mac, Android and more)
 
 - **From the website:** open the Codex in Edge or Chrome (Windows) or Chrome (Android) and click **Install app** at the top, or use the browser's menu (*Install Character Codex* / *Add to Home screen*). It gets its own icon and window, works offline, and updates itself whenever a new version is uploaded.
-- **Windows installer and Android APK:** download them from this repository's **Releases** page. They're built automatically by GitHub; see [native/README.md](native/README.md) for how.
+- **Windows installer, Mac app and Android APK:** download them from this repository's **Releases** page. The Mac app works on Apple silicon and Intel Macs; the first time you open it, macOS asks you to confirm in *System Settings → Privacy & Security → Open Anyway*, because it isn't signed by a paid Apple developer account. They're built automatically by GitHub; see [native/README.md](native/README.md) for how.
 
 ## Where your data is saved
 
 Characters are saved in **your browser's local storage** on the device you use, and pictures and maps in the browser's IndexedDB storage. They aren't uploaded anywhere. To move a character to another device use **Export** and **Import**; to back up everything at once (all characters, homebrew and pictures) use **Options → Back up all characters** on the start screen, and **Restore or import** on the other device.
+
+**Save location (share characters between computers).** In the Windows and Mac apps, and in Chrome or Edge on a computer, **Options → Save location → Choose folder** keeps your characters in a folder of your choice as well, for example a NAS, Dropbox, OneDrive or iCloud Drive folder. Everything goes in a `Character Codex` folder inside it: one `.json` file per character (the same format as Export), `homebrew.json`, and a `pictures` folder. The app reads the folder when it opens and whenever it comes back to the front, so every computer using the same folder sees the same characters; if one character is changed on two computers before they sync, the newest change is kept, and deleting a character deletes it everywhere. The app still keeps its own copy, so it works when the folder or NAS is offline. Chrome and Edge ask for permission to the folder once each visit (click **Folder: allow access** at the top). The sample character stays on each device and isn't copied to the folder.
 
 (When the page runs inside Claude as a published artifact, it syncs characters to the user's private Claude storage instead. That code is in `src/js/store.js`. Outside Claude it falls back to local storage automatically.)
 
@@ -69,7 +71,8 @@ Characters are saved in **your browser's local storage** on the device you use, 
 index.html            Built, self-contained app (this is what people open)
 src/head.html         Page title, fonts and all CSS (design tokens at the top)
 src/body.html         Static page shell: top bar, sidebar, tooltip and modal roots
-src/js/app-shell.js   Install-as-app support (offline service worker, Install button) and Windows/Android differences
+src/js/app-shell.js   Install-as-app support (offline service worker, Install button) and desktop/Android differences
+src/js/folder.js      Save location: keeps characters, homebrew and pictures in a folder of the player's choice and syncs it
 src/js/rulesets/      One file per ruleset (rules data, calculations, sheet panels, tabs); dnd35.js is the 3.5 SRD
 src/js/ui-start.js    Start screen: Continue, New, Load, Options (appearance, backups)
 src/js/ui-nav.js      Sidebar menu, and the turn order shown in the round box
@@ -99,7 +102,7 @@ tools/build.py        Bundles src/ and data/ into index.html (and writes sw.js)
 tools/make_icons.py   Draws the app icons
 manifest.webmanifest  Web app name, colours and icons
 icons/                App icons
-native/               Windows (Tauri) and Android (Capacitor) apps, and the GitHub workflow that builds them
+native/               Windows and Mac (Tauri) and Android (Capacitor) apps, and the GitHub workflow that builds them
 tools/parse_srd.py    Regenerates data/srd.json (entries and rules chapters) from the Markdown SRD
 ```
 
