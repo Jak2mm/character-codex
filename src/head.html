@@ -33,7 +33,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .wrap{max-width:1240px;margin:0 auto}
 
 /* top bar */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--paper);padding-block:10px;border-bottom:1px solid var(--rule)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--paper);padding-block:10px;margin-inline:-16px;padding-inline:16px;border-bottom:1px solid var(--rule)}
 .brand{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
 .brand h1{font-family:var(--f-label);font-weight:700;font-size:22px;letter-spacing:.06em;text-transform:uppercase;margin:0;white-space:nowrap}
 .brand h1 b{background:var(--tab);color:var(--tab-fg);padding:0 6px;margin-right:6px}
@@ -699,6 +699,7 @@ body.has-bg::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:
 body.has-bg[data-bgkind="pattern"]::before{background-repeat:repeat;background-size:auto}
 body.has-bg[data-bgkind="image"]::before{background-size:cover;background-position:center}
 body.has-bg :is(.subtabs,.trk-h,.cmp-bar,.sp-foot){background:color-mix(in srgb,var(--paper) 92%,transparent);border-radius:var(--r-sm);padding-inline:8px}
+body.has-bg .subtabs{padding-block:6px;align-items:center}
 /* Options page */
 .th-group{display:grid;gap:6px}
 .th-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -729,8 +730,9 @@ body.has-bg[data-bgkind="scene-art"]::before{background-size:cover;background-po
 /* painted backgrounds: see-through boxes (fields and stat boxes stay nearly solid so text stays sharp) */
 @media (min-width:901px){
 body[data-bgkind="scene-art"][data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) var(--glass,76%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-body[data-bgkind="scene-art"][data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 72%,transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-body[data-bgkind="scene-art"][data-style="adventure"] .panel :is(input,select,textarea,.sbox,.hp-box,.rs-slot){background-color:color-mix(in srgb,var(--sheet) 92%,transparent)}}
+body[data-bgkind="scene-art"][data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) var(--glass-bar,64%),transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+body[data-bgkind="scene-art"][data-style="adventure"] .panel :is(input,select,textarea,.sbox,.hp-box,.rs-slot){background-color:color-mix(in srgb,var(--sheet) var(--glass-field,86%),transparent)}
+body[data-bgkind="scene-art"][data-style="adventure"] .subtabs{background:color-mix(in srgb,var(--paper) var(--glass-bar,64%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}}
 body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 96%,transparent)}
 body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 94%,transparent)}
 @media (min-width:901px){body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 88%,transparent)}body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 82%,transparent)}body[data-style="adventure"] :is(.panel,.top,.sidebar){-webkit-backdrop-filter:blur(10px) saturate(.8);backdrop-filter:blur(10px) saturate(.8)}}
