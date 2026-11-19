@@ -279,6 +279,12 @@ table.st tr:last-child td{border-bottom:none}
 .it{display:grid;grid-template-columns:minmax(0,1fr) 62px 72px 70px 130px 30px;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .it.head{font-family:var(--f-label);font-weight:600;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding-block:4px}
 .it .w{text-align:right;font-variant-numeric:tabular-nums}
+.it{align-items:start}
+.it-f{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0}
+.it-f>span{font-family:var(--f-label);font-weight:600;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);text-align:center}
+.it-f.wt-total b{font-weight:600;display:flex;align-items:center;justify-content:flex-end;min-height:32px}
+.it-f.wt-total>span{text-align:right}
+.it>.btn.ghost{margin-top:4px}
 @media (max-width:640px){
   .it{grid-template-columns:minmax(0,1fr) 54px 64px 30px}.it .loc,.it .wt-total{display:none}
   .init{grid-template-columns:24px minmax(0,1fr) 56px auto 30px}.init .hpcol,.init .modcol{display:none}
