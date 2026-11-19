@@ -547,13 +547,22 @@ input[type=text],input[type=search],input[type=date],input[type=number],input:no
 .sbox.acc{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .sb-v{display:flex;align-items:baseline;justify-content:center;gap:2px;min-height:34px}
 .sb-big{font-family:var(--f-label);font-weight:700;font-size:28px;line-height:1.15;font-variant-numeric:tabular-nums;padding:0 6px;border-radius:var(--r-sm)}
-.sb-big{border:1px solid transparent;min-width:2.4em;text-align:center}
+.sb-big{border:1px solid transparent;min-width:min(2.4em,100%);max-width:100%;text-align:center;box-sizing:border-box}
+.sb-v{max-width:100%}
+.ab-box.temp .sb-big{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+.ab-box.temp .sb-sub{color:var(--accent)}
+.ab-grid{container-type:inline-size}
+@container (max-width:420px){.ab-box .sb-big{font-size:22px;padding:0 3px}}
 .sb-big.roll{cursor:pointer;border-color:var(--rule);background:var(--sheet)}
 .sb-big.roll:hover{background:var(--accent-soft);border-color:var(--accent)}
 .sb-l{font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);line-height:1.2}
 .sb-l .tag,.sbox .sb-l a.tag{text-align:center;background:none;color:var(--ink-2);padding:0;min-width:0;font-size:11px;font-weight:600}
-.ab-box .sb-l .tag{color:var(--ink);font-size:13px;font-weight:700}
-.sb-score{font-family:var(--f-label);font-weight:700;font-size:14px;color:var(--ink-2);display:flex;gap:4px;align-items:center}
+.sb-sub{font-family:var(--f-label);font-weight:700;font-size:14px;color:var(--ink-2);display:flex;gap:4px;align-items:center;justify-content:center;white-space:nowrap;min-height:20px;max-width:100%;overflow:hidden}
+.sv-box .sb-sub{font-size:12px;font-weight:600;letter-spacing:.03em}
+.sv-grid{container-type:inline-size}
+@container (max-width:420px){.sv-base{display:none}.sv-box .sb-big{font-size:22px;padding:0 3px}}
+.ab-box .sb-l .tag,.sv-box .sb-l .tag{color:var(--ink);font-size:13px;font-weight:700}
+button.pill{border:0;cursor:pointer;font:inherit;font-family:var(--f-label);font-weight:600;font-size:11.5px}
 .cc-wrap{display:grid;gap:10px}
 .cc-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .cc-grid .sbox{justify-content:flex-start}.cc-grid .sb-l{overflow-wrap:anywhere}
@@ -1781,9 +1790,10 @@ function sheetPanels35(c){
   const LIM = abilLimits(c), lock = LIM.locked; const ptsLeft = Math.floor(totalLevel(c) / 4) - ABIL.reduce((s, a) => s + num(c.abil[a].lvlUp), 0);
   const odd = lock && ABIL.filter(a => num(c.abil[a].base) > LIM.max || (c.abil[a].base !== '' && num(c.abil[a].base) < LIM.min));
   const over = LIM.budget && pbSpent(c) > LIM.budget;
+  const helpOff = !!(sheetLayoutOf(c).helpHidden || {}).abilities, nWarn = (odd && odd.length ? 1 : 0) + (over ? 1 : 0);
   const modeBar = `<div class="pb row ab-mode" style="gap:8px;border-bottom:1px solid var(--rule-2)"><label class="cap" for="k-abilMode">Score method</label>
       <select id="k-abilMode" data-k="abilMode" data-rerender="1" style="width:auto;max-width:100%">${ABIL_MODES.map(([v, l]) => `<option value="${v}" ${abilMode(c) === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
-      ${LIM.budget ? '<span class="pill has-why" id="pbPts" data-ref="bd" data-name="pointBuy"></span>' : ''}<span class="pill acc has-why" id="abPts" data-ref="bd" data-name="abilPts"></span></div>`;
+      ${LIM.budget ? '<span class="pill has-why" id="pbPts" data-ref="bd" data-name="pointBuy"></span>' : ''}<span class="pill acc has-why" id="abPts" data-ref="bd" data-name="abilPts"></span>${helpOff && nWarn ? `<button class="pill bad" data-sp="help" data-panel="abilities" title="Show the warnings">${nWarn} warning${nWarn === 1 ? '' : 's'} · show</button>` : ''}</div>`;
   const abil = panel('Ability scores', `${modeBar}<div class="tbl-wrap"><table class="st">
     <thead><tr><th>Ability</th><th title="Your starting score (point buy or rolled)">Base</th><th title="Level-up points: one at every 4th character level">Lvl +</th><th>Racial</th><th title="Other untyped adjustments you type in">Misc</th><th title="Typed bonuses from items, spells and conditions (hover for details)">Bonuses</th><th>Score</th><th>Mod</th><th title="Temporary adjustment (rage, bull's strength, ability damage…)">Temp adj</th><th>Temp mod</th></tr></thead>
     <tbody>${ABIL.map(a => `<tr><td><div class="ab-name">${refA('gloss', a, a.toUpperCase(), 'tag')}<small>${ABIL_FULL[a]}</small></div></td>
@@ -1796,10 +1806,10 @@ function sheetPanels35(c){
       <td><span class="out roll" data-roll="ab.${a}.mod" data-label="${ABIL_FULL[a]} check" data-o="ab.${a}.mod" data-fmt="sgn" title="Click to roll"></span></td>
       <td>${N('abil.' + a + '.temp', c.abil[a].temp)}</td>
       <td>${O('ab.' + a + '.tmod', 'sm temp', 'sgn')}</td></tr>`).join('')}</tbody></table></div>
-    ${odd && odd.length ? `<p class="hint pb" style="padding-top:0;margin:0;color:var(--bad)">${odd.join(', ')} base ${odd.length === 1 ? 'is' : 'are'} outside the ${LIM.min}–${LIM.max} range for this method. If you added level-up points to Base, move them to the Lvl + column, or pick another method (or Unlocked) above.</p>` : ''}
-    ${over ? `<p class="hint pb" style="padding-top:0;margin:0;color:var(--bad)">These scores cost ${pbSpent(c)} points, more than the ${LIM.budget} allowed. Lower some, or pick a higher point total above.</p>` : ''}
-    <p class="hint pb" style="padding-top:0">${LIM.budget ? `<b>Point buy:</b> every score starts at 8; 9–14 cost 1 point per step, 15–16 cost 2, 17–18 cost 3 (so 14 costs 6, 16 costs 10, 18 costs 16). Hover the points to see the cost of each score.` : abilMode(c) === 'rolled' ? '<b>Rolled:</b> roll 4d6 and drop the lowest die for each score, then type them into Base (3–18).' : '<b>Unlocked:</b> limits are off (house rules).'}
-    Lvl + gets one point at every 4th character level. Misc is for inherent bonuses (tomes, manuals, <i>wish</i>) and ageing. Racial adjustments come from your race. Bonuses come from worn items and active spells or conditions, following the stacking rules. Temp adjustments are for anything else temporary.</p>`);
+    ${odd && odd.length && !helpOff ? `<p class="hint pb" style="padding-top:0;margin:0;color:var(--bad)">${odd.join(', ')} base ${odd.length === 1 ? 'is' : 'are'} outside the ${LIM.min}–${LIM.max} range for this method. If you added level-up points to Base, move them to the Lvl + column, or pick another method (or Unlocked) above.</p>` : ''}
+    ${over && !helpOff ? `<p class="hint pb" style="padding-top:0;margin:0;color:var(--bad)">These scores cost ${pbSpent(c)} points, more than the ${LIM.budget} allowed. Lower some, or pick a higher point total above.</p>` : ''}
+    ${helpOff ? '' : `<p class="hint pb" style="padding-top:0">${LIM.budget ? `<b>Point buy:</b> every score starts at 8; 9–14 cost 1 point per step, 15–16 cost 2, 17–18 cost 3 (so 14 costs 6, 16 costs 10, 18 costs 16). Hover the points to see the cost of each score.` : abilMode(c) === 'rolled' ? '<b>Rolled:</b> roll 4d6 and drop the lowest die for each score, then type them into Base (3–18).' : '<b>Unlocked:</b> limits are off (house rules).'}
+    Lvl + gets one point at every 4th character level. Misc is for inherent bonuses (tomes, manuals, <i>wish</i>) and ageing. Racial adjustments come from your race. Bonuses come from worn items and active spells or conditions, following the stacking rules. Temp adjustments are for anything else temporary.</p>`}`, `<button class="btn sm ghost" data-sp="help" data-panel="abilities" aria-pressed="${!helpOff}" title="${helpOff ? 'Show the rules notes and warnings under the table' : 'Hide the rules notes and warnings to make this box smaller'}">${helpOff ? 'Show notes' : 'Hide notes'}</button>`);
 
   const combat = panel('Combat', `<div class="pb grid" style="gap:12px">
     <div class="grid g2" style="gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
@@ -3740,6 +3750,7 @@ document.addEventListener('click', e => {
   if (act === 'reset'){ c.sheetLayout = {}; toast('Sheet layout reset to the standard one.'); }
   if (act === 'collapse'){ L.collapsed[id] = !L.collapsed[id]; if (!L.collapsed[id]) delete L.collapsed[id]; }
   if (act === 'mode'){ const v = b.dataset.v; if (v === 'hidden') L.hidden[id] = true; else { delete L.hidden[id]; if (v === 'compact') L.mode[id] = 'compact'; else delete L.mode[id]; } }
+  if (act === 'help'){ L.helpHidden = L.helpHidden || {}; L.helpHidden[id] = !L.helpHidden[id]; if (!L.helpHidden[id]) delete L.helpHidden[id]; }
   if (act === 'hide'){ L.hidden[id] = !L.hidden[id]; if (!L.hidden[id]) delete L.hidden[id]; }
   if (act === 'size'){ const p = (ruleset(c).sheet || []).find(x => x.id === id); const cur = L.size[id] || (p && p.size) || 'full'; const nx = cur === 'full' ? 'half' : 'full'; if (p && p.size === nx) delete L.size[id]; else L.size[id] = nx; }
   if (act === 'up' || act === 'down'){ const ids = orderedPanels(c).map(p => p.id); const i = ids.indexOf(id), j = act === 'up' ? i - 1 : i + 1;
@@ -3758,16 +3769,18 @@ document.addEventListener('click', e => {
 const sbox = (val, label, extra = '') => `<div class="sbox ${extra}"><div class="sb-v">${val}</div><div class="sb-l">${label}</div></div>`;
 
 function compactAbilities35(c){
-  const boxes = ABIL.map(a => { const t = num(c.abil[a].temp) !== 0;
-    const mod = `<span class="sb-big roll" data-roll="ab.${a}.${t ? 'tmod' : 'mod'}" data-label="${ABIL_FULL[a]} check" data-o="ab.${a}.${t ? 'tmod' : 'mod'}" data-fmt="sgn" title="Click to roll a ${ABIL_FULL[a]} check"></span>`;
-    return `<div class="sbox ab-box"><div class="sb-l">${refA('gloss', a, a.toUpperCase(), 'tag')}</div><div class="sb-v">${mod}</div>
-      <div class="sb-score" data-ref="bd" data-name="ab.${a}" title="${t ? 'Score with temporary adjustment' : 'Score'}"><span data-o="ab.${a}.${t ? 'tscore' : 'total'}"></span>${t ? '<span class="pill acc">temp</span>' : ''}</div></div>`; }).join('');
+  const boxes = ABIL.map(a => { const t = num(c.abil[a].temp) !== 0, k = t ? 't' : '';
+    const score = `<span class="sb-big roll" data-roll="ab.${a}.${k}mod" data-label="${ABIL_FULL[a]} check" data-o="ab.${a}.${t ? 'tscore' : 'total'}" data-ref="bd" data-name="ab.${a}" title="Click to roll a ${ABIL_FULL[a]} check"></span>`;
+    return `<div class="sbox ab-box${t ? ' temp' : ''}"${t ? ' title="Includes a temporary adjustment"' : ''}><div class="sb-l">${refA('gloss', a, a.toUpperCase(), 'tag')}</div><div class="sb-v">${score}</div>
+      <div class="sb-sub" title="Modifier${t ? ' with temporary adjustment' : ''}"><span data-o="ab.${a}.${k}mod" data-fmt="sgn"></span></div></div>`; }).join('');
   return panel('Ability scores', `<div class="pb sbox-grid ab-grid">${boxes}</div>`);
 }
 
 function compactSaves35(c){
-  const NAMES = {Fort: 'Fortitude', Ref: 'Reflex', Will: 'Will'};
-  const boxes = ['Fort', 'Ref', 'Will'].map(s => sbox(`<span class="sb-big roll" data-roll="sv.${s}" data-label="${NAMES[s]} save" data-o="sv.${s}" data-fmt="sgn" data-ref="bd" data-name="sv.${s}" title="Click to roll"></span>`, refA('gloss', s, NAMES[s], 'tag'))).join('');
+  const NAMES = {Fort: 'Fortitude', Ref: 'Reflex', Will: 'Will'}, AB = {Fort: 'Con', Ref: 'Dex', Will: 'Wis'};
+  const boxes = ['Fort', 'Ref', 'Will'].map(s => `<div class="sbox sv-box"><div class="sb-l">${refA('gloss', s, NAMES[s], 'tag')}</div>
+      <div class="sb-v"><span class="sb-big roll" data-roll="sv.${s}" data-label="${NAMES[s]} save" data-o="sv.${s}" data-fmt="sgn" data-ref="bd" data-name="sv.${s}" title="Click to roll"></span></div>
+      <div class="sb-sub" title="Base save and ability modifier"><span class="sv-base">base <span data-o="sv.${s}.base" data-fmt="sgn"></span> ·</span> ${AB[s]} <span data-o="sv.${s}.ab" data-fmt="sgn"></span></div></div>`).join('');
   return panel('Saving throws', `<div class="pb sbox-grid sv-grid">${boxes}</div>`);
 }
 
