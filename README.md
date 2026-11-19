@@ -33,6 +33,7 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 - **Potions, oils and wands.** All 85 SRD potions and oils and 81 wands, with price and caster level. **Drink** a cure potion and it heals you, capped at your max hit points. Other potions start their spell's effect with its duration. Wands track 50 charges and also appear on the Spells tab.
 - **Custom magic items.** Build weapons (from any SRD weapon, with enhancement, masterwork and special abilities like flaming or keen), armor and shields (with enhancement and abilities like shadow), and wondrous items. Give them stat bonuses, special abilities with uses per day, and spells with uses per day, charges or at will. Adding one fills in your attacks or armor automatically. Its abilities appear on the Character tab, and its spells appear on the Spells tab with a Use button and duration tracking. Any SRD item can be turned into an editable copy with **Customize**.
 - **Character portraits.** Add one by choosing an image, dragging it onto the sheet or pasting it. Images are shrunk automatically and saved with the character, so exports include them.
+- **Start screen.** The app opens on a title screen: **Continue** (your last character), **New Character**, **Load Character** (cards with portrait, race and class, ruleset, campaign and when you last played; search and sort; import) and **Options** (light, dark or match-your-device appearance, whether the start screen shows at launch, **back up all characters** to one file and restore it on any device, install the app, and About). Click **Character Codex** at the top of the app to come back to it.
 - **New character setup.** Pick the character's ruleset once when you create it (it's then locked, so its rules always add up), plus race, class and ability score method. Only the 3.5 SRD is available so far; 3.0, Pathfinder 1st edition and 5th edition are planned. Homebrew in the Custom Library is tagged with its ruleset and only appears for characters of that ruleset.
 - **Multiple characters**, plus **export and import** as JSON files.
 - Light and dark themes, and layouts for desktop and mobile.
@@ -44,7 +45,7 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 
 ## Where your data is saved
 
-Characters are saved in **your browser's local storage** on the device you use, and pictures and maps in the browser's IndexedDB storage. They aren't uploaded anywhere. To move a character to another device, or to keep a backup, use **Export** and then **Import**.
+Characters are saved in **your browser's local storage** on the device you use, and pictures and maps in the browser's IndexedDB storage. They aren't uploaded anywhere. To move a character to another device use **Export** and **Import**; to back up everything at once (all characters, homebrew and pictures) use **Options → Back up all characters** on the start screen, and **Restore or import** on the other device.
 
 (When the page runs inside Claude as a published artifact, it syncs characters to the user's private Claude storage instead. That code is in `src/js/store.js`. Outside Claude it falls back to local storage automatically.)
 
@@ -56,6 +57,7 @@ src/head.html         Page title, fonts and all CSS (design tokens at the top)
 src/body.html         Static page shell: top bar, tabs, tooltip and modal roots
 src/js/app-shell.js   Install-as-app support (offline service worker, Install button) and Windows/Android differences
 src/js/rulesets/      One file per ruleset (rules data, calculations, sheet panels, tabs); dnd35.js is the 3.5 SRD
+src/js/ui-start.js    Start screen: Continue, New, Load, Options (appearance, backups)
 src/js/ui-panels.js   Character-sheet layout engine: panel order, width, collapse, hide (Customise sheet)
 src/js/core.js        Rules data helpers, character model and derived calculations (AC, saves, skills, spells, load)
 src/js/bonuses.js     Typed bonuses for items, feats, spells, conditions, races and classes, plus the stacking rules
