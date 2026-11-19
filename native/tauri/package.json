@@ -1,8 +1,8 @@
 {
-  "name": "character-codex-windows",
+  "name": "character-codex-desktop",
   "private": true,
   "version": "1.0.0",
-  "description": "Windows app for the Character Codex (Tauri)",
+  "description": "Windows and Mac app for the Character Codex (Tauri)",
   "license": "MIT",
   "scripts": {
     "tauri": "tauri",
