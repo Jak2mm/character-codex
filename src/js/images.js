@@ -5,10 +5,15 @@
 // Pictures are kept in IndexedDB (room for big maps); older copies in localStorage are moved over on start-up.
 const IDB = {
   db: null,
-  open(){ if (IDB.db) return IDB.db; return IDB.db = new Promise((res, rej) => { try { const r = indexedDB.open('ccodex', 1);
-    r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e){ rej(e); } }); },
+  open(){ if (IDB.db) return IDB.db; return IDB.db = new Promise((res, rej) => { try { const r = indexedDB.open('ccodex', 2);
+    r.onupgradeneeded = () => { for (const st of ['img', 'meta']) if (!r.result.objectStoreNames.contains(st)) r.result.createObjectStore(st); }; r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e){ rej(e); } }); },
   async run(mode, fn){ const db = await IDB.open(); return new Promise((res, rej) => { const tx = db.transaction('img', mode); const out = fn(tx.objectStore('img')); tx.oncomplete = () => res(out && out.result); tx.onerror = () => rej(tx.error); }); },
   put: (k, v) => IDB.run('readwrite', st => { st.put(v, k); }),
+  // small settings that can't go in localStorage (the browser's handle for the Save location folder)
+  async meta(mode, fn){ const db = await IDB.open(); return new Promise((res, rej) => { const tx = db.transaction('meta', mode); const rq = fn(tx.objectStore('meta')); tx.oncomplete = () => res(rq && rq.result); tx.onerror = () => rej(tx.error); }); },
+  getMeta: k => IDB.meta('readonly', st => st.get(k)),
+  putMeta: (k, v) => IDB.meta('readwrite', st => st.put(v, k)),
+  delMeta: k => IDB.meta('readwrite', st => st.delete(k)),
   del: k => IDB.run('readwrite', st => { st.delete(k); }),
   // read every picture from another database name (the original 3.5 Character Codex used 'codex35')
   async allFrom(name){ return new Promise(res => { try { const r = indexedDB.open(name); r.onupgradeneeded = () => { r.transaction.abort(); res({}); };

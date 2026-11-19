@@ -268,7 +268,7 @@ $('#dupChar').addEventListener('click', () => { const s = APP_cur(); if (!s) ret
 document.addEventListener('click', async e => {
   if (e.target.id !== 'delChar') return; const c = APP_cur(); if (!c) return;
   if (!armConfirm(e.target, `Delete ${c.name.split(' ')[0] || 'character'}?`)) return;
-  delete APP.chars[c.id]; APP.dirty.delete(c.id); await removeDoc(c.id); APP.curId = (charList()[0] || {}).id || null; scheduleSave(); renderAll(); toast('Character deleted.');
+  delete APP.chars[c.id]; APP.dirty.delete(c.id); await removeDoc(c.id); FOLDER.forget(c.id); APP.curId = (charList()[0] || {}).id || null; scheduleSave(); renderAll(); toast('Character deleted.');
 });
 $('#expChar').addEventListener('click', async () => {
   const c = APP_cur(); if (!c) return; const images = {}; IMG.keysOf(c).forEach(k => { const d = IMG.src(k); if (d) images[k] = d; });
@@ -315,4 +315,4 @@ setSide(sideDefault());
 renderAll();
 connectDb();
 if (startPrefOn()) openStart('menu');
-IMG.loadLocal().then(() => { if (APP_cur()) renderAll(); if (APP.startOpen) renderStart(); if (APP.importedFromOriginal) toast(`Brought over ${APP.importedFromOriginal} character${APP.importedFromOriginal === 1 ? '' : 's'} from the 3.5 Character Codex. The original app still has its own copies.`); });
+IMG.loadLocal().then(() => { FOLDER.init(); if (APP_cur()) renderAll(); if (APP.startOpen) renderStart(); if (APP.importedFromOriginal) toast(`Brought over ${APP.importedFromOriginal} character${APP.importedFromOriginal === 1 ? '' : 's'} from the 3.5 Character Codex. The original app still has its own copies.`); });

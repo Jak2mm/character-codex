@@ -59,6 +59,7 @@ function startOptions(){
       <p class="hint">You can always get back here by clicking <b>Character Codex</b> at the top of the app.</p></section>
     <section class="st-opt"><h3>Backups</h3><p class="hint" style="margin-top:0">Your characters are saved on this device. A backup file holds every character, your homebrew and all pictures, so you can keep a copy or move everything to another device.</p>
       <div class="row"><button class="btn" data-st="backup" ${n ? '' : 'disabled'}>Back up all ${n} character${n === 1 ? '' : 's'}</button><label class="btn" for="impFile">Restore or import…</label></div></section>
+    <section class="st-opt st-saveloc">${saveLocationBlock()}</section>
     ${canInstall ? `<section class="st-opt"><h3>Install</h3><p class="hint" style="margin-top:0">Install Character Codex as an app on this device, with its own icon and offline use.</p><button class="btn" data-st="install">Install app</button></section>` : ''}
     <section class="st-opt"><h3>About</h3><p class="hint" style="margin-top:0">Character Codex is free and open source (MIT licence). Rules text is Open Game Content from the System Reference Document, used under the Open Game License v1.0a. Not affiliated with, endorsed or sponsored by Wizards of the Coast. Rulesets available: ${RULESETS.filter(r => r.ready).map(r => esc(r.short)).join(', ')}; coming later: ${RULESETS.filter(r => !r.ready).map(r => esc(r.short)).join(', ')}.</p>
       <a class="btn sm" href="https://github.com/Jak2mm/character-codex" target="_blank" rel="noopener">Project page</a></section>

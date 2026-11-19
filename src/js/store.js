@@ -34,7 +34,8 @@ async function flush(){
   // local mirror is always written (fast, survives offline)
   lsSet(LS_KEY, {chars:APP.chars, lib:APP.lib, curId:APP.curId});
   IMG.saveLocal(); const imgs = [...IMG.dirty], gone = [...IMG.gone];
-  if (APP.mode !== 'db'){ IMG.dirty.clear(); IMG.gone.clear(); setSync('local', 'Saved in this browser'); return; }
+  if (APP.mode !== 'db'){ IMG.dirty.clear(); IMG.gone.clear();
+    if (typeof FOLDER !== 'undefined' && FOLDER.cfg) FOLDER.afterSave(ids, lib, imgs, gone); else setSync('local', NATIVE.any ? 'Saved on this device' : 'Saved in this browser'); return; }
   try {
     for (const k of imgs){ if (IMG.cache[k]){ await writeDoc(k, {d: IMG.cache[k]}); IMG.dirty.delete(k); } }
     for (const k of gone){ await removeDoc(k); IMG.gone.delete(k); }

@@ -5,8 +5,10 @@ const NATIVE = {
   android: !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()),
   windows: !!(window.__TAURI_INTERNALS__ || window.__TAURI__) || location.hostname === 'tauri.localhost' || location.protocol === 'tauri:',
 };
+// (NATIVE.windows means the desktop app, which is also built for Mac)
+NATIVE.mac = NATIVE.windows && /Mac/i.test(navigator.platform || navigator.userAgent);
 NATIVE.any = NATIVE.android || NATIVE.windows;
-if (NATIVE.any) document.documentElement.classList.add('native', NATIVE.android ? 'native-android' : 'native-windows');
+if (NATIVE.any) document.documentElement.classList.add('native', NATIVE.android ? 'native-android' : 'native-windows', ...(NATIVE.mac ? ['native-mac'] : []));
 
 // Save a text file (character export). Android: share sheet (save to Drive/Files, send by email…).
 async function saveTextFile(fname, data, type = 'application/json'){

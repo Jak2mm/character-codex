@@ -204,7 +204,8 @@ function applyCharTheme(c){
   let bgImage = '', op = 0;
   if (T.bg === 'image' && T.bgImg && IMG.src(T.bgImg)){ bgImage = `url("${IMG.src(T.bgImg)}")`; op = Math.min(.45, Math.max(.05, num(T.bgStrength) / 100)); B.dataset.bgkind = 'image'; }
   else if (T.bg === 'scene'){ const [pr, pg, pb] = hex2rgb(paper); const wash = `rgba(${pr},${pg},${pb},${dark ? .22 : .3})`;
-    bgImage = `linear-gradient(${wash},${wash}), ${svgURL(sceneSVG(T.P.classic ? 'default' : T.P.id, {accent: accentC, gold: deco, tab: cs.getPropertyValue('--tab').trim()}, dark))}`; op = 1; B.dataset.bgkind = 'scene'; }
+    const art = !T.P.classic && SCENE_ART[T.P.id]; // a painted background, when the theme has one
+    bgImage = art ? `linear-gradient(${wash},${wash}), url("${art}")` : `linear-gradient(${wash},${wash}), ${svgURL(sceneSVG(T.P.classic ? 'default' : T.P.id, {accent: accentC, gold: deco, tab: cs.getPropertyValue('--tab').trim()}, dark))}`; op = 1; B.dataset.bgkind = art ? 'scene-art' : 'scene'; }
   else if (T.bg !== 'none' && T.bg !== 'image'){ const s = bgSVG(T.bg, cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--gold').trim()); if (s){ bgImage = svgURL(s); op = dark ? .13 : .1; B.dataset.bgkind = 'pattern'; } }
   if (bgImage){ root.style.setProperty('--bg-img', bgImage); root.style.setProperty('--bg-op', String(op)); B.classList.add('has-bg'); }
   else { root.style.removeProperty('--bg-img'); B.classList.remove('has-bg'); delete B.dataset.bgkind; }
@@ -217,7 +218,7 @@ function themeSwatch(P, dark){
   const T = {P, colors: P.classic ? {} : {paper: hsl2hex(P.h, P.s, 92), tab: P.tab, accent: P.accent, gold: P.gold}, custom: false};
   const V = buildPalette(T, dark) || (dark ? {paper: '#121419', sheet: '#1a1d23', ink: '#e9e6dd', tab: '#d8d3c6', 'tab-fg': '#15171b', accent: '#8fb0e6', gold: '#d6ad5a'} : {paper: '#f2f1ec', sheet: '#fbfaf7', ink: '#1b1d22', tab: '#1b1d22', 'tab-fg': '#f6f4ee', accent: '#2d4f86', gold: '#85621c'});
   const tf = TITLE_FONTS[P.title] || TITLE_FONTS.classic;
-  const scene = !P.classic && P.group !== 'Classic' ? svgURL(sceneSVG(P.id, {accent: V.accent, gold: V.gold, tab: V.tab}, dark)) : '';
+  const scene = !P.classic && P.group !== 'Classic' ? (SCENE_ART[P.id] ? `url("${SCENE_ART[P.id]}")` : svgURL(sceneSVG(P.id, {accent: V.accent, gold: V.gold, tab: V.tab}, dark))) : '';
   if (scene) return `<span class="th-sw th-scene" style="background-image:${scene.replace(/"/g, '&quot;')}"><span class="th-sw-p" style="background:${V.sheet};border-color:${V.accent}"><span class="th-sw-t" style="background:${V.tab};color:${V['tab-fg']};font-family:${esc(tf.f)}">Aa</span><span class="th-sw-l" style="background:${V.ink}"></span><span class="th-sw-l s" style="background:${V.accent}"></span><span class="th-sw-d" style="background:${V.gold}"></span></span></span>`;
   return `<span class="th-sw" style="background:${V.paper}"><span class="th-sw-p" style="background:${V.sheet};border-color:${V.gold}"><span class="th-sw-t" style="background:${V.tab};color:${V['tab-fg']};font-family:${esc(tf.f)}">Aa</span><span class="th-sw-l" style="background:${V.ink}"></span><span class="th-sw-l s" style="background:${V.accent}"></span><span class="th-sw-d" style="background:${V.gold}"></span></span></span>`;
 }
@@ -257,7 +258,7 @@ function renderOptionsPage(c){
       <div><div class="cap">Light or dark</div><div class="seg" style="padding:6px 0 0" role="radiogroup">${[['auto', 'Match my device'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => `<button class="${mode === v ? 'on' : ''}" data-th="mode" data-v="${v}" role="radio" aria-checked="${mode === v}">${l}</button>`).join('')}</div></div>
       <label class="mini"><input type="checkbox" id="st-pref" ${startPrefOn() ? 'checked' : ''}> Show the start screen when the app opens</label>
       <div><div class="cap">Backups</div><div class="row" style="margin-top:4px"><button class="btn sm" data-st="backup" ${n ? '' : 'disabled'}>Back up all ${n} character${n === 1 ? '' : 's'}</button><label class="btn sm" for="impFile">Restore or import…</label>${canInstall ? '<button class="btn sm" data-st="install">Install app</button>' : ''}</div></div>
-      <div><div class="cap">Save location</div><p class="hint" style="margin:4px 0 0">Coming later: keep your characters in a folder of your choice (a NAS, Dropbox, OneDrive or iCloud Drive) in the Windows and Mac apps.</p></div>
+      ${saveLocationBlock()}
     </div>`);
   return `<div class="grid opt-page" style="gap:14px">${themeP}<div class="grid g2 opt-cols" style="align-items:start">${custP}${appP}</div></div>`;
 }
