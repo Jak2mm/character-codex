@@ -8,17 +8,28 @@ function renderSpells(c){
 }
 // ---- how many spells a prepared caster may prepare (3.5: one per spell slot; a cleric's domain slot takes only domain spells) ----
 const prepLimitOn = c => c.prepLimit !== false;
-function prepUsed(book, lvl, skip = -1){ let all = 0, plain = 0; book.list.forEach((s, i) => { if (i === skip || num(s.lvl) !== lvl) return; const p = num(s.prep); all += p; if (!s.dom) plain += p; }); return {all, plain}; }
-// how many copies of one spell can be prepared, given everything else already prepared at that level
-function prepRoom(c, cls, lvl, isDom, skip = -1){
+// ---- specialist wizards (3.5 SRD): one extra spell of the specialty school per spell level; prohibited schools can't be learned or prepared ----
+const SCHOOLS = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
+function spellSchool(n){ const sd = IDX.spells.get(String(n || '').toLowerCase()); const L = !sd && typeof libByName === 'function' ? libByName('spell', n) : null;
+  const m = String((sd || L || {}).sch || '').match(/^(\w+)/); return m ? m[1] : ''; }
+const wizBanned = c => (c.wizBanned || []).filter(Boolean);
+const isProhibited = (c, cls, s) => cls === 'Wizard' && !!c.wizSchool && wizBanned(c).includes(spellSchool(s.n));
+// does this spell fit the class's extra slot (a cleric's domain slot, a specialist's school slot)?
+const isSpecialSpell = (c, cls, s) => cls === 'Wizard' ? !!c.wizSchool && spellSchool(s.n) === c.wizSchool : !!s.dom;
+function prepUsed(book, lvl, skip = -1, c, cls){ let all = 0, plain = 0; book.list.forEach((s, i) => { if (i === skip || num(s.lvl) !== lvl) return; const p = num(s.prep); all += p; if (!(c ? isSpecialSpell(c, cls, s) : s.dom)) plain += p; }); return {all, plain}; }
+// how many copies of one spell can be prepared, given everything else already prepared at that level (sp = the spell, or true/false for "fits the extra slot")
+function prepRoom(c, cls, lvl, sp, skip = -1){
   const k = c.classes.find(x => x.n === cls), info = k && casterInfo(c, k, D); if (!info || info.ci.spont) return Infinity;
+  if (sp && typeof sp === 'object' && isProhibited(c, cls, sp)) return 0;
+  const special = sp && typeof sp === 'object' ? isSpecialSpell(c, cls, sp) : !!sp;
   const sl = info.slots.find(x => x.lvl === lvl); if (!sl || sl.total == null || !sl.scoreOK) return 0;
-  const u = prepUsed(c.spells[cls], lvl, skip); const all = sl.total - u.all, plain = sl.total - sl.dom - u.plain;
-  return Math.max(0, isDom ? all : Math.min(all, plain));
+  const u = prepUsed(c.spells[cls], lvl, skip, c, cls); const all = sl.total - u.all, plain = sl.total - sl.dom - (sl.spec || 0) - u.plain;
+  return Math.max(0, special ? all : Math.min(all, plain));
 }
 function prepLimitText(info, lvl){ const sl = info.slots.find(x => x.lvl === lvl) || {};
   if (sl.total == null || !sl.scoreOK) return `You can't prepare ${lvLabel(lvl).toLowerCase()} spells yet${sl.total != null ? ' (your casting score is too low)' : ''}.`;
-  return `You can prepare ${sl.total - sl.dom} ${lvl === 0 ? '0-level' : ord(lvl) + '-level'} spell${sl.total - sl.dom === 1 ? '' : 's'} a day${sl.dom ? ` plus ${sl.dom} domain spell` : ''} (one per spell slot).`; }
+  const n = sl.total - sl.dom - (sl.spec || 0);
+  return `You can prepare ${n} ${lvl === 0 ? '0-level' : ord(lvl) + '-level'} spell${n === 1 ? '' : 's'} a day${sl.dom ? ` plus ${sl.dom} domain spell` : ''}${sl.spec ? ` plus 1 more of your specialty school (${esc(info.school || '')})` : ''} (one per spell slot).`; }
 
 function spellClassPanel(c, k, info){
   const book = c.spells[k.n] || (c.spells[k.n] = {list:[], used:{}});
@@ -28,8 +39,8 @@ function spellClassPanel(c, k, info){
     const pips = tot == null ? '' : `<div class="pips">${Array.from({length: tot}, (_, i) => `<button class="pip ${i < used ? 'used' : ''}" data-act="pip" data-cls="${k.n}" data-lvl="${s.lvl}" data-n="${i}" aria-label="Slot ${i + 1}"></button>`).join('')}</div>`;
     return `<div class="slot has-why" style="${tot == null ? 'opacity:.4' : ''}" data-ref="bd" data-name="slot:${esc(k.n)}:${s.lvl}"><div class="lv">${s.lvl === 0 ? '0' : ord(s.lvl)}</div>
       <div class="ct">${tot == null ? '—' : `${Math.max(0, tot - used)}<span class="hint" style="font-size:13px">/${tot}</span>`}</div>
-      <div class="dc">DC ${s.dc}${s.dom ? ' · +1 domain' : ''}${s.bonus ? ` · +${s.bonus} bonus` : ''}</div>${!s.scoreOK && tot != null ? '<div class="dc" style="color:var(--bad)">score too low</div>' : ''}
-      ${info.ci.spont || tot == null ? '' : (() => { const p = prepUsed(book, s.lvl).all, cap = s.scoreOK ? tot : 0; return `<div class="dc prep-n ${p > cap ? 'over' : p === cap && cap ? 'full' : ''}" title="Spells prepared at this level">prepared ${p}/${cap}</div>`; })()}${pips}</div>`;
+      <div class="dc">DC ${s.dc}${s.dom ? ' · +1 domain' : ''}${s.spec ? ' · +1 specialist' : ''}${s.bonus ? ` · +${s.bonus} bonus` : ''}</div>${!s.scoreOK && tot != null ? '<div class="dc" style="color:var(--bad)">score too low</div>' : ''}
+      ${info.ci.spont || tot == null ? '' : (() => { const p = prepUsed(book, s.lvl, -1, c, k.n).all, cap = s.scoreOK ? tot : 0; return `<div class="dc prep-n ${p > cap ? 'over' : p === cap && cap ? 'full' : ''}" title="Spells prepared at this level">prepared ${p}/${cap}</div>`; })()}${pips}</div>`;
   }).join('');
   const knownLine = info.known ? `<p class="hint" style="margin:6px 0 0">Spells known: ${info.known.map((n, i) => n == null ? null : `${i === 0 ? '0' : ord(i)}: ${n}`).filter(Boolean).join(' · ')}</p>` : '';
   const levels = [...new Set(book.list.map(s => num(s.lvl)))].sort((a, b) => a - b);
@@ -37,16 +48,23 @@ function spellClassPanel(c, k, info){
     const i = book.list.indexOf(s); const sd = IDX.spells.get(s.n.toLowerCase()); const custom = !sd && libByName('spell', s.n);
     const meta = sd ? [sd.sch, sd.ct, sd.rng, sd.dur].filter(Boolean).join(' · ') : custom ? [custom.sch, custom.dur].filter(Boolean).join(' · ') : '';
     const left = info.ci.spont ? null : Math.max(0, num(s.prep) - num(s.cast));
-    return `<div class="sp"><div>${refA('spell', s.n, s.n, custom ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}<div class="meta">${esc(meta)}</div>${spellDmgLine(s, info.cl)}</div>
+    const banned = isProhibited(c, k.n, s), spc = k.n === 'Wizard' && isSpecialSpell(c, k.n, s);
+    return `<div class="sp ${banned ? 'prohib' : ''}"><div>${refA('spell', s.n, s.n, custom ? 'custom' : '')}${s.dom ? ' <span class="pill gold">domain</span>' : ''}${spc ? ' <span class="pill gold">specialty</span>' : ''}${banned ? ' <span class="pill bad" title="Your prohibited school: you can\'t prepare or cast it">prohibited school</span>' : ''}<div class="meta">${esc(meta)}</div>${spellDmgLine(s, info.cl)}</div>
       <div class="row" style="justify-content:flex-end;gap:4px">
-        ${info.ci.spont ? '' : `<span class="hint">prep</span><input type="number" style="width:52px" data-k="spells.${k.n}.list.${i}.prep" data-num="1" data-rerender="1" id="k-sp-${s.id}" value="${num(s.prep)}" min="0"${lim ? ` max="${num(s.prep) + prepRoom(c, k.n, num(s.lvl), !!s.dom, i)}"` : ''}><span class="pill ${left ? 'acc' : ''}">${left} left</span>`}
+        ${info.ci.spont ? '' : `<span class="hint">prep</span><input type="number" style="width:52px" data-k="spells.${k.n}.list.${i}.prep" data-num="1" data-rerender="1" id="k-sp-${s.id}" value="${num(s.prep)}" min="0"${lim ? ` max="${num(s.prep) + prepRoom(c, k.n, num(s.lvl), s, i)}"` : ''}><span class="pill ${left ? 'acc' : ''}">${left} left</span>`}
         <button class="btn sm pri" data-act="cast" data-cls="${k.n}" data-i="${i}">Cast</button>
         <button class="btn ghost sm" data-act="delSpell" data-cls="${k.n}" data-i="${i}" aria-label="Remove spell">✕</button></div></div>`; }).join('')).join('');
+  const wizRow = k.n === 'Wizard' ? (() => { const sch = c.wizSchool || '', ban = c.wizBanned || [], need = sch ? (sch === 'Divination' ? 1 : 2) : 0;
+    const opts = (cur, other) => `<option value="">— choose —</option>${SCHOOLS.filter(x => x !== sch && x !== 'Divination' && x !== other).map(x => `<option ${cur === x ? 'selected' : ''}>${x}</option>`).join('')}`;
+    const okBan = wizBanned(c).length === need;
+    return `<div class="row wiz-row" style="margin-top:8px;gap:8px"><span class="cap">Specialist school</span><select data-wiz="school" style="width:auto"><option value="">None (universalist)</option>${SCHOOLS.map(x => `<option ${sch === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+      ${need ? `<span class="cap">Prohibited</span>${Array.from({length: need}, (_, j) => `<select data-wiz="ban" data-j="${j}" style="width:auto">${opts(ban[j] || '', ban[1 - j] || '')}</select>`).join('')}` : ''}
+      <span class="hint">${sch ? `One extra ${esc(sch.toLowerCase())} spell per spell level each day${okBan ? '' : ` · <b style="color:var(--warn)">choose ${need} prohibited school${need === 1 ? '' : 's'}</b>`} · +2 on Spellcraft to learn ${esc(sch.toLowerCase())} spells.` : 'Specialising gives one extra spell slot of your school at every level, but you give up two other schools (one for diviners).'}</span></div>`; })() : '';
   const domains = k.n === 'Cleric' ? `<div class="row" style="margin-top:8px"><span class="cap">Domains</span>${[0, 1].map(i => `<div style="width:150px">${S('domains.' + i, c.domains[i] || '', [['', '— choose —'], ...DOMAINS], 'data-rerender="1"')}</div>${c.domains[i] ? refA('domain', c.domains[i], 'ⓘ') : ''}`).join('')}</div>` : '';
   return panel(`${k.n} spells`, `<div class="pb">
       <div class="row" style="gap:16px;margin-bottom:8px"><span><span class="cap">Caster level</span> <b>${info.cl}</b></span><span><span class="cap">Casting ability</span> <b>${info.ci.ab} ${sgn(info.mod)}</b></span>
         <span><span class="cap">Type</span> <b>${info.ci.spont ? 'Spontaneous (spells known)' : 'Prepared'}</b></span>${info.ci.spont ? '' : `<label class="mini prep-lim" title="When on, you can only prepare as many spells as you have spell slots (3.5 rules). Turn off for house rules or special cases such as a specialist wizard's extra slot."><input type="checkbox" data-k="prepLimit" data-rerender="1" ${lim ? 'checked' : ''}> Limit prepared spells to slots</label>`}${D.asf && ['Bard','Sorcerer','Wizard'].includes(k.n) ? `<span class="pill warn">Arcane spell failure ${D.asf}%</span>` : ''}</div>
-      <div class="slots">${slots}</div>${knownLine}${domains}</div>
+      <div class="slots">${slots}</div>${knownLine}${domains}${wizRow}</div>
     <div class="list" style="border-top:1px solid var(--rule)">${list || `<div class="empty">No spells on your list yet. <b>Add spells</b> opens the ${esc(k.n.toLowerCase())} spell list with full descriptions.</div>`}</div>`,
     `<button class="btn sm pri" data-act="addSpell" data-cls="${k.n}">Add spells</button><button class="btn sm" data-act="rest" data-cls="${k.n}" title="Restore all slots and prepared spells">Rest</button>`);
 }
@@ -121,6 +139,12 @@ function pagePanel(c, page, p){
   const seg = `<span class="sp-mode" role="group" aria-label="View">${[['full', 'Full'], ['compact', 'Compact']].map(([v, l]) => `<button class="${mode === v ? 'on' : ''}" data-pg="${page}" data-panel="${p.id}" data-v="${v}" aria-pressed="${mode === v}">${l}</button>`).join('')}</span>`;
   return html.split('<div class="tools">').join('<div class="tools">' + seg);
 }
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || !t.dataset.wiz) return; const c = APP_cur(); if (!c) return;
+  if (t.dataset.wiz === 'school'){ c.wizSchool = t.value; c.wizBanned = (c.wizBanned || []).filter(x => x && x !== t.value && !(t.value && x === 'Divination')).slice(0, t.value === 'Divination' ? 1 : 2); }
+  else { c.wizBanned = c.wizBanned || []; c.wizBanned[+t.dataset.j] = t.value; }
+  const n = (c.spells.Wizard || {list: []}).list.filter(s => isProhibited(c, 'Wizard', s) && num(s.prep));
+  if (n.length && prepLimitOn(c)){ n.forEach(s => { s.prep = 0; }); toast(`${n.map(s => '<b>' + esc(s.n) + '</b>').join(', ')} ${n.length === 1 ? 'is' : 'are'} now from a prohibited school, so ${n.length === 1 ? 'it was' : 'they were'} unprepared.`, 'warn'); }
+  markDirty(); renderAll(); });
 document.addEventListener('click', e => { const b = e.target.closest('[data-pg]'); if (!b) return; e.preventDefault(); const c = APP_cur(); if (!c) return;
   const L = ((c.pageLayout = c.pageLayout || {})[b.dataset.pg] = c.pageLayout[b.dataset.pg] || {}); L[b.dataset.panel] = b.dataset.v; markDirty(); renderAll(); });
 

@@ -94,7 +94,11 @@ function spellDamage(sd, cl){
   if (/negative energy/i.test(txt) && /deals?|damage/i.test(txt) && !heal && !types.includes('negative energy') && expr) types.push('negative energy');
   if (/divine power/i.test(txt) && types.includes('fire')) types.push('divine');
   if (!expr && !types.length) return null;
-  return {expr, types, heal, save: sd.save && !/^none$/i.test(sd.save) ? sd.save : '', touch: (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i) || [])[1] ? (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i)[1].toLowerCase() + ' touch attack') : ''};
+  // spells that fire several missiles or rays, each rolled separately (more at higher caster levels)
+  const MULTI = {'magic missile': [l => Math.min(5, 1 + Math.floor((l - 1) / 2)), 'missile'], 'scorching ray': [l => 1 + (l >= 7 ? 1 : 0) + (l >= 11 ? 1 : 0), 'ray']};
+  const mu = MULTI[String(sd.n || '').toLowerCase()]; let count = 1, unit = '', each = expr;
+  if (mu && expr){ count = mu[0](cl); unit = mu[1]; const em = expr.match(/^(\d+)d(\d+)(?:\+(\d+))?$/); if (em && count > 1) expr = `${num(em[1]) * count}d${em[2]}${num(em[3]) ? '+' + num(em[3]) * count : ''}`; }
+  return {expr, each, count, unit, types, heal, save: sd.save && !/^none$/i.test(sd.save) ? sd.save : '', touch: (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i) || [])[1] ? (txt.match(/(?:must (?:succeed on|make) an? |requires an? |successful |your )(ranged|melee) touch attack/i)[1].toLowerCase() + ' touch attack') : ''};
 }
 
 const DMG_LABEL = {acid: 'Acid', cold: 'Cold', electricity: 'Electricity', fire: 'Fire', sonic: 'Sonic', force: 'Force', 'negative energy': 'Negative energy', divine: 'Divine', bludgeoning: 'Bludgeoning', piercing: 'Piercing', slashing: 'Slashing'};
@@ -102,7 +106,8 @@ const DMG_LABEL = {acid: 'Acid', cold: 'Cold', electricity: 'Electricity', fire:
 function spellDmgLine(s, cl){
   const sd = IDX.spells.get(String(s.n || '').toLowerCase()); const x = spellDamage(sd, cl); if (!x) return '';
   const chips = x.heal ? '<span class="dmg-chip t-heal">Healing</span>' : (x.types.length ? x.types : ['untyped']).map(t => `<span class="dmg-chip t-${t.replace(/\s+/g, '-')}">${esc(DMG_LABEL[t] || (t === 'untyped' ? 'Damage' : t[0].toUpperCase() + t.slice(1)))}</span>`).join('');
-  const roll = x.expr ? (/d/.test(x.expr) ? `<button class="out sm dmg-roll" data-act="rollExpr" data-expr="${esc(x.expr)}" data-label="${esc(s.n)} ${x.heal ? 'healing' : 'damage'}" title="${x.heal ? 'Healing' : 'Damage'} at caster level ${cl}. Click to roll.">${esc(x.expr)}</button>` : `<b class="dmg-flat">${esc(x.expr)}</b>`) : '';
+  const many = x.count > 1 || x.unit;
+  const roll = x.expr ? (/d/.test(x.expr) ? `<button class="out sm dmg-roll" data-act="rollExpr" data-expr="${esc(x.expr)}" data-label="${esc(s.n)} ${x.heal ? 'healing' : 'damage'}${many ? ` (${x.count} ${x.unit}${x.count === 1 ? '' : 's'})` : ''}" title="${x.heal ? 'Healing' : 'Damage'} at caster level ${cl}${many ? `: ${x.count} ${x.unit}${x.count === 1 ? '' : 's'} of ${x.each} each, rolled together (total ${x.expr}). Each can target a different creature.` : ''}. Click to roll.">${many ? `${x.count} × ${esc(x.each)}` : esc(x.expr)}</button>${many ? `<span class="hint">${x.count} ${x.unit}${x.count === 1 ? '' : 's'} at caster level ${cl}</span>` : ''}` : `<b class="dmg-flat">${esc(x.expr)}</b>`) : '';
   const extra = [x.touch ? x.touch[0].toUpperCase() + x.touch.slice(1) : '', x.save ? 'Save: ' + x.save.replace(/;\s*see text/i, '') : ''].filter(Boolean).join(' · ');
   return `<div class="dmg-line">${chips}${roll}${extra ? `<span class="hint">${esc(extra)}</span>` : ''}</div>`;
 }

@@ -311,11 +311,12 @@ function casterInfo(c, k, D){
     let base = null, dom = 0; if (v && v !== '—') { const p = String(v).split('+'); base = num(p[0]); dom = p[1] ? num(p[1]) : 0; }
     let bonus = 0; if (base != null && sl >= 1 && m >= sl) bonus = Math.floor((m - sl) / 4) + 1;
     const scoreOK = D[ci.ab + 'Score'] >= 10 + sl;
-    slots.push({lvl: sl, base, dom, bonus, total: base == null ? null : base + bonus + dom, dc: 10 + sl + m, scoreOK});
+    const spec = k.n === 'Wizard' && c.wizSchool && base != null ? 1 : 0; // a specialist wizard's extra spell of her school, every spell level
+    slots.push({lvl: sl, base, dom, spec, bonus, total: base == null ? null : base + bonus + dom + spec, dc: 10 + sl + m, scoreOK});
   }
   let known = null; if (cd.known && cd.known.length){ const kr = cd.known[l - 1]; if (kr) known = kr.slice(1).map(x => x === '—' ? null : num(x)); }
   const cl = ci.start === 1 ? (l >= 4 ? Math.floor(l / 2) : 0) : l;
-  return {ci, slots, known, cl, mod: m};
+  return {ci, slots, known, cl, mod: m, school: k.n === 'Wizard' ? (c.wizSchool || '') : ''};
 }
 function parseDuration(dur, cl){
   if (!dur) return {rounds:null, text:'—'};

@@ -21,7 +21,7 @@ $('#main').addEventListener('input', e => {
   // prepared spells can't go over the spell slots for that level (unless the limit is switched off)
   const pm = k.match(/^spells\.(.+)\.list\.(\d+)\.prep$/);
   if (pm && prepLimitOn(c) && v !== ''){ const book = c.spells[pm[1]], sp = book && book.list[+pm[2]];
-    if (sp){ const room = prepRoom(c, pm[1], num(sp.lvl), !!sp.dom, +pm[2]); if (v > room){ v = room; setPath(c, k, v); el.value = v;
+    if (sp){ const room = prepRoom(c, pm[1], num(sp.lvl), sp, +pm[2]); if (v > room && isProhibited(c, pm[1], sp)){ v = 0; setPath(c, k, 0); el.value = 0; toast(`<b>${esc(sp.n)}</b> is ${esc(spellSchool(sp.n).toLowerCase())}, one of your prohibited schools, so it can't be prepared.`, 'warn'); } else if (v > room){ v = room; setPath(c, k, v); el.value = v;
       const kk = c.classes.find(x => x.n === pm[1]); toast(`${prepLimitText(casterInfo(c, kk, D), num(sp.lvl))} ${room ? `${esc(sp.n)} set to ${room}.` : `No room left for ${esc(sp.n)}.`} Lower another spell first, or turn off <b>Limit prepared spells</b>.`, 'warn'); } } }
   const tm = k.match(/^attacks\.(\d+)\.(two|hands)$/);
   if (tm){ const a = c.attacks[+tm[1]]; if (a && a.eq){ const need = weaponInfo(a).hands; if (handsUsed(c, a.id).used + need > 2){ setPath(c, k, tm[2] === 'two' ? false : 1); el.checked = false; toast(`Not enough free hands to wield <b>${esc(a.n)}</b> that way.`, 'warn'); } else relabelHands(c); } }
@@ -153,10 +153,12 @@ const ACT = {
       subFn:(e, fv) => e.type === 'custom' ? (e.lib.lvl || 'Custom') : fv.cl === '*' ? e.sub : 'Level ' + e.data.c[fv.cl],
       onPick:(e, bg) => { const fl = $('#pf-cl', bg).value; const book = c.spells[cls] || (c.spells[cls] = {list:[], used:{}});
         const lvl = e.type === 'custom' ? (parseInt(String(e.lib.lvl).match(/\d/)) || 0) : (e.data.c[fl === '*' ? key : fl] ?? Object.values(e.data.c)[0] ?? 0);
-        { const dom = fl !== key && fl !== '*'; const room = prepLimitOn(c) ? prepRoom(c, cls, lvl, dom) : 1; book.list.push({id:uid('p'), n:e.name, lvl, prep: room > 0 ? 1 : 0, cast:0, dom}); } markDirty(); renderAll(); return true; }}); return 'noRender'; },
+        { const dom = fl !== key && fl !== '*'; const sp0 = {n:e.name, dom}; if (prepLimitOn(c) && isProhibited(c, cls, sp0)){ toast(`<b>${esc(e.name)}</b> is ${esc(spellSchool(e.name).toLowerCase())}, one of your prohibited schools, so you can't learn it. (Untick <b>Limit prepared spells</b> to allow it anyway.)`, 'warn'); return false; }
+          const room = prepLimitOn(c) ? prepRoom(c, cls, lvl, sp0) : 1; book.list.push({id:uid('p'), n:e.name, lvl, prep: room > 0 ? 1 : 0, cast:0, dom}); } markDirty(); renderAll(); return true; }}); return 'noRender'; },
   delSpell: (c, b) => c.spells[b.dataset.cls].list.splice(+b.dataset.i, 1),
   cast: (c, b) => { const cls = b.dataset.cls; const book = c.spells[cls]; const s = book.list[+b.dataset.i]; const info = casterInfo(c, c.classes.find(k => k.n === cls), D);
     const slot = info.slots.find(x => x.lvl === num(s.lvl)); const used = num(book.used[s.lvl]);
+    if (prepLimitOn(c) && isProhibited(c, cls, s)){ toast(`<b>${esc(s.n)}</b> is from one of your prohibited schools.`, 'warn'); return 'noRender'; }
     if (!info.ci.spont && num(s.cast) >= num(s.prep)){ toast(`No prepared copies of <b>${esc(s.n)}</b> left.`, 'warn'); return 'noRender'; }
     if (slot && slot.total != null && used >= slot.total){ toast(`No ${lvLabel(num(s.lvl))}-level slots left.`, 'warn'); return 'noRender'; }
     book.used[s.lvl] = used + 1; if (!info.ci.spont) s.cast = num(s.cast) + 1;
