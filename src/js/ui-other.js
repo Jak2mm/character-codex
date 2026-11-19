@@ -143,13 +143,12 @@ function renderItems(c){
       const t = it.t === 'custom' ? 'custom' : 'item'; const key = it.t === 'custom' ? (it.lib || it.n) : it.n; const has = it.t === 'custom' ? !!libById(it.lib) || !!libByName('item', it.n) : !!getRef('item', it.n);
       return `<div class="it"><div style="min-width:0"><div class="row" style="flex-wrap:nowrap;gap:6px"><div style="flex:1;min-width:0">${I('items.' + i + '.n', it.n, 'aria-label="Item name"')}</div>${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}</div>
           <div style="margin-top:4px">${I('items.' + i + '.note', it.note, 'placeholder="Notes, charges, who carries it…" style="font-size:13px;padding:3px 6px"')}</div>${itemBonusLine(c, it)}</div>
-        ${N('items.' + i + '.qty', it.qty, 'min="0" aria-label="Quantity" data-rerender="1"')}
-        ${N('items.' + i + '.w', it.w, 'min="0" step="0.25" aria-label="Weight each" data-rerender="1"')}
-        <span class="w wt-total">${Math.round(num(it.w) * num(it.qty || 1) * 100) / 100} lb.</span>
-        <div class="loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}</div>
+        <label class="it-f">${N('items.' + i + '.qty', it.qty, 'min="0" aria-label="Quantity" data-rerender="1"')}<span>Qty</span></label>
+        <label class="it-f">${N('items.' + i + '.w', it.w, 'min="0" step="0.25" aria-label="Weight each" data-rerender="1"')}<span>Lb. each</span></label>
+        <span class="it-f wt-total"><b class="w">${Math.round(num(it.w) * num(it.qty || 1) * 100) / 100} lb.</b><span>Total</span></span>
+        <label class="it-f loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}<span>Where</span></label>
         <button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>`; }).join(''); }).join('');
-  const items = panel('Equipment', `<div class="it head"><span>Item</span><span>Qty</span><span>Lb. each</span><span class="wt-total" style="text-align:right">Total</span><span class="loc">Where</span><span></span></div>
-      <div class="list">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
+  const items = panel('Equipment', `<div class="list">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
     `<button class="btn sm pri" data-act="addItem">Add item</button><button class="btn sm gold" data-act="newCustomItem">New custom item</button>`);
   const coins = panel('Money &amp; load', `<div class="pb grid" style="gap:12px">
       <div class="coins">${['pp','gp','sp','cp'].map(k => F(k.toUpperCase(), N('coins.' + k, c.coins[k], 'min="0" data-rerender="1"'))).join('')}</div>
