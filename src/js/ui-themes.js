@@ -203,7 +203,7 @@ function applyCharTheme(c){
   const paper = cs.getPropertyValue('--paper').trim();
   let bgImage = '', op = 0;
   if (T.bg === 'image' && T.bgImg && IMG.src(T.bgImg)){ bgImage = `url("${IMG.src(T.bgImg)}")`; op = Math.min(.45, Math.max(.05, num(T.bgStrength) / 100)); B.dataset.bgkind = 'image'; }
-  else if (T.bg === 'scene'){ const [pr, pg, pb] = hex2rgb(paper); const wash = `rgba(${pr},${pg},${pb},${dark ? .22 : .3})`;
+  else if (T.bg === 'scene'){ const [pr, pg, pb] = hex2rgb(paper); const artBg = !T.P.classic && SCENE_ART[T.P.id]; root.style.setProperty('--glass', dark ? '72%' : '80%'); /* how see-through boxes are over a painted background */ const wash = `rgba(${pr},${pg},${pb},${artBg ? (dark ? .06 : .1) : dark ? .22 : .3})`; // painted backgrounds show almost at full strength
     const art = !T.P.classic && SCENE_ART[T.P.id]; // a painted background, when the theme has one
     bgImage = art ? `linear-gradient(${wash},${wash}), url("${art}")` : `linear-gradient(${wash},${wash}), ${svgURL(sceneSVG(T.P.classic ? 'default' : T.P.id, {accent: accentC, gold: deco, tab: cs.getPropertyValue('--tab').trim()}, dark))}`; op = 1; B.dataset.bgkind = art ? 'scene-art' : 'scene'; }
   else if (T.bg !== 'none' && T.bg !== 'image'){ const s = bgSVG(T.bg, cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--gold').trim()); if (s){ bgImage = svgURL(s); op = dark ? .13 : .1; B.dataset.bgkind = 'pattern'; } }
