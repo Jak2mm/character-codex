@@ -61,6 +61,7 @@ document.addEventListener('click', e => {
   if (act === 'reset'){ c.sheetLayout = {}; toast('Sheet layout reset to the standard one.'); }
   if (act === 'collapse'){ L.collapsed[id] = !L.collapsed[id]; if (!L.collapsed[id]) delete L.collapsed[id]; }
   if (act === 'mode'){ const v = b.dataset.v; if (v === 'hidden') L.hidden[id] = true; else { delete L.hidden[id]; if (v === 'compact') L.mode[id] = 'compact'; else delete L.mode[id]; } }
+  if (act === 'help'){ L.helpHidden = L.helpHidden || {}; L.helpHidden[id] = !L.helpHidden[id]; if (!L.helpHidden[id]) delete L.helpHidden[id]; }
   if (act === 'hide'){ L.hidden[id] = !L.hidden[id]; if (!L.hidden[id]) delete L.hidden[id]; }
   if (act === 'size'){ const p = (ruleset(c).sheet || []).find(x => x.id === id); const cur = L.size[id] || (p && p.size) || 'full'; const nx = cur === 'full' ? 'half' : 'full'; if (p && p.size === nx) delete L.size[id]; else L.size[id] = nx; }
   if (act === 'up' || act === 'down'){ const ids = orderedPanels(c).map(p => p.id); const i = ids.indexOf(id), j = act === 'up' ? i - 1 : i + 1;
