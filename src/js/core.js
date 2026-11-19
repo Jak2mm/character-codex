@@ -83,6 +83,11 @@ const RULESETS = [
   {id:'pf1', short:'PF1', name:'Pathfinder 1st edition rules (PRD)', blurb:'The 3.5-based rules with combat maneuvers, merged skills, archetypes and traits.', ready:false},
   {id:'dnd30', short:'3.0 SRD', name:'3.0 System Reference Document', blurb:'The original third edition rules, before the 3.5 revision.', ready:false},
 ];
+// ---- ruleset modules: each ruleset registers its rules data, calculations, sheet panels and tabs ----
+// (see src/js/rulesets/). The rest of the app asks ruleset(c) instead of assuming 3.5.
+const RULES_MODULES = {};
+function registerRuleset(m){ RULES_MODULES[m.id] = m; }
+function ruleset(c){ return RULES_MODULES[rsOf(c).id] || RULES_MODULES.dnd35; }
 const rsOf = c => RULESETS.find(r => r.id === ((c && c.ruleset) || 'dnd35')) || RULESETS[0];
 const libRs = e => (e && e.rs) || 'dnd35';  // homebrew made before rulesets existed is 3.5
 function newChar(name='New Adventurer'){
@@ -150,7 +155,10 @@ function libById(id){ return (APP.lib.entries || []).find(e => e.id === id); }
 function libByName(t, n){ return (APP.lib.entries || []).find(e => e.t === t && e.n.toLowerCase() === String(n).toLowerCase()); }
 
 // ===================== DERIVED =====================
-function derive(c){
+// derived numbers for a character come from its ruleset module
+function derive(c){ return ruleset(c).derive(c); }
+// 3.5 SRD calculations
+function derive35(c){
   const D = {}; const lvl = totalLevel(c); D.lvl = lvl;
   const race = raceData(c.race) || {adj:{}, size:'Medium', spd:30};
   const size = c.size || race.size || 'Medium'; D.size = size; const SZ = SIZES[size] || SIZES.Medium;
