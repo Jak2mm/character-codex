@@ -16,13 +16,20 @@ def read(*p):
 def art_js():
     # Painted theme backgrounds: src/art/<theme id>.jpg, built into the page so it stays one file
     import base64, json
-    d = os.path.join(ROOT, 'src', 'art'); art = {}
+    # (and how bright each one is, so bright pictures can be dimmed in dark mode)
+    d = os.path.join(ROOT, 'src', 'art'); art = {}; lum = {}
     if os.path.isdir(d):
         for n in sorted(os.listdir(d)):
             if n.endswith('.jpg'):
-                with open(os.path.join(d, n), 'rb') as f:
+                p = os.path.join(d, n)
+                with open(p, 'rb') as f:
                     art[n[:-4]] = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode()
-    return 'const SCENE_ART = ' + json.dumps(art) + ';\n'
+                try:
+                    from PIL import Image, ImageStat
+                    lum[n[:-4]] = round(ImageStat.Stat(Image.open(p).convert('L').resize((64, 32))).mean[0] / 255, 3)
+                except ImportError:
+                    lum[n[:-4]] = 0.3
+    return 'const SCENE_ART = ' + json.dumps(art) + ';\nconst SCENE_ART_LUM = ' + json.dumps(lum) + ';\n'
 
 def build(fragment=False):
     data = read('data', 'srd.json').replace('</', '<\\/')  # keep the JSON from closing its <script> tag
