@@ -273,7 +273,7 @@ table.st tr:last-child td{border-bottom:none}
 /* tracker */
 .round-big{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .round-big .n{font-family:var(--f-label);font-weight:700;font-size:64px;line-height:.9;font-variant-numeric:tabular-nums}
-.init{display:grid;grid-template-columns:28px minmax(0,1fr) 64px 70px 90px 30px;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.init{display:grid;grid-template-columns:28px minmax(110px,.8fr) 64px 70px minmax(140px,1.4fr) auto 30px;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .init.cur{background:var(--gold-soft);box-shadow:inset 4px 0 0 var(--gold)}
 .init .pos{font-family:var(--f-label);font-weight:700;color:var(--ink-2);text-align:center}
 .eff{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:8px 10px;border-bottom:1px solid var(--rule-2)}
@@ -291,7 +291,7 @@ table.st tr:last-child td{border-bottom:none}
 .it .w{text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:640px){
   .it{grid-template-columns:minmax(0,1fr) 54px 64px 30px}.it .loc,.it .wt-total{display:none}
-  .init{grid-template-columns:24px minmax(0,1fr) 56px 30px}.init .hpcol,.init .modcol{display:none}
+  .init{grid-template-columns:24px minmax(0,1fr) 56px auto 30px}.init .hpcol,.init .modcol{display:none}
 }
 .items-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr);align-items:start}
 @media (max-width:900px){.items-grid{grid-template-columns:minmax(0,1fr)}.items-grid>:last-child{order:-1}}
@@ -637,12 +637,29 @@ button.pill{border:0;cursor:pointer;font:inherit;font-family:var(--f-label);font
 .dmg-roll{cursor:pointer;background:var(--sheet);color:var(--ink);font-size:13px;height:22px;min-width:0}
 .dmg-roll:hover{background:var(--accent-soft)}
 .dmg-flat{font-family:var(--f-label);font-size:14px}
+.init-effs{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px;margin-top:-2px}
+.initc .init-effs{grid-column:2/-1}
+.eff-pill{font-size:12px;padding:1px 8px;border-radius:9px;background:var(--rule-2);color:var(--ink);border:1px solid var(--rule)}
+.eff-pill small{color:var(--ink-2)}
+.eff-pill.spell{background:var(--accent-soft);border-color:var(--accent)} .eff-pill.cond{background:var(--warn-soft);border-color:var(--warn)}
+.eff-btn{white-space:nowrap}.eff-btn.has{border-color:var(--accent);color:var(--accent)}
+.who-line{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px}
+.who-chip{font-size:12.5px;padding:1px 8px;border-radius:9px;background:var(--rule-2);border:1px solid var(--rule)}
+.who-chip.self{background:var(--accent-soft);border-color:var(--accent)}
+.who-btn{border:0;background:transparent;color:var(--ink-2);font-size:12.5px;cursor:pointer;padding:0 4px;text-decoration:underline dotted}
+.pop-menu{position:fixed;z-index:70;background:var(--sheet);border:1px solid var(--ink);border-radius:var(--r);box-shadow:var(--shadow);max-width:min(360px,calc(100vw - 16px));max-height:min(60vh,420px);overflow:auto}
+.pm-h{padding:8px 10px;border-bottom:1px solid var(--rule);font-size:13.5px}
+.pm-list{display:grid}
+.pm-row{display:flex;gap:8px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid var(--rule-2);cursor:pointer;font-size:14px}
+.pm-row input{width:auto;margin:3px 0 0}
+.pm-row .hint{display:block;font-size:12px}
+.pm-foot{display:flex;gap:6px;padding:8px 10px;flex-wrap:wrap}
 .round-c{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .round-c .n{font-family:var(--f-label);font-size:30px;line-height:1;margin-right:8px;font-variant-numeric:tabular-nums}
 .effc{display:grid;grid-template-columns:minmax(0,1fr) auto auto 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .effc.expired{opacity:.6}
 .effc-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.initc{display:grid;grid-template-columns:24px minmax(0,1fr) auto minmax(0,1fr) 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
+.initc{display:grid;grid-template-columns:24px minmax(0,1fr) auto minmax(0,1fr) auto 30px;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--rule-2)}
 .initc .pos{color:var(--ink-2);font-family:var(--f-label);font-weight:700}
 .initc.cur{background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold)}
 .initc b.me{color:var(--accent)}
@@ -1302,7 +1319,7 @@ function collectBonuses(c){
   for (const f of c.feats){ const fn = FEAT_BONUS[normKey(f.n)]; if (fn){ const ch = String(f.note || '').trim(); add(fn(ch), f.n + (ch ? ` (${ch})` : ''), 'feat:' + normKey(f.n) + ':' + normKey(ch), 'feat', f.id); }
     if (f.bon) add(f.bon, f.n, 'feat:' + f.id, 'feat', f.id); }
   // active effects
-  for (const e of c.effects){ if (e.expired) continue; const bl = effectBonuses(c, e); if (bl.b.length) add(bl.b, e.n, (bl.group ? 'grp:' + bl.group : 'eff:' + normKey(e.n)), 'effect', e.id); }
+  for (const e of c.effects){ if (e.expired || (typeof effOnSelf === 'function' && !effOnSelf(e))) continue; const bl = effectBonuses(c, e); if (bl.b.length) add(bl.b, e.n, (bl.group ? 'grp:' + bl.group : 'eff:' + normKey(e.n)), 'effect', e.id); }
   // race
   const rb = RACE_BONUS[c.race]; if (rb) add(rb(), c.race + ' (racial)', 'race', 'race');
   // classes
@@ -1319,7 +1336,7 @@ function collectBonuses(c){
   const rk = name => { const m = name.match(/^(\w+) \((.+)\)$/); if (m && SUBSKILLS[m[1]]) return num((c.subskills.find(s => s.base === m[1] && s.sub === m[2]) || {}).ranks); return num((c.skills[name] || {}).ranks); };
   SYNERGY.forEach(([a, b]) => { if (rk(a) >= 5) add([B('skill:' + b, 'synergy', 2)], `${a} 5+ ranks (synergy)`, 'syn:' + a + '>' + b, 'synergy'); });
   // conditions that remove Dex from AC
-  const noDex = c.effects.some(e => !e.expired && (COND_BONUS[normKey(e.n)] || {}).noDex);
+  const noDex = c.effects.some(e => !e.expired && (typeof effOnSelf !== 'function' || effOnSelf(e)) && (COND_BONUS[normKey(e.n)] || {}).noDex);
   return {list: out, noDex};
 }
 function itemBonuses(it){
@@ -1763,7 +1780,7 @@ function atkCalc(c, a, D){
   if (twf && D.res){ D.res['atk:' + a.id] = {total: ra.total + twf, applied: [...ra.applied, {src:'Two-weapon fighting' + (a.eq === 'off' ? ' (off hand)' : ' (main hand)'), ty:'untyped', v:twf}], supp: ra.supp}; }
   const tb = r => r.applied.map(b => [`${b.src} (${b.ty})`, num(b.v)]); const nz = ps => ps.filter(p => p[2] === 'base' || num(p[1]) !== 0);
   const offHand = a.eq === 'off' || (a.eq === undefined && a.off); const twoH = a.eq === 'both' ? (weaponInfo(a).hands === 2 && !weaponInfo(a).ranged) : a.two;
-  const X = typeof atkOptExtras === 'function' ? atkOptExtras(c, a, kind, twoH) : {atk:0, dmg:0, dice:'', extraAtk:false, atkParts:[], dmgParts:[]};
+  const X = typeof atkOptExtras === 'function' ? atkOptExtras(c, a, kind, twoH) : {atk:0, dmg:0, dice:'', xdice:[], notes:[], extraAtk:false, atkParts:[], dmgParts:[]};
   const extra = D.sizeAC + num(a.enh) + num(a.misc) + ra.total + twf + X.atk;
   const first = D.bab + abm + extra;
   const maxAtk = a.eq === 'off' && c.twf ? offHandAttacks(c) : 4;
@@ -1771,11 +1788,11 @@ function atkCalc(c, a, D){
   if (X.extraAtk) it.unshift(sgn(first));
   let sb = a.nostr ? 0 : D.Str; if (!a.nostr && twoH && sb > 0) sb = Math.floor(sb * 1.5); if (offHand && sb > 0) sb = Math.floor(sb / 2);
   const db = sb + num(a.enh) + num(a.dmgMisc) + rd.total + X.dmg;
-  const dmg = (a.dmg || '—') + (a.dmg && db ? (db > 0 ? '+' + db : '–' + Math.abs(db)) : '') + (a.dmg && X.dice ? ` +${X.dice} sneak` : '') + (a.xdmg ? ' ' + a.xdmg : '');
+  const dmg = (a.dmg || '—') + (a.dmg && db ? (db > 0 ? '+' + db : '–' + Math.abs(db)) : '') + (a.dmg && X.dice ? ` +${X.dice} sneak` : '') + (a.dmg && X.xdice && X.xdice.length ? X.xdice.map(d => ' +' + d).join('') : '') + (a.xdmg ? ' ' + a.xdmg : '');
   if (D.why){
     D.why['atk:' + a.id] = {parts: nz([['Base attack bonus', D.bab, 'base'], [a.ab === 'None' ? 'No ability' : `${a.ab} modifier`, abm, 'base'], [`Size (${D.size})`, D.sizeAC], ['Enhancement', num(a.enh)], ...tb(ra), ['Two-weapon fighting', twf], ...X.atkParts, ['Misc (your entry)', num(a.misc)]]), total:first,
       note: (X.extraAtk ? 'Rapid Shot adds one extra attack at your highest bonus. ' : '') + (it.length > 1 ? `Extra attacks at −5 each: ${it.join('/')}.` : '')};
-    D.why['dmg:' + a.id] = {parts: nz([['Weapon dice', a.dmg || '—', 'base'], [a.nostr ? 'No Str (your choice)' : `Str modifier${twoH && D.Str > 0 ? ' ×1½ (two hands)' : offHand && D.Str > 0 ? ' ×½ (off hand)' : ''}`, sb], ['Enhancement', num(a.enh)], ...tb(rd), ...X.dmgParts.filter(p => typeof p[1] === 'string' || p[1]), ['Misc (your entry)', num(a.dmgMisc)]]), total:dmg};
+    D.why['dmg:' + a.id] = {parts: nz([['Weapon dice', a.dmg || '—', 'base'], [a.nostr ? 'No Str (your choice)' : `Str modifier${twoH && D.Str > 0 ? ' ×1½ (two hands)' : offHand && D.Str > 0 ? ' ×½ (off hand)' : ''}`, sb], ['Enhancement', num(a.enh)], ...tb(rd), ...X.dmgParts.filter(p => typeof p[1] === 'string' || p[1]), ['Misc (your entry)', num(a.dmgMisc)]]), total:dmg, note: (X.notes || []).join(' ')};
   }
   return {first, bonus: it.join('/'), dmg};
 }
@@ -2069,15 +2086,18 @@ function renderTracker(c, extras = []){
     ${N('combat.list.' + cb.list.indexOf(x) + '.init', x.init, 'aria-label="Initiative" data-rerender="1"')}
     <div class="modcol">${N('combat.list.' + cb.list.indexOf(x) + '.mod', x.mod, 'aria-label="Init modifier (tiebreak)" placeholder="mod"')}</div>
     <div class="hpcol">${I('combat.list.' + cb.list.indexOf(x) + '.hp', x.hp, 'placeholder="HP / notes" aria-label="HP or notes"')}</div>
-    <button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('');
-  const active = c.effects.filter(e => !e.expired), expired = c.effects.filter(e => e.expired);
+    ${effMenuBtn(c, x)}
+    <button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button>${initEffectPills(c, initTid(x))}</div>`).join('');
+  const byName = (a, b) => a.n.localeCompare(b.n) || num(b.rounds) - num(a.rounds);
+  const active = c.effects.filter(e => !e.expired).sort(byName), expired = c.effects.filter(e => e.expired).sort(byName);
   const effRow = e => { const i = c.effects.indexOf(e); const pct = e.rounds != null && e.total ? Math.max(0, e.rounds / e.total) : 1;
     const t = e.kind === 'spell' ? 'spell' : e.kind === 'condition' ? 'cond' : null;
     return `<div class="eff ${e.expired ? 'expired' : ''}"><div>
         <div class="row" style="gap:6px">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`}<span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
           ${e.expired ? '<span class="pill bad">ended</span>' : e.rounds == null ? '<span class="pill">no countdown</span>' : `<span class="pill good">${fmtRounds(e.rounds)} left</span>`}</div>
         ${e.rounds != null ? `<div class="meter ${pct < .25 ? 'bad' : pct < .5 ? 'warn' : 'acc'}" style="margin-top:6px"><i style="width:${pct * 100}%"></i></div>` : ''}
-        ${effectBonusLine(c, e)}
+        <div class="who-line"><span class="cap">On</span>${whoChips(c, e)}<button class="btn sm ghost" data-tgtmenu="${e.id}" title="Choose who this is on">Change ▾</button></div>
+        ${effOnSelf(e) ? effectBonusLine(c, e) : ''}
         <div style="margin-top:6px">${I('effects.' + i + '.note', e.note, 'placeholder="Effect notes (bonus, save DC, source)…"')}</div></div>
       <div class="ctl">${e.expired ? `<button class="btn sm" data-act="effRenew" data-id="${e.id}">Renew</button>` : `<span class="hint">rounds</span>${N('effects.' + i + '.rounds', e.rounds, 'min="0" aria-label="Rounds remaining" data-rerender="1"')}`}
         <button class="btn ghost sm" data-act="delEff" data-id="${e.id}" aria-label="Remove effect">✕</button></div></div>`; };
@@ -2101,13 +2121,13 @@ function renderTracker(c, extras = []){
   const roundC = panel('Round counter', `<div class="pb round-c"><span class="cap">Round</span><b class="n">${cb.round}</b>
       <button class="btn sm pri" data-act="nextTurn">Next turn</button><button class="btn sm" data-act="prevRound">Undo round</button><button class="btn sm" data-act="rollMyInit">Roll my initiative (${sgn(D.init)})</button><button class="btn sm ghost" data-act="endCombat">End encounter</button>${barbLvl && !raging ? '<button class="btn sm gold" data-act="rage">Rage</button>' : ''}</div>`);
   const effRowC = e => { const t = e.kind === 'spell' ? 'spell' : e.kind === 'condition' ? 'cond' : null;
-    return `<div class="effc ${e.expired ? 'expired' : ''}"><span class="effc-n">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`}</span><span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
+    return `<div class="effc ${e.expired ? 'expired' : ''}"><span class="effc-n">${e.ref ? refA('feature', e.ref, e.n) : t && getRef(t, e.n) ? refA(t, e.n) : `<b>${esc(e.n)}</b>`} <button class="who-btn" data-tgtmenu="${e.id}" title="Who it is on (click to change)">${esc(effWho(e).map(w => targetName(c, w, e)).join(', '))} ▾</button></span><span class="pill ${e.kind === 'condition' ? 'warn' : e.kind === 'spell' ? 'acc' : ''}">${esc(e.kind)}</span>
       ${e.expired ? `<button class="btn sm" data-act="effRenew" data-id="${e.id}">Renew</button>` : e.rounds == null ? '<span class="pill">no countdown</span>' : `<span class="pill good">${fmtRounds(e.rounds)} left</span>`}
       <button class="btn ghost sm" data-act="delEff" data-id="${e.id}" aria-label="Remove effect">✕</button></div>`; };
   const effC = panel('Active spells &amp; conditions', `<div class="list">${active.map(effRowC).join('') || '<div class="empty">Nothing affecting you right now.</div>'}</div>
       ${expired.length ? `<div class="splv row" style="justify-content:space-between"><span>Ended</span><button class="btn sm" data-act="clearExpired">Clear ended</button></div><div class="list">${expired.map(effRowC).join('')}</div>` : ''}`,
     `<button class="btn sm pri" data-act="addCond">Add condition</button><button class="btn sm" data-act="addSpellEff">Add spell effect</button><button class="btn sm" data-act="addCustomEff">Custom</button>`);
-  const initC = panel('Initiative order', `<div class="list">${order.map((x, i) => `<div class="initc ${cur(i) ? 'cur' : ''}"><span class="pos">${i + 1}</span><b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b><span class="rc-init" title="Initiative">${esc(String(x.init ?? ''))}</span>${x.hp ? `<span class="hint">${esc(x.hp)}</span>` : '<span></span>'}<button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('') || '<div class="empty">No one in initiative yet.</div>'}</div>
+  const initC = panel('Initiative order', `<div class="list">${order.map((x, i) => `<div class="initc ${cur(i) ? 'cur' : ''}"><span class="pos">${i + 1}</span><b class="${x.me ? 'me' : ''}">${esc(x.n || 'Unnamed')}</b><span class="rc-init" title="Initiative">${esc(String(x.init ?? ''))}</span>${x.hp ? `<span class="hint">${esc(x.hp)}</span>` : '<span></span>'}${effMenuBtn(c, x)}<button class="btn ghost sm" data-act="delInit" data-id="${x.id}" aria-label="Remove">✕</button>${initEffectPills(c, initTid(x))}</div>`).join('') || '<div class="empty">No one in initiative yet.</div>'}</div>
       <div class="pb row" style="border-top:1px solid var(--rule-2)"><input type="text" id="newInitName" placeholder="Name (e.g. Orc #2)" style="flex:2;min-width:140px"><input type="number" id="newInitVal" placeholder="Init" style="width:80px"><button class="btn sm pri" data-act="addInit">Add</button></div>`,
     `<button class="btn sm ghost" data-act="clearInit">Clear</button>`);
   const list = [
@@ -2887,6 +2907,8 @@ function ammoRow(c, a){
   return `<div class="ammo row"><span class="cap">Ammo</span>
     <select data-act-change="pickAmmo" data-id="${a.id}" style="width:auto;max-width:220px" aria-label="Ammunition">${list.map(it => `<option value="${it.id}" ${cur && it.id === cur.id ? 'selected' : ''}>${esc(it.n)}</option>`).join('')}</select>
     <input type="number" min="0" style="width:72px" data-ammocount="${a.id}" data-item="${cur.id}" value="${ammoCount(cur)}" aria-label="Ammunition left"><span class="hint">left · 1 used per attack roll</span>
+    <select data-ammoplus="${cur.id}" style="width:auto" aria-label="Ammunition enhancement" title="Magic ammunition: its enhancement bonus (only the better of the weapon's and the ammunition's counts)">${[0, 1, 2, 3, 4, 5].map(v => `<option value="${v}" ${num(cur.plus) === v ? 'selected' : ''}>${v ? '+' + v : 'Not magic'}</option>`).join('')}</select>
+    <select data-ammosp="${cur.id}" style="width:auto" aria-label="Ammunition special ability">${['', 'flaming', 'frost', 'shock', 'flaming burst', 'icy burst', 'shocking burst', 'holy', 'unholy', 'axiomatic', 'anarchic'].map(v => `<option value="${v}" ${(cur.sp || '') === v ? 'selected' : ''}>${v ? v[0].toUpperCase() + v.slice(1) : 'No special ability'}</option>`).join('')}</select>
     ${getRef('item', cur.n) ? refA('item', cur.n, 'ⓘ') : ''}</div>`;
 }
 function handsSummary(c){
@@ -4146,12 +4168,34 @@ function combatOptBonuses(c){
 }
 // extras worked out per weapon in atkCalc: Power Attack, sneak attack dice, Rapid Shot's extra attack
 function atkOptExtras(c, a, kind, twoH){
-  const o = combatOptsOf(c), wi = weaponInfo(a), out = {atk: 0, dmg: 0, dice: '', extraAtk: false, atkParts: [], dmgParts: []};
+  const o = combatOptsOf(c), wi = weaponInfo(a), out = {atk: 0, dmg: 0, dice: '', xdice: [], notes: [], extraAtk: false, atkParts: [], dmgParts: []};
   if (kind === 'melee' && !wi.ranged && num(o.pa) && hasFeat(c, 'Power Attack')){
     const n = Math.min(num(o.pa), num(D.bab)); const d = wi.light && !wi.natural ? 0 : twoH ? 2 * n : n;
     out.atk -= n; out.dmg += d; out.atkParts.push([`Power Attack (−${n})`, -n]); out.dmgParts.push([`Power Attack${twoH ? ' ×2 (two hands)' : wi.light && !wi.natural ? ' (none with a light weapon)' : ''}`, d]); }
   if (o.sneak && clsLvl(c, 'Rogue')){ out.dice = `${Math.ceil(clsLvl(c, 'Rogue') / 2)}d6`; out.dmgParts.push(['Sneak attack', '+' + out.dice]); }
   if (o.rapid && hasFeat(c, 'Rapid Shot') && (wi.ranged || kind === 'ranged')) out.extraAtk = true;
+  // ammunition: its enhancement bonus (only the better of bow's or arrow's counts), its special abilities, and spells on it
+  const am = ammoMods(c, a);
+  if (am){
+    if (am.enh > num(a.enh)){ const d = am.enh - num(a.enh); out.atk += d; out.dmg += d; const t = `Ammunition enhancement +${am.enh}, ${am.name} (only the better of weapon ${sgn(num(a.enh))} and ammunition counts)`; out.atkParts.push([t, d]); out.dmgParts.push([t, d]); }
+    am.dice.forEach(x => { out.xdice.push(x.d + ' ' + x.t); out.dmgParts.push([x.src, '+' + x.d + ' ' + x.t]); });
+    out.notes.push(...am.notes);
+  }
+  return out;
+}
+// what the loaded ammunition adds: "+1 arrows", "flaming bolts", custom ammo, and Flame Arrow cast or applied as an oil
+function ammoMods(c, a){
+  if (typeof ammoKind !== 'function' || !ammoKind(a)) return null; const it = ammoFor(c, a);
+  const out = {enh: 0, dice: [], notes: [], name: it ? it.n.replace(/\s*\(\d+\)/, '') : 'Ammunition'};
+  if (it){
+    const L = it.lib ? libById(it.lib) : null, n = it.n.toLowerCase();
+    out.enh = Math.max(num(it.plus), num((n.match(/\+(\d)\b/) || [])[1]), L && L.wpn ? num(L.wpn.enh) : 0);
+    const specials = Object.keys(WEAPON_SPECIALS).filter(k => new RegExp('\\b' + k + '\\b').test(n) || (L && L.wpn && (L.wpn.specials || []).map(x => String(x).toLowerCase()).includes(k)) || String(it.sp || '').toLowerCase() === k);
+    specials.sort((x, y) => y.length - x.length).forEach(k => { if (specials.some(o => o !== k && o.includes(k))) return; const sp = WEAPON_SPECIALS[k];
+      const m = String(sp.x || '').match(/\+(\d+d\d+)\s+(\w+)/); if (m) out.dice.push({d: m[1], t: m[2], src: `${out.name} (${k})`}); if (sp.note) out.notes.push(`${k}: ${sp.note}`); });
+  }
+  const fa = c.effects.find(e => !e.expired && normKey(e.n) === 'flame arrow' && (typeof effOnSelf !== 'function' || effOnSelf(e)));
+  if (fa && !out.dice.some(x => x.t === 'fire')) out.dice.push({d: '1d6', t: 'fire', src: 'Flame Arrow (on your ammunition)'});
   return out;
 }
 
@@ -4204,8 +4248,139 @@ document.addEventListener('click', e => { const b = e.target.closest('button[dat
   markDirty(); renderAll();
   if (w){ const r = atkCalc(c, w, D); rollToast(`Attack of opportunity · ${w.n}`, r.first); } else toast('Attack of opportunity used.');
 });
+// magic ammunition picked in the ammo row
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || !(t.dataset.ammoplus || t.dataset.ammosp)) return; const c = APP_cur(); if (!c) return;
+  const it = c.items.find(i => i.id === (t.dataset.ammoplus || t.dataset.ammosp)); if (!it) return;
+  if (t.dataset.ammoplus){ if (num(t.value)) it.plus = num(t.value); else delete it.plus; } else { if (t.value) it.sp = t.value; else delete it.sp; }
+  markDirty(); renderAll(); });
 // called when the round moves on
 function roundResetOpts(c){ const o = combatOptsOf(c); optDefs(c).forEach(d => { if (d.round) delete o[d.id]; }); c.combat.aoo = 0; }
+
+// ===================== WHO EACH SPELL OR CONDITION IS ON =====================
+// An effect can be on your character ('self') and/or on anyone in the initiative order (by entry id).
+// e.who = ['self', 'i_abc', …]; missing means just you. e.whoN remembers names, so an effect still reads
+// sensibly after someone leaves the initiative order. Only effects on you change your sheet's numbers;
+// the rest are tracked (countdown, notes) for the table.
+// Each cast is its own effect, so haste on two allies cast in different rounds counts down separately.
+
+const effWho = e => Array.isArray(e.who) && e.who.length ? e.who : ['self'];
+const effOnSelf = e => effWho(e).includes('self');
+// the initiative entry's target id ('self' for your own entry)
+const initTid = x => x.me ? 'self' : x.id;
+function targetName(c, id, e){
+  if (id === 'self') return c.name || 'You';
+  const x = ((c.combat || {}).list || []).find(v => v.id === id); if (x) return x.n || 'Unnamed';
+  const n = e && e.whoN && e.whoN[id]; return n ? n + ' (left combat)' : 'Someone';
+}
+function effectsOn(c, tid){ return c.effects.filter(e => !e.expired && effWho(e).includes(tid)); }
+function setTarget(c, e, tid, on){
+  let w = [...effWho(e)]; const had = w.includes(tid);
+  if (on && !had) w.push(tid); if (!on && had) w = w.filter(t => t !== tid);
+  if (!w.length){ toast(`<b>${esc(e.n)}</b> must be on someone. Remove the effect with ✕ instead.`, 'warn'); return false; }
+  e.who = w; e.whoN = e.whoN || {}; if (tid !== 'self') e.whoN[tid] = targetName(c, tid);
+  return true;
+}
+// short "who" chips for an effect row
+function whoChips(c, e){
+  return effWho(e).map(t => `<span class="who-chip ${t === 'self' ? 'self' : ''}">${esc(targetName(c, t, e))}</span>`).join('');
+}
+// little pills on an initiative row: what is on this combatant right now
+function initEffectPills(c, tid){
+  const list = effectsOn(c, tid); if (!list.length) return '';
+  return `<div class="init-effs">${list.map(e => `<span class="eff-pill ${e.kind === 'condition' ? 'cond' : e.kind === 'spell' ? 'spell' : ''}" title="${esc(e.note || e.n)}">${esc(e.n)}${e.rounds != null ? ` <small>${esc(fmtRounds(e.rounds))}</small>` : ''}</span>`).join('')}</div>`;
+}
+
+// the button on each initiative row that opens its spells & conditions menu
+function effMenuBtn(c, x){ const n = effectsOn(c, initTid(x)).length;
+  return `<button class="btn sm eff-btn ${n ? 'has' : ''}" data-effmenu="${initTid(x)}" aria-haspopup="dialog" title="Spells and conditions on ${esc(x.n || 'them')}">${n ? `${n} effect${n === 1 ? '' : 's'}` : 'Effects'} ▾</button>`; }
+
+// ---- the drop-down menus (one open at a time; reopened after the page redraws) ----
+APP.pop = null; // {kind:'init'|'eff', id}
+function popClose(){ APP.pop = null; const p = document.getElementById('popMenu'); if (p) p.remove(); }
+function popOpen(kind, id){
+  const c = APP_cur(); if (!c) return; const anchor = document.querySelector(kind === 'init' ? `[data-effmenu="${id}"]` : `[data-tgtmenu="${id}"]`); if (!anchor){ popClose(); return; }
+  APP.pop = {kind, id}; let box = document.getElementById('popMenu');
+  if (!box){ box = document.createElement('div'); box.id = 'popMenu'; box.className = 'pop-menu'; box.setAttribute('role', 'dialog'); document.body.appendChild(box); }
+  const active = c.effects.filter(e => !e.expired);
+  if (kind === 'init'){
+    const name = targetName(c, id);
+    box.innerHTML = `<div class="pm-h">Spells &amp; conditions on <b>${esc(name)}</b></div>
+      ${active.length ? `<div class="pm-list">${active.map(e => `<label class="pm-row"><input type="checkbox" data-poptgt="${e.id}" data-tid="${id}" ${effWho(e).includes(id) ? 'checked' : ''}><span>${esc(e.n)} <span class="hint">${e.rounds != null ? esc(fmtRounds(e.rounds)) + ' left' : e.kind}${effWho(e).filter(t => t !== id).length ? ' · also on ' + esc(effWho(e).filter(t => t !== id).map(t => targetName(c, t, e)).join(', ')) : ''}</span></span></label>`).join('')}</div>` : '<p class="hint" style="margin:6px 10px">Nothing active yet.</p>'}
+      <div class="pm-foot"><button class="btn sm pri" data-act="addCond" data-tid="${id}">Add condition</button><button class="btn sm" data-act="addSpellEff" data-tid="${id}">Add spell</button></div>`;
+  } else {
+    const e = c.effects.find(x => x.id === id); if (!e){ popClose(); return; }
+    const people = [{tid: 'self', n: c.name || 'You'}, ...((c.combat || {}).list || []).filter(x => !x.me).map(x => ({tid: x.id, n: x.n || 'Unnamed'}))];
+    const gone = effWho(e).filter(t => t !== 'self' && !people.some(p => p.tid === t)).map(t => ({tid: t, n: targetName(c, t, e)}));
+    box.innerHTML = `<div class="pm-h"><b>${esc(e.n)}</b> is on…</div><div class="pm-list">${[...people, ...gone].map(p => `<label class="pm-row"><input type="checkbox" data-poptgt="${e.id}" data-tid="${p.tid}" ${effWho(e).includes(p.tid) ? 'checked' : ''}><span>${esc(p.n)}${p.tid === 'self' ? ' <span class="hint">(changes your sheet)</span>' : ''}</span></label>`).join('')}</div>
+      <p class="hint" style="margin:4px 10px 8px">Cast it again on someone else in a later round? Add it again from their row in the initiative order, so each one counts down on its own.</p>`;
+  }
+  const r = anchor.getBoundingClientRect(); box.style.minWidth = Math.max(220, r.width) + 'px';
+  const w = box.offsetWidth, h = box.offsetHeight;
+  box.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+  box.style.top = (r.bottom + h + 8 > innerHeight && r.top - h - 4 > 8 ? r.top - h - 4 : r.bottom + 4) + 'px';
+}
+function popReopen(){ if (APP.pop) popOpen(APP.pop.kind, APP.pop.id); }
+document.addEventListener('click', e => {
+  const m = e.target.closest('[data-effmenu],[data-tgtmenu]');
+  if (m){ e.preventDefault(); const kind = m.dataset.effmenu ? 'init' : 'eff', id = m.dataset.effmenu || m.dataset.tgtmenu;
+    if (APP.pop && APP.pop.kind === kind && APP.pop.id === id) popClose(); else popOpen(kind, id); return; }
+  const box = document.getElementById('popMenu');
+  if (box && !box.contains(e.target)) popClose();
+  else if (box && e.target.closest('[data-act]')) setTimeout(popClose, 0);
+});
+document.addEventListener('change', e => { const t = e.target; if (!t.dataset || !t.dataset.poptgt) return; const c = APP_cur(); if (!c) return;
+  const ef = c.effects.find(x => x.id === t.dataset.poptgt); if (!ef) return;
+  if (!setTarget(c, ef, t.dataset.tid, t.checked)){ t.checked = true; return; }
+  const keep = APP.pop; markDirty(); renderAll(); APP.pop = keep; popReopen(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && APP.pop){ popClose(); } });
+window.addEventListener('scroll', () => { if (APP.pop) popReopen(); }, true);
+
+// ---- typing a name to add to initiative: suggest you, your companions, players and NPCs ----
+APP.initPick = null;
+function initSuggestions(c, q){
+  q = q.trim().toLowerCase(); const inList = (pred) => ((c.combat || {}).list || []).some(pred);
+  const out = [];
+  if (!inList(x => x.me)) out.push({kind: 'self', n: c.name || 'You', sub: 'Your character', mod: num(D.init), hp: `${num(c.hp.cur)}/${num(D.hpMax)}`});
+  (c.companions || []).forEach(x => { if (compInitEntry(c, x)) return; const s = compStats(c, x), V = compNums(s, x);
+    out.push({kind: 'comp', id: x.id, n: compTitle(x), sub: COMP_KIND[x.kind] || 'Companion', mod: num(V.init), hp: V.hpMax === '' ? '' : `${x.hp ?? V.hpMax}/${V.hpMax}`}); });
+  for (const [k, label] of [['pc', 'Player'], ['npc', 'NPC']]) (wArr(c, k) || []).forEach(x => { if (!(x.n || '').trim() || inList(e => e[k] === x.id)) return;
+    const st = x.stats || {}; out.push({kind: k, id: x.id, n: x.n.trim(), sub: [label, k === 'pc' ? [x.race, x.cls].filter(Boolean).join(' ') : x.role].filter(Boolean).join(' · '), mod: numOr(st.init, 0), hp: st.hp || ''}); });
+  return out.filter(o => !q || o.n.toLowerCase().includes(q)).sort((a, b) => (a.n.toLowerCase().startsWith(q) ? 0 : 1) - (b.n.toLowerCase().startsWith(q) ? 0 : 1)).slice(0, 12);
+}
+let IS = null; // {items, sel}
+function isClose(){ IS = null; const b = document.getElementById('initSug'); if (b) b.remove(); }
+function isRender(input){
+  let box = document.getElementById('initSug'); if (!IS || !IS.items.length){ if (box) box.remove(); return; }
+  if (!box){ box = document.createElement('div'); box.id = 'initSug'; box.className = 'mention'; box.setAttribute('role', 'listbox'); document.body.appendChild(box); }
+  box.innerHTML = `<div class="mh2">Add to initiative</div>` + IS.items.map((o, i) => `<div class="mo ${i === IS.sel ? 'act' : ''}" role="option" data-isi="${i}"><span class="pin-dot pin-${o.kind === 'npc' ? 'npc' : o.kind === 'pc' ? 'pc' : 'map'}">${esc(o.n.slice(0, 1).toUpperCase())}</span><span>${esc(o.n)}</span><span class="s">${esc(o.sub)}${o.mod ? ' · init ' + sgn(o.mod) : ''}</span></div>`).join('')
+    + `<div class="mfoot2">↑ ↓ to move · Enter to pick · or keep typing a new name</div>`;
+  const r = input.getBoundingClientRect(); box.style.left = r.left + 'px'; box.style.minWidth = r.width + 'px';
+  const h = box.offsetHeight; box.style.top = (r.bottom + h + 8 > innerHeight && r.top - h > 8 ? r.top - h - 4 : r.bottom + 4) + 'px';
+}
+function isPick(i){
+  const o = IS && IS.items[i]; const inp = document.getElementById('newInitName'); if (!o || !inp) return;
+  APP.initPick = o; inp.value = o.n; isClose(); const v = document.getElementById('newInitVal');
+  if (v){ v.placeholder = `Init (${sgn(o.mod)})`; v.title = 'Type their roll, or leave it empty and Add rolls d20 ' + sgn(o.mod); v.focus(); }
+}
+document.addEventListener('input', e => { if (e.target.id !== 'newInitName') return; const c = APP_cur(); if (!c) return;
+  if (APP.initPick && APP.initPick.n !== e.target.value){ APP.initPick = null; const v = document.getElementById('newInitVal'); if (v) v.placeholder = 'Init'; }
+  const items = initSuggestions(c, e.target.value); IS = items.length && e.target.value.trim() ? {items, sel: 0} : null; isRender(e.target); });
+document.addEventListener('focusin', e => { if (e.target.id !== 'newInitName') return; const c = APP_cur(); if (!c || e.target.value.trim()) return; const items = initSuggestions(c, ''); IS = items.length ? {items, sel: -1} : null; isRender(e.target); });
+document.addEventListener('keydown', e => { if (!IS || e.target.id !== 'newInitName') return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); IS.sel = (IS.sel + (e.key === 'ArrowDown' ? 1 : IS.items.length - 1) + IS.items.length) % IS.items.length; isRender(e.target); }
+  else if (e.key === 'Enter' && IS.sel >= 0){ e.preventDefault(); e.stopPropagation(); isPick(IS.sel); }
+  else if (e.key === 'Escape'){ e.preventDefault(); isClose(); } }, true);
+document.addEventListener('mousedown', e => { const o = e.target.closest && e.target.closest('#initSug [data-isi]'); if (o){ e.preventDefault(); isPick(+o.dataset.isi); } });
+document.addEventListener('focusout', e => { if (e.target.id === 'newInitName') setTimeout(() => { if (document.activeElement && document.activeElement.id !== 'newInitName') isClose(); }, 0); });
+// the entry Add puts in the initiative order
+function initEntryFromPick(c, name, initVal){
+  const o = APP.initPick && APP.initPick.n === name ? APP.initPick : null; APP.initPick = null;
+  const e = {id: uid('i'), n: name, init: initVal === '' ? '' : num(initVal), hp: ''};
+  if (!o) return e;
+  e.mod = o.mod; e.hp = o.hp; if (o.kind === 'self') e.me = true; if (o.kind === 'comp') e.comp = o.id; if (o.kind === 'npc') e.npc = o.id; if (o.kind === 'pc') e.pc = o.id;
+  if (initVal === ''){ const r = rollD(20); e.init = r + num(o.mod); toast(`<b>${esc(name)}</b> rolls initiative <b>${e.init}</b> <span style="opacity:.75">d20 ${r} ${sgn(num(o.mod))}</span>`); }
+  return e;
+}
 
 // ===================== RESTING =====================
 // Rest buttons sit under the round box. Each ruleset says which rests it has (module.rests);
@@ -4435,6 +4610,9 @@ function compHp(c, b, sign){
   const e = compInitEntry(c, x); if (e) e.hp = `${x.hp}/${V.hpMax}`;
   toast(`<b>${esc(compTitle(x))}</b> ${sign < 0 ? 'took' : 'healed'} <b>${a}</b>`);
 }
+// who a new effect goes on, when it is added from someone's row in the initiative order
+function effTargetFor(c, b){ const t = b && b.dataset && b.dataset.tid; if (!t || t === 'self') return {who: {}, title: ''};
+  return {who: {who: [t], whoN: {[t]: targetName(c, t)}}, title: ` on ${targetName(c, t)}`}; }
 function nextRound(c){
   c.combat.round++; const ended = []; if (typeof roundResetOpts === 'function') roundResetOpts(c);
   for (const e of c.effects){ if (e.expired || e.rounds == null) continue; e.rounds = Math.max(0, num(e.rounds) - 1); if (e.rounds <= 0){ e.expired = true; ended.push(e.n); } }
@@ -4461,7 +4639,9 @@ const ACT = {
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
   wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; },
   npcInit: (c, b) => { const x = wArr(c, b.dataset.kind || 'npc').find(v => v.id === b.dataset.id); const m = parseInt(String((x.stats || {}).init || '0').replace('–', '-')) || 0; const r = rollD(20);
-    c.combat.list.push({id:uid('i'), n:x.n || 'NPC', init:r + m, mod:m, hp:(x.stats || {}).hp || ''}); toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
+    const k = b.dataset.kind === 'pc' ? 'pc' : 'npc'; const ex = c.combat.list.find(e => e[k] === x.id);
+    if (ex){ ex.init = r + m; ex.mod = m; } else c.combat.list.push({id:uid('i'), n:x.n || 'NPC', [k]:x.id, init:r + m, mod:m, hp:(x.stats || {}).hp || ''});
+    toast(`<b>${esc(x.n)}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
   compAdd: c => { openCompanionPicker(c); return 'noRender'; },
   compCustom: c => { c.companions = c.companions || []; c.companions.push(newCustomComp()); },
   compDel: (c, b) => { if (!armConfirm(b, 'Remove? Click again')) return 'noRender'; const x = (c.companions || []).find(v => v.id === b.dataset.id); if (x) IMG.drop(x.img); c.companions = c.companions.filter(v => v.id !== b.dataset.id); },
@@ -4542,15 +4722,15 @@ const ACT = {
   rollMyInit: c => { const r = rollD(20); let me = c.combat.list.find(x => x.me); if (!me){ me = {id:uid('i'), n:c.name, me:true, hp:''}; c.combat.list.push(me); }
     me.init = r + D.init; me.mod = D.init; me.n = c.name; toast(`Initiative <b>${me.init}</b> <span style="opacity:.75">d20 ${r} ${sgn(D.init)}</span>`); },
   endCombat: (c, b) => { if (!armConfirm(b, 'End? Click again')) return 'noRender'; c.combat.round = 0; c.combat.turn = 0; c.combat.list = c.combat.list.filter(x => x.me); c.combat.opts = {}; c.combat.aoo = 0; },
-  addInit: c => { const n = $('#newInitName').value.trim(); if (!n) { $('#newInitName').focus(); return 'noRender'; } c.combat.list.push({id:uid('i'), n, init: num($('#newInitVal').value), hp:''}); setTimeout(() => $('#newInitName') && $('#newInitName').focus(), 0); },
+  addInit: c => { const n = $('#newInitName').value.trim(); if (!n) { $('#newInitName').focus(); return 'noRender'; } if (typeof isClose === 'function') isClose(); c.combat.list.push(initEntryFromPick(c, n, $('#newInitVal').value.trim())); setTimeout(() => $('#newInitName') && $('#newInitName').focus(), 0); },
   delInit: (c, b) => { c.combat.list = c.combat.list.filter(x => x.id !== b.dataset.id); },
   sortInit: () => {},
   clearInit: (c, b) => { if (!armConfirm(b)) return 'noRender'; c.combat.list = []; c.combat.turn = 0; },
-  addCond: c => openPicker({title:'Add a condition', kind:'cond', noCat:true, onPick: e => { addEffect(c, {n:e.name, kind:'condition', rounds:null, total:null, ...(e.type === 'custom' ? {lib:e.key} : {})}); markDirty(); renderAll(); }}),
-  addSpellEff: c => openPicker({title:'Track a spell effect', kind:'spell', filters:[{id:'cl2', label:'Caster level', options:Array.from({length:20}, (_, i) => [i + 1, 'Caster level ' + (i + 1)]), value:castCL(c)}],
+  addCond: (c, b) => { const tw = effTargetFor(c, b); openPicker({title:'Add a condition' + tw.title, kind:'cond', noCat:true, onPick: e => { addEffect(c, {n:e.name, kind:'condition', rounds:null, total:null, ...(e.type === 'custom' ? {lib:e.key} : {}), ...tw.who}); markDirty(); renderAll(); }}); return 'noRender'; },
+  addSpellEff: (c, b) => { const tw = effTargetFor(c, b); openPicker({title:'Track a spell effect' + tw.title, kind:'spell', filters:[{id:'cl2', label:'Caster level', options:Array.from({length:20}, (_, i) => [i + 1, 'Caster level ' + (i + 1)]), value:castCL(c)}],
     subFn: e => e.type === 'custom' ? (e.lib.dur || 'Custom') : (e.data.dur || ''),
     onPick:(e, bg) => { const cl = num($('#pf-cl2', bg).value); const sd = e.type === 'custom' ? e.lib : e.data; const dur = parseDuration(sd.dur, cl);
-      addEffect(c, {n:e.name, kind:'spell', cl, rounds:dur.rounds, total:dur.rounds, note:`CL ${cl} · ${dur.text}`}); markDirty(); renderAll(); }}),
+      addEffect(c, {n:e.name, kind:'spell', cl, rounds:dur.rounds, total:dur.rounds, note:`CL ${cl} · ${dur.text}`, ...tw.who}); markDirty(); renderAll(); }}); return 'noRender'; },
   addCustomEff: c => addEffect(c, {n:'New effect', kind:'custom', rounds:10, total:10, note:''}),
   delEff: (c, b) => { c.effects = c.effects.filter(e => e.id !== b.dataset.id); },
   effRenew: (c, b) => { const e = c.effects.find(x => x.id === b.dataset.id); e.rounds = e.total || 10; e.expired = false; },
