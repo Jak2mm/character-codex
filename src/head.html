@@ -63,6 +63,21 @@ button,input,select,textarea{font:inherit;color:inherit}
 .rs-card input{margin-top:3px;width:auto}
 .rs-card .hint{display:block;margin-top:2px}
 .rs-badge{font-size:11px}
+.sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.sheet-grid>.sheet-sec{min-width:0}
+.sheet-grid>.sp-full{grid-column:1/-1}
+@media (max-width:900px){.sheet-grid{grid-template-columns:minmax(0,1fr)}}
+.sheet-sec.collapsed>section.panel>:not(.ph){display:none}
+.sp-col{min-width:28px;padding:2px 6px;font-size:13px}
+.sp-custom{margin-left:auto;align-self:center}
+.sp-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:5px 8px;background:var(--accent-soft);border:1px dashed var(--accent);border-bottom:none;font-family:var(--f-label);letter-spacing:.05em;text-transform:uppercase;font-size:13px}
+.sp-bar .sp-tools{display:flex;gap:4px;flex-wrap:wrap;align-items:center;text-transform:none;letter-spacing:0}
+.sheet-grid.editing>.sheet-sec>section.panel{outline:1px dashed var(--accent);outline-offset:-1px;max-height:260px;overflow:hidden;position:relative}
+.sheet-grid.editing>.sheet-sec>section.panel::after{content:"";position:absolute;inset:auto 0 0 0;height:60px;background:linear-gradient(transparent,var(--sheet));pointer-events:none}
+.sp-hidden>section.panel{opacity:.4;filter:grayscale(1)}
+.sp-hidden .sp-bar{border-style:dotted;opacity:.85}
+.sp-edit-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;margin-bottom:12px;background:var(--accent-soft);border:1px solid var(--accent);font-size:14px}
+.sp-foot{margin:10px 0 0}
 .subtabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid var(--tab)}
 .subtabs button{border:1px solid var(--tab);background:transparent;color:var(--ink);font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:15px;padding:5px 12px;cursor:pointer;white-space:nowrap}
 .subtabs button:hover{background:var(--rule-2)}
