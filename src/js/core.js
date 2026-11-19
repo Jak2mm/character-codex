@@ -112,7 +112,7 @@ function abilLimits(c){ const m = abilMode(c); if (m === 'unlocked') return {loc
 const pbCost = v => PB_COST[num(v)] ?? (num(v) < 8 ? 0 : 16); // out-of-range scores are flagged separately
 const pbSpent = (c, except, val) => ABIL.reduce((s, a) => s + pbCost(a === except ? val : (c.abil[a] || {}).base), 0);
 function exampleChar(){
-  const c = newChar('Example — Brother Aldric');
+  const c = newChar('Example — Brother Aldric'); c.example = true; // the sample a new install starts with
   Object.assign(c, {player:'(example — rename or delete me)', classes:[{n:'Cleric', lvl:3}], race:'Dwarf', align:'Lawful Good', deity:'The Forge-Father', xp:3400,
     hp:{max:27, cur:21, nl:0, temp:0}, languages:'Common, Dwarven, Celestial', abilMode:'32'});
   Object.assign(c.abil, {Str:{base:14,enh:0,temp:0},Dex:{base:10,enh:0,temp:0},Con:{base:14,enh:0,temp:0},Int:{base:10,enh:0,temp:0},Wis:{base:16,enh:0,temp:0},Cha:{base:12,enh:0,temp:0}});

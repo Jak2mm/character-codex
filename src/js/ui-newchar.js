@@ -1,7 +1,7 @@
 // ===================== NEW CHARACTER SETUP =====================
 // Picks the ruleset once (it can't be changed afterwards), plus the starting basics.
-// Later this becomes the "New Character" step of the start screen.
-function openNewCharacter(){
+// Opened from the top bar or from the start screen (back = return there if cancelled).
+function openNewCharacter(back){
   const coreClasses = SRD.classes.filter(k => !k.prestige).map(k => k.n);
   let rs = 'dnd35';
   const card = r => `<label class="rs-card ${r.ready ? '' : 'off'}"><input type="radio" name="nc-rs" value="${r.id}" ${r.id === rs ? 'checked' : ''} ${r.ready ? '' : 'disabled'}>
@@ -19,7 +19,7 @@ function openNewCharacter(){
       <p class="hint" style="margin:0">Race, class and ability scores can all be changed on the sheet afterwards.</p>
     </div>
     <div class="mfoot"><span></span><div class="row"><button class="btn" data-close>Cancel</button><button class="btn pri" id="nc-go">Create character</button></div></div></div>`);
-  $$('[data-close]', bg).forEach(b => b.addEventListener('click', closeModal));
+  $$('[data-close]', bg).forEach(b => b.addEventListener('click', () => { closeModal(); if (back) back(); }));
   setTimeout(() => $('#nc-name', bg).focus(), 30);
   $('#nc-name', bg).addEventListener('keydown', e => { if (e.key === 'Enter') $('#nc-go', bg).click(); });
   $('#nc-go', bg).addEventListener('click', () => {
@@ -27,7 +27,7 @@ function openNewCharacter(){
     c.ruleset = ($('input[name="nc-rs"]:checked', bg) || {}).value || 'dnd35';
     c.race = $('#nc-race', bg).value; c.classes = [{n: $('#nc-class', bg).value, lvl: 1}]; c.abilMode = $('#nc-abil', bg).value;
     if (c.abilMode !== 'rolled' && c.abilMode !== 'unlocked') ABIL.forEach(a => { c.abil[a] = Object.assign({base:8, enh:0, temp:0, lvlUp:0}, c.abil[a] || {}, {base:8}); });
-    APP.chars[c.id] = migrate(c); APP.curId = c.id; APP.tab = 'sheet'; markDirty(c.id); closeModal(); renderAll(); window.scrollTo({top:0});
+    c.lastOpened = Date.now(); APP.chars[c.id] = migrate(c); APP.curId = c.id; APP.tab = 'sheet'; markDirty(c.id); closeModal(); renderAll(); window.scrollTo({top:0});
     toast(`Created <b>${esc(c.name)}</b> (${esc(rsOf(c).short)}). ${c.abilMode === 'rolled' || c.abilMode === 'unlocked' ? 'Type in your ability scores' : `Spend your ${c.abilMode} points on ability scores`} to start.`);
   });
 }

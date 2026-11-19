@@ -239,7 +239,7 @@ document.addEventListener('click', e => {
 });
 
 // ===================== CHARACTER BAR =====================
-$('#charSel').addEventListener('change', e => { APP.curId = e.target.value; scheduleSave(); renderAll(); });
+$('#charSel').addEventListener('change', e => { APP.curId = e.target.value; const c0 = APP.chars[APP.curId]; if (c0){ c0.lastOpened = Date.now(); markDirty(c0.id); } scheduleSave(); renderAll(); });
 $('#newChar').addEventListener('click', () => openNewCharacter());
 $('#dupChar').addEventListener('click', () => { const s = APP_cur(); if (!s) return; const c = clone(s); c.id = uid('c'); c.name = s.name + ' (copy)'; APP.chars[c.id] = c; APP.curId = c.id; markDirty(c.id); renderAll(); toast('Copied. You are now editing the copy.'); });
 document.addEventListener('click', async e => {
@@ -260,11 +260,23 @@ $('#expChar').addEventListener('click', async () => {
 });
 $('#impFile').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  try { const j = JSON.parse(await f.text()); const ch = j.character || (j.abil ? j : null); if (!ch) throw new Error('No character found in that file.');
+  try { const j = JSON.parse(await f.text());
+    if (Array.isArray(j.characters)){ // a full backup: every character, homebrew and pictures
+      if (j.images) for (const [k, d] of Object.entries(j.images)) IMG.put(d, k);
+      // a fresh install's untouched sample character is replaced rather than kept twice
+      const names = new Set(j.characters.map(x => x && x.name));
+      for (const c0 of Object.values(APP.chars)) if (c0.example && names.has(c0.name) && !j.characters.some(x => x && x.id === c0.id)){ delete APP.chars[c0.id]; APP.dirty.delete(c0.id); removeDoc(c0.id); }
+      let n = 0, skipped = 0; for (const ch of j.characters){ if (!ch || !ch.abil) continue; const same = APP.chars[ch.id];
+        if (same && (same.updatedAt || 0) >= (ch.updatedAt || 0)){ skipped++; continue; } const c = migrate(clone(ch)); APP.chars[c.id] = c; markDirty(c.id); n++; }
+      if (Array.isArray(j.library)){ let m = 0; for (const L of j.library){ if (!libById(L.id) && !libByName(L.t, L.n)){ APP.lib.entries.push(L); m++; } } if (m) markLibDirty(); }
+      if (!APP.chars[APP.curId]) APP.curId = Object.keys(APP.chars)[0];
+      renderAll(); if (APP.startOpen) renderStart();
+      toast(`Restored ${n} character${n === 1 ? '' : 's'} from the backup.${skipped ? ` ${skipped} already up to date here.` : ''}`); return; }
+    const ch = j.character || (j.abil ? j : null); if (!ch) throw new Error('No character found in that file.');
     if (j.images) for (const [k, d] of Object.entries(j.images)) IMG.put(d, k);
     const c = migrate(clone(ch)); c.id = uid('c'); c.updatedAt = Date.now(); APP.chars[c.id] = c; APP.curId = c.id;
     if (Array.isArray(j.library)){ let n = 0; for (const L of j.library){ if (!libById(L.id) && !libByName(L.t, L.n)){ APP.lib.entries.push(L); n++; } } if (n) markLibDirty(); }
-    markDirty(c.id); renderAll(); toast(`Imported <b>${esc(c.name)}</b>.`);
+    c.lastOpened = Date.now(); markDirty(c.id); if (APP.startOpen) closeStart(); renderAll(); toast(`Imported <b>${esc(c.name)}</b>.`);
   } catch (err){ toast('That file couldn\'t be read as a character export. ' + esc(err.message || ''), 'warn'); }
 });
 $('#rNext').addEventListener('click', () => { const c = APP_cur(); if (!c) return; ACT.nextRound(c); markDirty(); renderAll(); });
@@ -279,4 +291,5 @@ if (location.hash && ALL_TABS.includes(location.hash.slice(1))) APP.tab = locati
 if (!Object.keys(APP.chars).length){ const ex = exampleChar(); APP.chars[ex.id] = ex; APP.curId = ex.id; }
 renderAll();
 connectDb();
-IMG.loadLocal().then(() => { if (APP_cur()) renderAll(); if (APP.importedFromOriginal) toast(`Brought over ${APP.importedFromOriginal} character${APP.importedFromOriginal === 1 ? '' : 's'} from the 3.5 Character Codex. The original app still has its own copies.`); });
+if (startPrefOn()) openStart('menu');
+IMG.loadLocal().then(() => { if (APP_cur()) renderAll(); if (APP.startOpen) renderStart(); if (APP.importedFromOriginal) toast(`Brought over ${APP.importedFromOriginal} character${APP.importedFromOriginal === 1 ? '' : 's'} from the 3.5 Character Codex. The original app still has its own copies.`); });
