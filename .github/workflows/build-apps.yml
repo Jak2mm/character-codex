@@ -1,6 +1,6 @@
-# Builds the Windows installer and the Android app, then publishes them as a GitHub Release.
-# GitHub → Actions → "Build Windows and Android apps" → Run workflow → enter a version → Run.
-name: Build Windows and Android apps
+# Builds the Windows installer, the Mac app and the Android app, then publishes them as a GitHub Release.
+# GitHub → Actions → "Build Windows, Mac and Android apps" → Run workflow → enter a version → Run.
+name: Build Windows, Mac and Android apps
 
 on:
   workflow_dispatch:
@@ -71,6 +71,42 @@ jobs:
           path: out/*
           if-no-files-found: error
 
+  mac:
+    needs: locate
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ needs.locate.outputs.dir }}/native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - name: Copy the app into native/www
+        run: node prepare.mjs
+      - name: Set the version
+        run: |
+          node -e "const f='tauri/src-tauri/tauri.conf.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f));j.version='${{ github.event.inputs.version }}';fs.writeFileSync(f,JSON.stringify(j,null,2))"
+      - name: Build the Mac app (one app for Apple silicon and Intel Macs)
+        working-directory: ${{ needs.locate.outputs.dir }}/native/tauri
+        run: |
+          npm install --no-audit --no-fund
+          npx tauri build --target universal-apple-darwin --bundles app,dmg
+      - name: Collect the disk image
+        run: |
+          OUT="$(git rev-parse --show-toplevel)/out"; mkdir -p "$OUT"
+          cp tauri/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg "$OUT/Character-Codex-${{ github.event.inputs.version }}-Mac.dmg"
+          ls -l "$OUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: out/*
+          if-no-files-found: error
+
   android:
     needs: locate
     runs-on: ubuntu-latest
@@ -114,7 +150,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    needs: [windows, android]
+    needs: [windows, mac, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -128,7 +164,8 @@ jobs:
           files: dist/*
           body: |
             **Windows:** download `...-Windows-setup.exe` and run it. (If Windows SmartScreen warns about an unknown publisher, choose *More info → Run anyway*.)
+            **Mac:** download `...-Mac.dmg`, open it and drag *Character Codex* into *Applications*. The first time you open it, macOS says it can't check the developer: open *System Settings → Privacy & Security*, scroll down and click *Open Anyway* (on older macOS, right-click the app and choose *Open*). Works on Apple silicon and Intel Macs.
             **Android:** download `...-Android.apk` on your phone and open it. Android will ask you to allow installing apps from your browser or Files app.
             **Any device:** you can also use it in your browser, or install it from the website with the *Install app* button.
 
-            Your characters stay on each device. Use **Export** and **Import** to move them between devices.
+            Your characters stay on each device. Use **Export** and **Import** to move them between devices, or, in the Windows and Mac apps, choose a **Save location** on the Options page (a NAS, Dropbox, OneDrive or iCloud Drive folder) to share them between computers.
