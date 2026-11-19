@@ -73,6 +73,21 @@ button,input,select,textarea{font:inherit;color:inherit}
 .rs-card input{margin-top:3px;width:auto}
 .rs-card .hint{display:block;margin-top:2px}
 .rs-badge{font-size:11px}
+.sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.sheet-grid>.sheet-sec{min-width:0}
+.sheet-grid>.sp-full{grid-column:1/-1}
+@media (max-width:900px){.sheet-grid{grid-template-columns:minmax(0,1fr)}}
+.sheet-sec.collapsed>section.panel>:not(.ph){display:none}
+.sp-col{min-width:28px;padding:2px 6px;font-size:13px}
+.sp-custom{margin-left:auto;align-self:center}
+.sp-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:5px 8px;background:var(--accent-soft);border:1px dashed var(--accent);border-bottom:none;font-family:var(--f-label);letter-spacing:.05em;text-transform:uppercase;font-size:13px}
+.sp-bar .sp-tools{display:flex;gap:4px;flex-wrap:wrap;align-items:center;text-transform:none;letter-spacing:0}
+.sheet-grid.editing>.sheet-sec>section.panel{outline:1px dashed var(--accent);outline-offset:-1px;max-height:260px;overflow:hidden;position:relative}
+.sheet-grid.editing>.sheet-sec>section.panel::after{content:"";position:absolute;inset:auto 0 0 0;height:60px;background:linear-gradient(transparent,var(--sheet));pointer-events:none}
+.sp-hidden>section.panel{opacity:.4;filter:grayscale(1)}
+.sp-hidden .sp-bar{border-style:dotted;opacity:.85}
+.sp-edit-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;margin-bottom:12px;background:var(--accent-soft);border:1px solid var(--accent);font-size:14px}
+.sp-foot{margin:10px 0 0}
 .subtabs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid var(--tab)}
 .subtabs button{border:1px solid var(--tab);background:transparent;color:var(--ink);font-family:var(--f-label);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:15px;padding:5px 12px;cursor:pointer;white-space:nowrap}
 .subtabs button:hover{background:var(--rule-2)}
@@ -573,6 +588,11 @@ const RULESETS = [
   {id:'pf1', short:'PF1', name:'Pathfinder 1st edition rules (PRD)', blurb:'The 3.5-based rules with combat maneuvers, merged skills, archetypes and traits.', ready:false},
   {id:'dnd30', short:'3.0 SRD', name:'3.0 System Reference Document', blurb:'The original third edition rules, before the 3.5 revision.', ready:false},
 ];
+// ---- ruleset modules: each ruleset registers its rules data, calculations, sheet panels and tabs ----
+// (see src/js/rulesets/). The rest of the app asks ruleset(c) instead of assuming 3.5.
+const RULES_MODULES = {};
+function registerRuleset(m){ RULES_MODULES[m.id] = m; }
+function ruleset(c){ return RULES_MODULES[rsOf(c).id] || RULES_MODULES.dnd35; }
 const rsOf = c => RULESETS.find(r => r.id === ((c && c.ruleset) || 'dnd35')) || RULESETS[0];
 const libRs = e => (e && e.rs) || 'dnd35';  // homebrew made before rulesets existed is 3.5
 function newChar(name='New Adventurer'){
@@ -640,7 +660,10 @@ function libById(id){ return (APP.lib.entries || []).find(e => e.id === id); }
 function libByName(t, n){ return (APP.lib.entries || []).find(e => e.t === t && e.n.toLowerCase() === String(n).toLowerCase()); }
 
 // ===================== DERIVED =====================
-function derive(c){
+// derived numbers for a character come from its ruleset module
+function derive(c){ return ruleset(c).derive(c); }
+// 3.5 SRD calculations
+function derive35(c){
   const D = {}; const lvl = totalLevel(c); D.lvl = lvl;
   const race = raceData(c.race) || {adj:{}, size:'Medium', spd:30};
   const size = c.size || race.size || 'Medium'; D.size = size; const SZ = SIZES[size] || SIZES.Medium;
@@ -1457,7 +1480,7 @@ const PARENT = {}; for (const [p, l] of Object.entries(SUBTABS)) for (const [k] 
 const ALL_TABS = [...new Set([...TABS.map(t => t[0]), ...Object.keys(PARENT)])];
 function subTabBar(){ const p = PARENT[APP.tab]; if (!p) return ''; const c = APP_cur();
   const count = k => { const a = k === 'companions' ? c.companions : k === 'notes' ? c.notes : ['players','npcs','locations','factions','maps'].includes(k) ? c[k] : null; return a && a.length ? `<span class="n">${a.length}</span>` : ''; };
-  return `<nav class="subtabs" role="tablist" aria-label="${esc(TABS.find(t => t[0] === p)[1])} sections">${SUBTABS[p].map(([k, l]) => `<button role="tab" aria-selected="${APP.tab === k}" data-tab="${k}">${l}${count(k)}</button>`).join('')}</nav>`; }
+  return `<nav class="subtabs" role="tablist" aria-label="${esc(TABS.find(t => t[0] === p)[1])} sections">${SUBTABS[p].map(([k, l]) => `<button role="tab" aria-selected="${APP.tab === k}" data-tab="${k}">${l}${count(k)}</button>`).join('')}${APP.tab === 'sheet' && !APP.sheetEdit ? '<button class="btn sm sp-custom" data-sp="edit" title="Reorder, resize, collapse or hide sections of this sheet">Customise sheet</button>' : ''}</nav>`; }
 function I(path, val, extra=''){ return `<input type="text" id="k-${esc(path)}" data-k="${esc(path)}" value="${esc(val)}" ${extra}>`; }
 function N(path, val, extra=''){ return `<input type="number" id="k-${esc(path)}" data-k="${esc(path)}" data-num="1" value="${esc(val === 0 || val ? val : '')}" ${extra}>`; }
 function S(path, val, opts, extra=''){ return `<select id="k-${esc(path)}" data-k="${esc(path)}" ${extra}>${opts.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${String(v) === String(val) ? 'selected' : ''}>${esc(l)}</option>`; }).join('')}</select>`; }
@@ -1542,8 +1565,9 @@ function renderAll(){
   renderCharBar(); renderTabs();
   const c = APP_cur(); const m = $('#main');
   if (!c){ m.innerHTML = `<div class="panel"><div class="empty"><b>No characters yet.</b><br>Choose <b>New character</b> above to start a sheet, or <b>Import</b> one you exported earlier.</div></div>`; return; }
-  const R = {sheet:renderSheet, skills:renderSkills, spells:renderSpells, tracker:renderTracker, items:renderItems, notes:renderNotes, companions:renderCompanions, quests:renderQuests, players:renderPlayers, npcs:renderNpcs, locations:renderLocations, factions:renderFactions, maps:renderMaps, library:renderLibrary, rules:renderRules}[APP.tab] || renderSheet;
+  const R0 = {sheet:renderSheet, skills:renderSkills, spells:renderSpells, tracker:renderTracker, items:renderItems, notes:renderNotes, companions:renderCompanions, quests:renderQuests, players:renderPlayers, npcs:renderNpcs, locations:renderLocations, factions:renderFactions, maps:renderMaps, library:renderLibrary, rules:renderRules}; const tabsRS = ruleset(c).tabs || {}; const R = tabsRS[APP.tab] || R0[APP.tab] || renderSheet;
   if (PARENT[APP.tab]){ APP.lastSub[PARENT[APP.tab]] = APP.tab; try { localStorage.setItem('ccodex-subtabs', JSON.stringify(APP.lastSub)); } catch {} }
+  if (APP.tab !== 'sheet') APP.sheetEdit = false;
   D = derive(c); m.innerHTML = subTabBar() + R(c); updateOutputs(); applyTASizes();
   document.documentElement.style.setProperty('--toph', ($('.top').offsetHeight || 0) + 'px');
   if (APP.tab === 'rules' && (APP.rq || '').trim()) highlightReader();
@@ -1551,7 +1575,8 @@ function renderAll(){
 }
 
 // ===================== SHEET TAB =====================
-function renderSheet(c){
+// 3.5 SRD: build each Character-tab panel (the layout engine in ui-panels.js arranges them)
+function sheetPanels35(c){
   const classes = c.classes.map((k, i) => `<div class="row" style="flex-wrap:nowrap">
       <div style="flex:1"><select id="k-classes.${i}.n" data-k="classes.${i}.n" data-rerender="1" aria-label="Class">${classOptionsHtml(c, k.n)}</select></div>
       <div style="width:70px">${N('classes.' + i + '.lvl', k.lvl, `min="1" max="${(classData(k.n) || {}).prestige ? classData(k.n).prog.length : 20}" data-rerender="1" aria-label="Level"`)}</div>
@@ -1670,7 +1695,7 @@ function renderSheet(c){
   const bonusP = renderBonusPanel(c);
   const langs = panel('Languages', `<div class="pb">${T('languages', c.languages, 'style="min-height:60px"')}</div>`);
 
-  return `<div class="grid" style="gap:14px">${ident}<div class="grid g2">${abil}${combat}</div><div class="grid g2">${saves}${langs}</div>${armor}${attacks}${bonusP}${special}</div>`;
+  return {ident, abilities:abil, combat, saves, languages:langs, gear:armor, attacks, bonuses:bonusP, special};
 }
 
 // ===================== SKILLS & FEATS TAB =====================
@@ -3372,6 +3397,96 @@ function openNewCharacter(){
     toast(`Created <b>${esc(c.name)}</b> (${esc(rsOf(c).short)}). ${c.abilMode === 'rolled' || c.abilMode === 'unlocked' ? 'Type in your ability scores' : `Spend your ${c.abilMode} points on ability scores`} to start.`);
   });
 }
+
+// ===================== CHARACTER SHEET LAYOUT (panels) =====================
+// The ruleset module lists its sheet panels (rulesets/*.js). This arranges them, and lets a player
+// reorder, resize, collapse or hide panels for each character with "Customise sheet".
+// Hidden or collapsed panels still count in every calculation; only the display changes.
+// Saved on the character as c.sheetLayout = {order:[ids], size:{id:'half'|'full'}, hidden:{id:true}, collapsed:{id:true}}
+APP.sheetEdit = false;
+
+function sheetLayoutOf(c){
+  const L = c.sheetLayout = c.sheetLayout || {};
+  L.order = Array.isArray(L.order) ? L.order : []; L.size = L.size || {}; L.hidden = L.hidden || {}; L.collapsed = L.collapsed || {};
+  return L;
+}
+// the ruleset's panels in this character's order (new panels a ruleset adds later slot in at their standard place)
+function orderedPanels(c){
+  const defs = ruleset(c).sheet || [], L = sheetLayoutOf(c), byId = Object.fromEntries(defs.map(p => [p.id, p]));
+  const out = L.order.filter(id => byId[id]).map(id => byId[id]);
+  defs.forEach((p, i) => { if (!out.includes(p)){ const before = defs.slice(i + 1).map(d => out.indexOf(d)).find(j => j >= 0); out.splice(before == null || before < 0 ? out.length : before, 0, p); } });
+  return out;
+}
+// add the collapse button into the panel's own header
+function withCollapse(html, p, collapsed){
+  const btn = `<button class="btn ghost sm sp-col" data-sp="collapse" data-panel="${p.id}" aria-expanded="${!collapsed}" title="${collapsed ? 'Expand' : 'Collapse'} ${esc(p.title)}">${collapsed ? '▸' : '▾'}</button>`;
+  const i = html.indexOf('<div class="tools">'); return i < 0 ? html : html.slice(0, i + 19) + btn + html.slice(i + 19);
+}
+function renderSheet(c){
+  const M = ruleset(c), L = sheetLayoutOf(c), edit = APP.sheetEdit, html = M.sheetPanels(c), list = orderedPanels(c);
+  const n = list.length;
+  const items = list.map((p, i) => {
+    const hid = !!L.hidden[p.id]; if (hid && !edit) return '';
+    const size = L.size[p.id] || p.size || 'full', col = !!L.collapsed[p.id] && !edit;
+    const bar = edit ? `<div class="sp-bar"><b>${esc(p.title)}</b><span class="sp-tools">
+        <button class="btn sm" data-sp="up" data-panel="${p.id}" ${i === 0 ? 'disabled' : ''} aria-label="Move ${esc(p.title)} up">↑</button>
+        <button class="btn sm" data-sp="down" data-panel="${p.id}" ${i === n - 1 ? 'disabled' : ''} aria-label="Move ${esc(p.title)} down">↓</button>
+        <button class="btn sm" data-sp="size" data-panel="${p.id}" title="Currently ${size} width">${size === 'full' ? 'Make half width' : 'Make full width'}</button>
+        ${p.keep ? '<span class="hint">always shown</span>' : `<button class="btn sm ${hid ? 'pri' : ''}" data-sp="hide" data-panel="${p.id}">${hid ? 'Show' : 'Hide'}</button>`}</span></div>` : '';
+    return `<div class="sheet-sec sp-${size}${col ? ' collapsed' : ''}${hid ? ' sp-hidden' : ''}" data-panel="${p.id}">${bar}${withCollapse(html[p.id] || '', p, col)}</div>`;
+  }).join('');
+  const hiddenList = list.filter(p => L.hidden[p.id]);
+  const changed = L.order.length || Object.keys(L.size).length || hiddenList.length;
+  const top = edit
+    ? `<div class="sp-edit-banner"><div><b>Customising ${esc(c.name || 'this character')}'s sheet.</b> Move sections with ↑ ↓, switch them between half and full width, or hide the ones you don't need. Hidden sections still count in every calculation. Each character keeps its own layout.</div>
+        <div class="row">${changed ? '<button class="btn sm" data-sp="reset">Reset to standard</button>' : ''}<button class="btn sm pri" data-sp="done">Done</button></div></div>`
+    : '';
+  const foot = !edit && hiddenList.length ? `<p class="hint sp-foot">Hidden: ${hiddenList.map(p => esc(p.title)).join(', ')}. <a href="#" data-sp="edit">Customise sheet</a> to show ${hiddenList.length === 1 ? 'it' : 'them'} again.</p>` : '';
+  return `${top}<div class="sheet-grid${edit ? ' editing' : ''}">${items}</div>${foot}`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-sp]'); if (!b) return; e.preventDefault();
+  const c = APP_cur(); if (!c) return; const L = sheetLayoutOf(c), id = b.dataset.panel, act = b.dataset.sp;
+  if (act === 'edit'){ APP.sheetEdit = true; APP.tab = 'sheet'; renderAll(); return; }
+  if (act === 'done'){ APP.sheetEdit = false; renderAll(); return; }
+  if (act === 'reset'){ c.sheetLayout = {}; toast('Sheet layout reset to the standard one.'); }
+  if (act === 'collapse'){ L.collapsed[id] = !L.collapsed[id]; if (!L.collapsed[id]) delete L.collapsed[id]; }
+  if (act === 'hide'){ L.hidden[id] = !L.hidden[id]; if (!L.hidden[id]) delete L.hidden[id]; }
+  if (act === 'size'){ const p = (ruleset(c).sheet || []).find(x => x.id === id); const cur = L.size[id] || (p && p.size) || 'full'; const nx = cur === 'full' ? 'half' : 'full'; if (p && p.size === nx) delete L.size[id]; else L.size[id] = nx; }
+  if (act === 'up' || act === 'down'){ const ids = orderedPanels(c).map(p => p.id); const i = ids.indexOf(id), j = act === 'up' ? i - 1 : i + 1;
+    if (j >= 0 && j < ids.length){ [ids[i], ids[j]] = [ids[j], ids[i]]; L.order = ids; } }
+  markDirty(); renderAll();
+  if (act === 'up' || act === 'down'){ const el = document.querySelector(`.sheet-sec[data-panel="${id}"]`); if (el) el.scrollIntoView({block:'nearest'}); }
+});
+
+// ===================== RULESET MODULE: 3.5 SRD =====================
+// A ruleset module tells the app everything that is specific to one game system:
+//   id          matches RULESETS in core.js (chosen once when a character is made)
+//   data        the rules content (spells, feats, classes…) for pickers and hovers
+//   derive(c)   works out every number on the sheet (returns the D object)
+//   sheet       the Character tab's panels, in their standard order and width ('full' or 'half');
+//               players can reorder, resize, collapse or hide them per character (ui-panels.js)
+//   sheetPanels(c)  builds the HTML for those panels, keyed by panel id
+//   tabs        renderers for ruleset-specific tabs (anything not listed uses the shared one)
+// To add a ruleset, copy this file's shape into rulesets/<id>.js and add it to JS_ORDER in tools/build.py.
+registerRuleset({
+  id: 'dnd35',
+  data: SRD,
+  derive: derive35,
+  sheetPanels: sheetPanels35,
+  sheet: [
+    {id: 'ident',     title: 'Character',            size: 'full', keep: true},
+    {id: 'abilities', title: 'Ability scores',       size: 'half'},
+    {id: 'combat',    title: 'Combat',               size: 'half'},
+    {id: 'saves',     title: 'Saving throws',        size: 'half'},
+    {id: 'languages', title: 'Languages',            size: 'half'},
+    {id: 'gear',      title: 'Gear',                 size: 'full'},
+    {id: 'attacks',   title: 'Attacks',              size: 'full'},
+    {id: 'bonuses',   title: 'Bonuses in effect',    size: 'full'},
+    {id: 'special',   title: 'Special abilities & class features', size: 'full'},
+  ],
+  tabs: {skills: renderSkills, spells: renderSpells, tracker: renderTracker, items: renderItems, companions: renderCompanions},
+});
 
 // ===================== INPUT BINDING =====================
 let barTimer = null;

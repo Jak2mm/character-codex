@@ -33,3 +33,15 @@ Thanks for helping improve Character Codex!
 ## Reporting bugs
 
 Open an issue that says what you did, what you expected and what happened. If you can, attach a character export (**Export** button) that shows the problem.
+
+## Adding a ruleset
+
+Each game system is a **ruleset module** in `src/js/rulesets/`. `dnd35.js` (the 3.5 SRD) is the model to copy:
+
+- `id` must match an entry in `RULESETS` in `src/js/core.js` (set `ready: true` there when it's usable).
+- `derive(c)` works out every number on the sheet.
+- `sheet` lists the Character tab's panels (id, title, standard width) and `sheetPanels(c)` returns their HTML keyed by id. Players can then reorder, resize, collapse and hide them with **Customise sheet**.
+- `tabs` overrides any tab that works differently in that system (skills, spells, combat, items, companions…). Shared pages such as notes, quests, maps and the rules lookup are reused.
+- Add the file to `JS_ORDER` in `tools/build.py`, after the files it uses and before `events.js`.
+
+A character's ruleset is chosen once when it's created and never changes, so a module only ever sees its own characters.

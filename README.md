@@ -11,6 +11,7 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 ## Features (3.5 SRD ruleset)
 
 - **Character sheet** laid out like the classic 3.5 record sheet. Ability scores (choose a point-buy total from 22 to 40, rolled 4d6 scores, or Unlocked for house rules; the app enforces costs and limits, and adds one level-up point at every 4th character level), racial adjustments, base attack bonus, saves, AC (normal, touch and flat-footed), grapple and initiative all calculate automatically, and multiclassing is supported.
+- **Customise sheet.** On the Character tab, choose **Customise sheet** to move sections up or down, switch them between half and full width, or hide ones you don't need (for example saving throws). Any section can also be collapsed with the ▾ button in its title bar. Each character keeps its own layout, hidden sections still count in every calculation, and **Reset to standard** puts everything back.
 - **Hover references.** Hover over (or tap) any ability, skill, feat, spell, condition, race, class feature or item to read its SRD rules text.
 - **Dropdown pickers** with search and a preview pane: all 11 core classes and 15 prestige classes, 7 races, 36 skills, 110 feats, 605 spells, 37 conditions, 83 weapons, 21 armors and shields, 155 pieces of gear and 382 magic items.
 - **Gear slots.** Head, eyes, neck, torso, body (robe or armor), waist, shoulders, arms/wrists, hands, two rings, feet, plus a held shield. Each slot holds one item, and equipping a new one swaps the old one into your pack. The picker only shows items that fit the slot. Armor in the body slot and a shield in the shield slot set your AC, max Dex and penalties. Worn items apply their stat bonuses (with stacking warnings), special abilities and spells.
@@ -54,6 +55,8 @@ index.html            Built, self-contained app (this is what people open)
 src/head.html         Page title, fonts and all CSS (design tokens at the top)
 src/body.html         Static page shell: top bar, tabs, tooltip and modal roots
 src/js/app-shell.js   Install-as-app support (offline service worker, Install button) and Windows/Android differences
+src/js/rulesets/      One file per ruleset (rules data, calculations, sheet panels, tabs); dnd35.js is the 3.5 SRD
+src/js/ui-panels.js   Character-sheet layout engine: panel order, width, collapse, hide (Customise sheet)
 src/js/core.js        Rules data helpers, character model and derived calculations (AC, saves, skills, spells, load)
 src/js/bonuses.js     Typed bonuses for items, feats, spells, conditions, races and classes, plus the stacking rules
 src/js/ui-bonus.js    Stacking warnings and the bonus editor
