@@ -79,14 +79,11 @@ function atkCalc(c, a, D){
 function renderCharBar(){
   const sel = $('#charSel'); const list = charList();
   sel.innerHTML = list.map(c => `<option value="${c.id}" ${c.id === APP.curId ? 'selected' : ''}>${esc(c.name || 'Unnamed')} — ${esc(c.classes.map(k => k.n + ' ' + k.lvl).join(' / '))} (${esc(rsOf(c).short)})</option>`).join('') || '<option>No characters</option>';
-  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0;
+  $('#rNum').textContent = APP_cur() ? APP_cur().combat.round : 0; renderTurnInfo();
   const br = $('#brandRs'); if (br) br.textContent = APP_cur() ? rsOf(APP_cur()).short.replace(/ SRD$/, '') : 'CC';
   $('#delWrap').innerHTML = '<button class="btn ghost" id="delChar">Delete</button>';
 }
-function renderTabs(){
-  const c = APP_cur(); const effN = c ? c.effects.filter(e => !e.expired).length : 0;
-  $('#tabs').innerHTML = TABS.map(([k, l]) => `<button role="tab" aria-selected="${(PARENT[APP.tab] || APP.tab) === k}" data-tab="${k}">${l}${k === 'tracker' && effN ? `<span class="badge">${effN}</span>` : ''}</button>`).join('');
-}
+function renderTabs(){ renderSidebar(); }
 function renderAll(){
   renderCharBar(); renderTabs();
   const c = APP_cur(); const m = $('#main');

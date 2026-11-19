@@ -231,7 +231,7 @@ document.addEventListener('click', e => {
   const roll = e.target.closest('.roll'); if (roll){ const row = roll.closest('[data-atk]'); const c0 = APP_cur();
     if (row && roll.classList.contains('atkb') && c0){ const a = c0.attacks.find(x => x.id === row.dataset.atk); if (a && !fireAmmo(c0, a)) return; }
     rollToast(roll.dataset.label || 'Roll', num(roll.dataset.bonus)); return; }
-  const tab = e.target.closest('[data-tab]'); if (tab){ let t = tab.dataset.tab; if (tab.closest('#tabs') && SUBTABS[t]) t = APP.lastSub[t] || t; APP.tab = t; renderAll(); window.scrollTo({top:0}); return; }
+  const tab = e.target.closest('[data-tab]'); if (tab){ let t = tab.dataset.tab; if (tab.closest('#sidebar .nv-top, .rc-turn') && SUBTABS[t]) t = APP.lastSub[t] || t; APP.tab = t; renderAll(); window.scrollTo({top:0}); return; }
   const b = e.target.closest('[data-act]'); if (!b) return; const c = APP_cur(); if (!c) return;
   const fn = ACT[b.dataset.act]; if (!fn) return;
   const r = fn(c, b); if (r === 'noRender') return;
@@ -279,7 +279,6 @@ $('#impFile').addEventListener('change', async e => {
     c.lastOpened = Date.now(); markDirty(c.id); if (APP.startOpen) closeStart(); renderAll(); toast(`Imported <b>${esc(c.name)}</b>.`);
   } catch (err){ toast('That file couldn\'t be read as a character export. ' + esc(err.message || ''), 'warn'); }
 });
-$('#rNext').addEventListener('click', () => { const c = APP_cur(); if (!c) return; ACT.nextRound(c); markDirty(); renderAll(); });
 $('#rPrev').addEventListener('click', () => { const c = APP_cur(); if (!c) return; ACT.prevRound(c); markDirty(); renderAll(); });
 
 // ===================== BOOT =====================
@@ -289,6 +288,7 @@ try { APP.notesHelpHidden = localStorage.getItem('ccodex-noteshelp') === '1'; } 
 try { const t = localStorage.getItem('ccodex-tab'); if (t && ALL_TABS.includes(t)) APP.tab = t; const ls = JSON.parse(localStorage.getItem('ccodex-subtabs') || '{}'); for (const k in ls) if (ALL_TABS.includes(ls[k])) APP.lastSub[k] = ls[k]; } catch {}
 if (location.hash && ALL_TABS.includes(location.hash.slice(1))) APP.tab = location.hash.slice(1);
 if (!Object.keys(APP.chars).length){ const ex = exampleChar(); APP.chars[ex.id] = ex; APP.curId = ex.id; }
+setSide(sideDefault());
 renderAll();
 connectDb();
 if (startPrefOn()) openStart('menu');
