@@ -45,6 +45,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .saveloc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .saveloc.needs-permission,.saveloc.missing,.saveloc.error{border-color:var(--bad);background:var(--bad-soft)}
 .st-saveloc .cap{font-size:15px}
+.upd-box{display:grid;gap:2px;margin-top:6px;padding:8px 10px;border:1px solid var(--rule);border-radius:var(--r-sm);background:var(--sheet)}
+.upd-box.new{border-color:var(--accent);background:var(--accent-soft)} .upd-box.err{border-color:var(--bad);background:var(--bad-soft)}
+.chlog details{border-bottom:1px solid var(--rule);padding:6px 0} .chlog details:last-child{border-bottom:0}
+.chlog summary{cursor:pointer;line-height:1.5} .chlog ul{margin:6px 0 2px;padding-left:20px;display:grid;gap:3px} .chlog li{font-size:14px}
+.ver-foot{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 0 4px;color:var(--ink-2);font-size:13px;text-align:center}
+.ver-foot .ver-sub{font-size:12px;font-family:var(--f-label);letter-spacing:.06em;text-transform:uppercase} .ver-foot .ver-sub.new a{color:var(--accent);font-weight:700}
+body.has-bg .ver-foot{background:color-mix(in srgb,var(--paper) 80%,transparent);border-radius:var(--r-sm);padding:8px}
+.nv-link .badge.upd{background:var(--accent);color:var(--sheet);font-size:10px;letter-spacing:.05em}
 .roundchip{display:flex;align-items:stretch;border:1px solid var(--rule);background:var(--sheet);min-width:250px}
 .rc-round{display:flex;flex-direction:column;align-items:stretch;border-right:1px solid var(--rule-2);flex:none}
 .roundchip .lab{background:var(--tab);color:var(--tab-fg);font-family:var(--f-label);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;padding:3px 8px;text-align:center}
@@ -512,6 +520,7 @@ table.bdt th,table.bdt td{border-bottom:1px solid var(--rule-2);padding:3px 5px;
 /* toast */
 #toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:90;display:flex;flex-direction:column;gap:6px;align-items:flex-end;max-width:calc(100vw - 32px)}
 .toast{background:var(--tab);color:var(--tab-fg);padding:8px 12px;font-size:14px;box-shadow:var(--shadow);max-width:360px}
+.toast a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px}
 .toast b{font-family:var(--f-label);font-size:18px;letter-spacing:.03em}
 .toast.warn{background:var(--warn);color:var(--sheet)}
 .confirm{display:flex;gap:6px;align-items:center;flex-wrap:wrap}

@@ -1,0 +1,42 @@
+[
+  {"v": "0.6.4", "date": "2026-11-20", "title": "Updates and Paladin background", "items": [
+    "Updates: Options shows this version and whether a newer one is out, with an Update button and this change log.",
+    "Painted background for the Paladin theme. Bright pictures are dimmed a little in dark mode so text stays easy to read."
+  ]},
+  {"v": "0.6.3", "date": "2026-11-20", "title": "See-through boxes", "items": [
+    "Painted backgrounds show through the boxes, top bar and menu, with text kept easy to read.",
+    "Full-width top bar and tidier page tabs."
+  ]},
+  {"v": "0.6.2", "date": "2026-11-20", "title": "Rogue background", "items": [
+    "Painted background for the Rogue theme: a moonlit city."
+  ]},
+  {"v": "0.6.1", "date": "2026-11-20", "title": "Save location and Mac app", "items": [
+    "Save location: keep your characters, homebrew and pictures in a folder of your choice (NAS, Dropbox, OneDrive, iCloud Drive) and share them between computers. Windows and Mac apps, and Chrome or Edge on a computer.",
+    "Mac app: one download for Apple silicon and Intel Macs."
+  ]},
+  {"v": "0.6.0", "date": "2026-11-20", "title": "Specialist wizards", "items": [
+    "Specialist wizards: choose a specialty school for the extra spell slot, and prohibited schools.",
+    "Magic Missile and Scorching Ray show and roll the right number of missiles or rays for your caster level."
+  ]},
+  {"v": "0.5.0", "date": "2026-11-19", "title": "Themes", "items": [
+    "Options page with a theme for each character: 20 presets by class and race, your own colours, fonts, borders, title styles, backgrounds and textures.",
+    "Adventure layout: an original scene for every class and race, framed boxes and a shield-shaped Armor Class.",
+    "Colours are checked automatically so text stays readable in light and dark mode."
+  ]},
+  {"v": "0.4.0", "date": "2026-11-19", "title": "Combat & Effects", "items": [
+    "Combat & Effects page: every box full width with Full and Compact views.",
+    "Attack options (flanking, sneak attack, Power Attack, Rapid Shot, Point Blank Shot and more) and attacks of opportunity that reset each round.",
+    "Initiative: a spells and conditions menu for every combatant, who each effect is on, and name suggestions when adding.",
+    "Companions as Full/Compact/Hide boxes, shown on Combat & Effects when they're in initiative.",
+    "Spells show damage type, dice at your caster level, touch attacks and saves; prepared spells can be limited to your slots.",
+    "Magic and custom ammunition, item labels on the Items page, and picture framing for NPCs, players, places and companions."
+  ]},
+  {"v": "0.3.0", "date": "2026-11-19", "title": "New look", "items": [
+    "Start screen: Continue, New Character, Load Character and Options.",
+    "Sidebar menu, and a round box that shows who is up now and next.",
+    "Rounded look, Full/Compact/Hide panels on the Character sheet, and a Long rest button."
+  ]},
+  {"v": "0.2.0", "date": "2026-11-18", "title": "Character Codex", "items": [
+    "The multi-ruleset Character Codex, started from the 3.5 Character Codex: rulesets chosen when a character is made, homebrew by ruleset, and a sheet you can rearrange."
+  ]}
+]
