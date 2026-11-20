@@ -57,6 +57,12 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 - **From the website:** open the Codex in Edge or Chrome (Windows) or Chrome (Android) and click **Install app** at the top, or use the browser's menu (*Install Character Codex* / *Add to Home screen*). It gets its own icon and window, works offline, and updates itself whenever a new version is uploaded.
 - **Windows installer, Mac app and Android APK:** download them from this repository's **Releases** page. The Mac app works on Apple silicon and Intel Macs; the first time you open it, macOS asks you to confirm in *System Settings → Privacy & Security → Open Anyway*, because it isn't signed by a paid Apple developer account. They're built automatically by GitHub; see [native/README.md](native/README.md) for how.
 
+## Versions and updates
+
+**Options** shows the version you have, whether a newer one is out (or *Current*), an **Update** button and the change log. The website and installed web app check the website's `version.json` and Update reloads the new version; the Windows, Mac and Android apps check the newest GitHub Release and Update opens its download page. Copies check by themselves every few hours and show a **New** badge on Options when there's an update.
+
+To release a new version, add an entry at the top of `src/changelog.json` (version number, date, title and what changed) and run `python tools/build.py`: the version and change log are built into the page and `version.json` is updated. Running the **Build Windows, Mac and Android apps** workflow with the version left blank makes installers with that same version number.
+
 ## Where your data is saved
 
 Characters are saved in **your browser's local storage** on the device you use, and pictures and maps in the browser's IndexedDB storage. They aren't uploaded anywhere. To move a character to another device use **Export** and **Import**; to back up everything at once (all characters, homebrew and pictures) use **Options → Back up all characters** on the start screen, and **Restore or import** on the other device.
@@ -72,6 +78,8 @@ index.html            Built, self-contained app (this is what people open)
 src/head.html         Page title, fonts and all CSS (design tokens at the top)
 src/body.html         Static page shell: top bar, sidebar, tooltip and modal roots
 src/js/app-shell.js   Install-as-app support (offline service worker, Install button) and desktop/Android differences
+src/js/updates.js     Version, update checks (website version.json / GitHub Releases) and the change log
+src/changelog.json    The change log; its first entry is the app's version
 src/js/folder.js      Save location: keeps characters, homebrew and pictures in a folder of the player's choice and syncs it
 src/js/rulesets/      One file per ruleset (rules data, calculations, sheet panels, tabs); dnd35.js is the 3.5 SRD
 src/js/ui-start.js    Start screen: Continue, New, Load, Options (appearance, backups)
