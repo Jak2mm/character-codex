@@ -262,8 +262,10 @@ function renderOptionsPage(c){
       <label class="mini"><input type="checkbox" id="st-pref" ${startPrefOn() ? 'checked' : ''}> Show the start screen when the app opens</label>
       <div><div class="cap">Backups</div><div class="row" style="margin-top:4px"><button class="btn sm" data-st="backup" ${n ? '' : 'disabled'}>Back up all ${n} character${n === 1 ? '' : 's'}</button><label class="btn sm" for="impFile">Restore or import…</label>${canInstall ? '<button class="btn sm" data-st="install">Install app</button>' : ''}</div></div>
       ${saveLocationBlock()}
+      ${updatesBlock()}
     </div>`);
-  return `<div class="grid opt-page" style="gap:14px">${themeP}<div class="grid g2 opt-cols" style="align-items:start">${custP}${appP}</div></div>`;
+  const logP = panel('Change log', `<div class="pb">${changelogBlock(3)}</div>`, `<button class="btn sm" data-upd="log">Full change log</button>`);
+  return `<div class="grid opt-page" style="gap:14px">${themeP}<div class="grid g2 opt-cols" style="align-items:start">${custP}<div class="grid" style="gap:14px">${appP}${logP}</div></div>${versionFooter()}</div>`;
 }
 
 // ---------- changing the theme ----------

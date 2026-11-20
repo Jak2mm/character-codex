@@ -28,7 +28,8 @@ function renderSidebar(){
   const cur = APP.tab, curParent = PARENT[cur] || cur;
   const link = (k, l, cls, extra = '') => `<button class="nv-link ${cls}" data-tab="${k}" ${(cls === 'nv-child' ? cur === k : curParent === k) ? 'aria-current="page"' : ''}><span>${l}</span>${extra}</button>`;
   const items = TABS.map(([k, l]) => {
-    const badge = k === 'tracker' && effN ? `<span class="badge" title="${effN} active effect${effN === 1 ? '' : 's'}">${effN}</span>` : '';
+    const badge = k === 'tracker' && effN ? `<span class="badge" title="${effN} active effect${effN === 1 ? '' : 's'}">${effN}</span>`
+      : k === 'options' && typeof UPD !== 'undefined' && UPD.newer() ? `<span class="badge upd" title="Version ${esc(UPD.latest)} is available">New</span>` : '';
     if (!SUBTABS[k]) return `<li>${link(k, l, 'nv-top', badge)}</li>`;
     const open = APP.navGroups[k] != null ? !!APP.navGroups[k] : curParent === k;
     const kids = SUBTABS[k].map(([sk, sl]) => { const n = navCount(c, sk); return `<li>${link(sk, sl, 'nv-child', n ? `<span class="n">${n}</span>` : '')}</li>`; }).join('');
