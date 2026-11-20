@@ -1,12 +1,25 @@
 {
- "version": "0.6.4",
+ "version": "0.6.5",
  "date": "2026-11-20",
- "title": "Updates and Paladin background",
+ "title": "Painted backgrounds for every theme",
  "items": [
-  "Updates: Options shows this version and whether a newer one is out, with an Update button and this change log.",
-  "Painted background for the Paladin theme. Bright pictures are dimmed a little in dark mode so text stays easy to read."
+  "Painted backgrounds for every class and race theme and Old parchment.",
+  "Options \u2192 Customise: Background now lists None, every painted background (use any of them with any theme) and Upload background for your own picture.",
+  "Box opacity slider: choose how much of the background shows through the boxes. Text colours adjust so everything stays easy to read at every setting.",
+  "Your own background pictures now show at full strength with see-through boxes, like the painted ones."
  ],
  "changelog": [
+  {
+   "v": "0.6.5",
+   "date": "2026-11-20",
+   "title": "Painted backgrounds for every theme",
+   "items": [
+    "Painted backgrounds for every class and race theme and Old parchment.",
+    "Options \u2192 Customise: Background now lists None, every painted background (use any of them with any theme) and Upload background for your own picture.",
+    "Box opacity slider: choose how much of the background shows through the boxes. Text colours adjust so everything stays easy to read at every setting.",
+    "Your own background pictures now show at full strength with see-through boxes, like the painted ones."
+   ]
+  },
   {
    "v": "0.6.4",
    "date": "2026-11-20",
