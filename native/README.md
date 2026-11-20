@@ -17,7 +17,7 @@ On Android, **Export** opens the share sheet, so you can save the file to Drive 
 
 1. The workflow is already in the repository at **`.github/workflows/build-apps.yml`**.
    (If it's missing, for example because the upload skipped hidden folders, create that file on GitHub and paste its contents in.)
-2. On GitHub, open **Actions → Build Windows, Mac and Android apps → Run workflow**, type a version such as `1.0.0`, and click **Run workflow**.
+2. On GitHub, open **Actions → Build Windows, Mac and Android apps → Run workflow** and click **Run workflow**. Leave the version blank to use the newest version in `src/changelog.json` (the version the app shows in Options), or type one.
 3. After about 10–15 minutes, the installers appear under **Releases** on your repository's main page.
 
 The workflow builds the app from the top of the repository (or an `app/` folder). You can also type the folder name when you run it.
