@@ -7,7 +7,7 @@ Usage:
 import os, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-JS_ORDER = ['app-shell.js', 'core.js', 'images.js', 'bonuses.js', 'ref.js', 'store.js', 'folder.js', 'ui-sheet.js', 'ui-other.js', 'ui-rules.js', 'ui-bonus.js', 'ui-custom.js', 'ui-gear.js', 'ui-attacks.js', 'ui-world.js', 'ui-mention.js', 'ui-map.js', 'ui-companion.js', 'ui-prestige.js', 'ui-newchar.js', 'ui-start.js', 'ui-panels.js', 'ui-compact.js', 'ui-combatopts.js', 'ui-targets.js', 'ui-scenes.js', 'ui-themes.js', 'ui-rest.js', 'rulesets/dnd35.js', 'ui-nav.js', 'events.js']
+JS_ORDER = ['app-shell.js', 'core.js', 'images.js', 'bonuses.js', 'ref.js', 'store.js', 'folder.js', 'updates.js', 'ui-sheet.js', 'ui-other.js', 'ui-rules.js', 'ui-bonus.js', 'ui-custom.js', 'ui-gear.js', 'ui-attacks.js', 'ui-world.js', 'ui-mention.js', 'ui-map.js', 'ui-companion.js', 'ui-prestige.js', 'ui-newchar.js', 'ui-start.js', 'ui-panels.js', 'ui-compact.js', 'ui-combatopts.js', 'ui-targets.js', 'ui-scenes.js', 'ui-themes.js', 'ui-rest.js', 'rulesets/dnd35.js', 'ui-nav.js', 'events.js']
 
 def read(*p):
     with open(os.path.join(ROOT, *p), encoding='utf-8') as f:
@@ -31,9 +31,24 @@ def art_js():
                     lum[n[:-4]] = 0.3
     return 'const SCENE_ART = ' + json.dumps(art) + ';\nconst SCENE_ART_LUM = ' + json.dumps(lum) + ';\n'
 
+def version_js():
+    # The version and change log come from src/changelog.json (newest first). The first entry is this version.
+    import json
+    log = json.loads(read('src', 'changelog.json'))
+    return 'const APP_VERSION = ' + json.dumps(log[0]['v']) + ';\nconst CHANGELOG = ' + json.dumps(log) + ';\n'
+
+def write_version_file():
+    # version.json on the website: what installed copies check to see whether a newer version is out
+    import json
+    log = json.loads(read('src', 'changelog.json'))
+    with open(os.path.join(ROOT, 'version.json'), 'w', encoding='utf-8') as f:
+        json.dump({'version': log[0]['v'], 'date': log[0]['date'], 'title': log[0].get('title', ''), 'items': log[0]['items'],
+                   'changelog': [{k: e[k] for k in ('v', 'date', 'title', 'items') if k in e} for e in log[:10]]}, f, indent=1)
+        f.write('\n')
+
 def build(fragment=False):
     data = read('data', 'srd.json').replace('</', '<\\/')  # keep the JSON from closing its <script> tag
-    js = art_js() + '\n'.join(read('src', 'js', f) for f in JS_ORDER)
+    js = art_js() + version_js() + '\n'.join(read('src', 'js', f) for f in JS_ORDER)
     inner = (read('src', 'head.html') + read('src', 'body.html') +
              '<script type="application/json" id="srd-data">' + data + '</script>\n'
              '<script>\n"use strict";\n' + js + '\n</script>\n')
@@ -56,6 +71,7 @@ def build(fragment=False):
     if not fragment:  # service worker for the installable web app, versioned by the page's contents
         import hashlib
         ver = hashlib.sha1(html.encode('utf-8')).hexdigest()[:12]
+        write_version_file()
         with open(os.path.join(ROOT, 'sw.js'), 'w', encoding='utf-8') as f:
             f.write(read('src', 'sw.js').replace('__VERSION__', ver))
     print(f'wrote {os.path.relpath(out, ROOT)} ({len(html) / 1e6:.2f} MB)')
