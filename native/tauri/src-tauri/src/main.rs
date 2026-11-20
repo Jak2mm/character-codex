@@ -9,6 +9,7 @@ use std::fs;
 use std::io::ErrorKind;
 use std::path::{Component, Path, PathBuf};
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_opener::OpenerExt;
 
 // Join a path inside the chosen folder, refusing anything that could step outside it.
 fn inside(root: &str, rel: &str) -> Result<PathBuf, String> {
@@ -103,16 +104,28 @@ async fn folder_remove(root: String, path: String) -> Result<(), String> {
     }
 }
 
+// Open a web page (the download page for a new version, the project page) in the normal browser.
+// Only https links are opened.
+#[tauri::command]
+async fn open_link(app: tauri::AppHandle, url: String) -> Result<(), String> {
+    if !url.starts_with("https://") {
+        return Err("Only https links can be opened.".into());
+    }
+    app.opener().open_url(url, None::<&str>).map_err(|e| e.to_string())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             folder_pick,
             folder_check,
             folder_list,
             folder_read,
             folder_write,
-            folder_remove
+            folder_remove,
+            open_link
         ])
         .run(tauri::generate_context!())
         .expect("error while running the Character Codex");
