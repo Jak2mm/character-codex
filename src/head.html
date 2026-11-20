@@ -727,6 +727,7 @@ body.has-bg .subtabs{padding-block:6px;align-items:center}
 .th-report{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:var(--r-sm);border:1px solid var(--good);background:var(--good-soft)}
 .th-report b{color:var(--good)} .th-report.bad{border-color:var(--bad);background:var(--bad-soft)} .th-report.bad b{color:var(--bad)}
 .th-bgimg{gap:10px;align-items:center}
+.th-glass input[type=range],.th-fields + * input[type=range]{accent-color:var(--accent)}
 .th-bgthumb{width:64px;height:40px;border-radius:4px;background-size:cover;background-position:center;border:1px solid var(--rule)}
 .th-preview{display:grid;gap:6px}
 .badge-demo{display:inline-block;min-width:18px;padding:0 5px;font-size:11px;background:var(--gold);color:var(--sheet);border-radius:9px;text-align:center;font-family:var(--f-label);font-weight:700}
@@ -738,10 +739,10 @@ body.has-bg[data-bgkind="scene"]::before{background-size:cover;background-positi
 body.has-bg[data-bgkind="scene-art"]::before{background-size:cover;background-position:center;opacity:1}
 /* painted backgrounds: see-through boxes (fields and stat boxes stay nearly solid so text stays sharp) */
 @media (min-width:901px){
-body[data-bgkind="scene-art"][data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) var(--glass,76%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-body[data-bgkind="scene-art"][data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) var(--glass-bar,64%),transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-body[data-bgkind="scene-art"][data-style="adventure"] .panel :is(input,select,textarea,.sbox,.hp-box,.rs-slot){background-color:color-mix(in srgb,var(--sheet) var(--glass-field,86%),transparent)}
-body[data-bgkind="scene-art"][data-style="adventure"] .subtabs{background:color-mix(in srgb,var(--paper) var(--glass-bar,64%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}}
+body.has-bg[data-bgkind="scene-art"] .panel{background-color:color-mix(in srgb,var(--sheet) var(--glass,66%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+body.has-bg[data-bgkind="scene-art"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) var(--glass-bar,64%),transparent);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+body.has-bg[data-bgkind="scene-art"] .panel :is(input,select,textarea,.sbox,.hp-box,.rs-slot){background-color:color-mix(in srgb,var(--sheet) var(--glass-field,86%),transparent)}
+body.has-bg[data-bgkind="scene-art"] .subtabs{background:color-mix(in srgb,var(--paper) var(--glass-bar,64%),transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}}
 body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 96%,transparent)}
 body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 94%,transparent)}
 @media (min-width:901px){body[data-style="adventure"] .panel{background-color:color-mix(in srgb,var(--sheet) 88%,transparent)}body[data-style="adventure"] :is(.top,.sidebar){background:color-mix(in srgb,var(--paper) 82%,transparent)}body[data-style="adventure"] :is(.panel,.top,.sidebar){-webkit-backdrop-filter:blur(10px) saturate(.8);backdrop-filter:blur(10px) saturate(.8)}}
