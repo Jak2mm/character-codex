@@ -1,14 +1,14 @@
 # Builds the Windows installer, the Mac app and the Android app, then publishes them as a GitHub Release.
-# GitHub → Actions → "Build Windows, Mac and Android apps" → Run workflow → enter a version → Run.
+# GitHub → Actions → "Build Windows, Mac and Android apps" → Run workflow → Run (the version comes from src/changelog.json unless you type one).
 name: Build Windows, Mac and Android apps
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version number (like 1.0.0 — three numbers)"
-        required: true
-        default: "1.0.0"
+        description: "Version number (leave blank to use the newest version in src/changelog.json)"
+        required: false
+        default: ""
       app_dir:
         description: "Folder holding index.html and native/ (leave blank to find it automatically)"
         required: false
@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dir: ${{ steps.find.outputs.dir }}
+      version: ${{ steps.find.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - id: find
@@ -35,6 +36,9 @@ jobs:
           fi
           if [ -z "$d" ] || [ ! -f "$d/index.html" ] || [ ! -d "$d/native" ]; then echo "::error::Could not find a folder with index.html and native/. Enter it in 'app_dir'."; exit 1; fi
           echo "Using app folder: $d"; echo "dir=$d" >> "$GITHUB_OUTPUT"
+          v="${{ github.event.inputs.version }}"
+          if [ -z "$v" ]; then v=$(node -p "require('./$d/version.json').version"); fi
+          echo "Version: $v"; echo "version=$v" >> "$GITHUB_OUTPUT"
 
   windows:
     needs: locate
@@ -53,7 +57,7 @@ jobs:
         run: node prepare.mjs
       - name: Set the version
         run: |
-          node -e "const f='tauri/src-tauri/tauri.conf.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f));j.version='${{ github.event.inputs.version }}';fs.writeFileSync(f,JSON.stringify(j,null,2))"
+          node -e "const f='tauri/src-tauri/tauri.conf.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f));j.version='${{ needs.locate.outputs.version }}';fs.writeFileSync(f,JSON.stringify(j,null,2))"
       - name: Build the Windows installers
         working-directory: ${{ needs.locate.outputs.dir }}/native/tauri
         run: |
@@ -62,8 +66,8 @@ jobs:
       - name: Collect installers
         run: |
           OUT="$(git rev-parse --show-toplevel)/out"; mkdir -p "$OUT"
-          cp tauri/src-tauri/target/release/bundle/nsis/*.exe "$OUT/Character-Codex-${{ github.event.inputs.version }}-Windows-setup.exe"
-          cp tauri/src-tauri/target/release/bundle/msi/*.msi "$OUT/Character-Codex-${{ github.event.inputs.version }}-Windows.msi"
+          cp tauri/src-tauri/target/release/bundle/nsis/*.exe "$OUT/Character-Codex-${{ needs.locate.outputs.version }}-Windows-setup.exe"
+          cp tauri/src-tauri/target/release/bundle/msi/*.msi "$OUT/Character-Codex-${{ needs.locate.outputs.version }}-Windows.msi"
           ls -l "$OUT"
       - uses: actions/upload-artifact@v4
         with:
@@ -90,7 +94,7 @@ jobs:
         run: node prepare.mjs
       - name: Set the version
         run: |
-          node -e "const f='tauri/src-tauri/tauri.conf.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f));j.version='${{ github.event.inputs.version }}';fs.writeFileSync(f,JSON.stringify(j,null,2))"
+          node -e "const f='tauri/src-tauri/tauri.conf.json',fs=require('fs'),j=JSON.parse(fs.readFileSync(f));j.version='${{ needs.locate.outputs.version }}';fs.writeFileSync(f,JSON.stringify(j,null,2))"
       - name: Build the Mac app (one app for Apple silicon and Intel Macs)
         working-directory: ${{ needs.locate.outputs.dir }}/native/tauri
         run: |
@@ -99,7 +103,7 @@ jobs:
       - name: Collect the disk image
         run: |
           OUT="$(git rev-parse --show-toplevel)/out"; mkdir -p "$OUT"
-          cp tauri/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg "$OUT/Character-Codex-${{ github.event.inputs.version }}-Mac.dmg"
+          cp tauri/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg "$OUT/Character-Codex-${{ needs.locate.outputs.version }}-Mac.dmg"
           ls -l "$OUT"
       - uses: actions/upload-artifact@v4
         with:
@@ -132,7 +136,7 @@ jobs:
           npx cap sync android
       - name: Set the version
         run: |
-          sed -i -E 's/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName "[^"]*"/versionName "${{ github.event.inputs.version }}"/' android/app/build.gradle
+          sed -i -E 's/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName "[^"]*"/versionName "${{ needs.locate.outputs.version }}"/' android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
       - name: Build the APK
         run: |
@@ -142,7 +146,7 @@ jobs:
       - name: Collect the APK
         run: |
           OUT="$(git rev-parse --show-toplevel)/out"; mkdir -p "$OUT"
-          cp android/app/build/outputs/apk/debug/app-debug.apk "$OUT/Character-Codex-${{ github.event.inputs.version }}-Android.apk"
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$OUT/Character-Codex-${{ needs.locate.outputs.version }}-Android.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: android
@@ -150,7 +154,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    needs: [windows, mac, android]
+    needs: [locate, windows, mac, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -159,8 +163,8 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          name: Character Codex ${{ github.event.inputs.version }}
+          tag_name: v${{ needs.locate.outputs.version }}
+          name: Character Codex ${{ needs.locate.outputs.version }}
           files: dist/*
           body: |
             **Windows:** download `...-Windows-setup.exe` and run it. (If Windows SmartScreen warns about an unknown publisher, choose *More info → Run anyway*.)
