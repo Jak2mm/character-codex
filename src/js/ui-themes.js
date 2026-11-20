@@ -1,7 +1,7 @@
 // ===================== THEMES =====================
 // Each character can have its own look: colour palette, title and text fonts, box borders, title style,
 // a background (a class/race pattern or your own picture) and a panel texture. Set on the Options page.
-// Saved on the character as c.theme = {preset, colors:{paper, tab, accent, gold}, title, text, border, head, bg, bgImg, bgStrength, texture}
+// Saved on the character as c.theme = {preset, colors:{paper, tab, accent, gold}, title, text, border, head, bg ('none', a picture's theme id or 'image'), bgImg, bgLum, glass (box opacity %), texture}
 // Readability first: every palette is generated for light and dark mode and then checked; any text colour
 // that doesn't reach WCAG AA contrast (4.5:1, 7:1 for body text) is darkened or lightened until it does.
 
@@ -72,7 +72,7 @@ const TEXT_FONTS = {
   merriweather: {n: 'Merriweather (extra clear)', g: 'Merriweather:ital,wght@0,400;0,700;1,400', f: '"Merriweather",Georgia,serif', size: '.95'},
   sans: {n: 'Plain sans-serif (clearest)', f: '"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif'},
 };
-const STYLES = {adventure: 'Adventure (scene behind framed boxes)', sheet: 'Record sheet (paper and boxes)'};
+const STYLES = {adventure: 'Adventure (framed boxes)', sheet: 'Record sheet (paper and boxes)'};
 const BORDERS = {notch: 'Notched glowing frame', classic: 'Classic thin line', double: 'Double line', gilded: 'Gilded frame', ornate: 'Ornate scrollwork', knot: 'Knotwork corners', runic: 'Runic studs', iron: 'Riveted iron', vine: 'Leaves and vines', soft: 'No border, soft shadow'};
 const HEADS = {tab: 'Black tab (record sheet)', ribbon: 'Ribbon', banner: 'Pointed banner', plaque: 'Plaque', underline: 'Underlined title'};
 const TEXTURES = {none: 'None (flat)', parchment: 'Parchment', linen: 'Linen'};
@@ -92,7 +92,13 @@ function themeOf(c){
     style: t.style || (P.group === 'Classic' ? 'sheet' : 'adventure'),
     title: t.title || P.title || 'classic', text: t.text || P.text || 'spectral', head: t.head || P.head || 'tab',
     border: t.border || ((t.style || (P.group === 'Classic' ? 'sheet' : 'adventure')) === 'adventure' ? 'notch' : P.border || 'classic'),
-    bg: t.bg || ((t.style || (P.group === 'Classic' ? 'sheet' : 'adventure')) === 'adventure' ? 'scene' : P.bg || 'none'), bgImg: t.bgImg || '', bgStrength: t.bgStrength ?? 25, texture: t.texture || P.texture || 'none', custom: !!t.colors};
+    bg: themeBg(t, P), bgImg: t.bgImg || '', bgLum: t.bgLum, glass: t.glass ?? null, texture: t.texture || P.texture || 'none', custom: !!t.colors};
+}
+// background: 'none', a painted picture (its theme id) or 'image' (your own). Older saves (drawn scenes, patterns) use the theme's picture.
+function themeBg(t, P){
+  const def = SCENE_ART[P.id] ? P.id : 'none', b = t.bg;
+  if (b === 'none' || (b === 'image' && t.bgImg) || (b && SCENE_ART[b])) return b;
+  return def;
 }
 const isDarkMode = () => { const a = document.documentElement.getAttribute('data-theme'); return a === 'dark' || (!a && matchMedia('(prefers-color-scheme: dark)').matches); };
 
@@ -183,7 +189,9 @@ function bgSVG(id, a, b){
 // ---------- applying the theme ----------
 const THEME_VARS = ['paper', 'sheet', 'ink', 'ink-2', 'rule', 'rule-2', 'tab', 'tab-fg', 'accent', 'accent-soft', 'gold', 'gold-soft'];
 let themeFontsLoaded = '';
-const GLASS = {l: '66%', d: '58%', bl: '70%', bd: '56%'}; // how solid boxes and bars are over a painted background (light / dark)
+const GLASS = {l: 66, d: 58}; // how solid boxes are over a picture by default (light / dark), in %; Customise → Box opacity changes it
+const GLASS_MIN = 50;  // the lowest Box opacity offered (text is checked readable down to here)
+const glassOf = (T, dark) => Math.max(GLASS_MIN, Math.min(100, T.glass != null ? num(T.glass) : dark ? GLASS.d : GLASS.l));
 function applyCharTheme(c){
   const root = document.documentElement, T = themeOf(c), dark = isDarkMode(), V = buildPalette(T, dark);
   THEME_VARS.forEach(k => root.style.removeProperty('--' + k)); if (V) THEME_VARS.forEach(k => V[k] && root.style.setProperty('--' + k, V[k]));
@@ -202,16 +210,23 @@ function applyCharTheme(c){
   root.style.setProperty('--shield', svgURL(shieldSVG(sheetC, accentC))); if (fr) root.style.setProperty('--frame', svgURL(fr)); else root.style.removeProperty('--frame');
   // background: a faint pattern, or your own picture under a wash of the page colour
   const paper = cs.getPropertyValue('--paper').trim();
-  let bgImage = '', op = 0;
-  if (T.bg === 'image' && T.bgImg && IMG.src(T.bgImg)){ bgImage = `url("${IMG.src(T.bgImg)}")`; op = Math.min(.45, Math.max(.05, num(T.bgStrength) / 100)); B.dataset.bgkind = 'image'; }
-  else if (T.bg === 'scene'){ const [pr, pg, pb] = hex2rgb(paper); const artBg = !T.P.classic && SCENE_ART[T.P.id]; root.style.setProperty('--glass', dark ? GLASS.d : GLASS.l); root.style.setProperty('--glass-bar', dark ? GLASS.bd : GLASS.bl); /* how see-through boxes are over a painted background */ const artLum = artBg ? (SCENE_ART_LUM[T.P.id] ?? .3) : 0; /* bright pictures get a darker wash in dark mode */ const wash = `rgba(${pr},${pg},${pb},${artBg ? (dark ? Math.min(.62, Math.max(.06, (artLum - .12) * 1.9)) : .1) : dark ? .22 : .3})`; // painted backgrounds show almost at full strength
-    const art = !T.P.classic && SCENE_ART[T.P.id]; // a painted background, when the theme has one
-    bgImage = art ? `linear-gradient(${wash},${wash}), url("${art}")` : `linear-gradient(${wash},${wash}), ${svgURL(sceneSVG(T.P.classic ? 'default' : T.P.id, {accent: accentC, gold: deco, tab: cs.getPropertyValue('--tab').trim()}, dark))}`; op = 1; B.dataset.bgkind = art ? 'scene-art' : 'scene'; }
-  else if (T.bg !== 'none' && T.bg !== 'image'){ const s = bgSVG(T.bg, cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--gold').trim()); if (s){ bgImage = svgURL(s); op = dark ? .13 : .1; B.dataset.bgkind = 'pattern'; } }
-  if (bgImage){ root.style.setProperty('--bg-img', bgImage); root.style.setProperty('--bg-op', String(op)); B.classList.add('has-bg'); }
-  else { root.style.removeProperty('--bg-img'); B.classList.remove('has-bg'); delete B.dataset.bgkind; }
-  // over a painted background in light mode the boxes are see-through, so hints and accent text are darkened a little to stay easy to read
-  if (V && !dark && T.bg === 'scene' && !T.P.classic && SCENE_ART[T.P.id]){ root.style.setProperty('--ink-2', mix(V['ink-2'], V.ink, .4)); root.style.setProperty('--accent', mix(V.accent, V.ink, .3)); }
+  // a picture behind see-through boxes: a painted theme picture, or your own
+  let src = '', lum = .3;
+  if (T.bg === 'image' && T.bgImg && IMG.src(T.bgImg)){ src = IMG.src(T.bgImg); lum = T.bgLum ?? .3; }
+  else if (SCENE_ART[T.bg]){ src = SCENE_ART[T.bg]; lum = SCENE_ART_LUM[T.bg] ?? .3; }
+  if (src){
+    const [pr, pg, pb] = hex2rgb(paper), g = glassOf(T, dark);
+    // bright pictures get a darker wash in dark mode so light text stays readable
+    const wash = `rgba(${pr},${pg},${pb},${dark ? Math.min(.62, Math.max(.06, (lum - .12) * 1.9)) : .1})`;
+    root.style.setProperty('--glass', g + '%'); root.style.setProperty('--glass-bar', Math.min(100, dark ? Math.max(54, g - 2) : Math.max(74, g + 10)) + '%'); root.style.setProperty('--glass-field', Math.max(86, g) + '%');
+    root.style.setProperty('--bg-img', `linear-gradient(${wash},${wash}), url("${src}")`); root.style.setProperty('--bg-op', '1');
+    B.classList.add('has-bg'); B.dataset.bgkind = 'scene-art';
+    // in light mode hints and accent text are darkened a little to stay readable through see-through boxes
+    // (more so the more see-through the boxes are); in dark mode they're lightened when boxes go below the default
+    const extra = Math.max(0, ((dark ? GLASS.d : GLASS.l) - g) / ((dark ? GLASS.d : GLASS.l) - GLASS_MIN));
+    if (V && !dark){ root.style.setProperty('--ink-2', mix(V['ink-2'], V.ink, .4 + .35 * extra)); root.style.setProperty('--accent', mix(V.accent, V.ink, .42 + .4 * extra)); }
+    if (V && dark && extra){ root.style.setProperty('--ink-2', mix(V['ink-2'], V.ink, .3 * extra)); root.style.setProperty('--accent', mix(V.accent, V.ink, .25 * extra)); }
+  } else { root.style.removeProperty('--bg-img'); B.classList.remove('has-bg'); delete B.dataset.bgkind; }
   void paper;
 }
 try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyCharTheme(APP_cur())); } catch {}
@@ -221,7 +236,7 @@ function themeSwatch(P, dark){
   const T = {P, colors: P.classic ? {} : {paper: hsl2hex(P.h, P.s, 92), tab: P.tab, accent: P.accent, gold: P.gold}, custom: false};
   const V = buildPalette(T, dark) || (dark ? {paper: '#121419', sheet: '#1a1d23', ink: '#e9e6dd', tab: '#d8d3c6', 'tab-fg': '#15171b', accent: '#8fb0e6', gold: '#d6ad5a'} : {paper: '#f2f1ec', sheet: '#fbfaf7', ink: '#1b1d22', tab: '#1b1d22', 'tab-fg': '#f6f4ee', accent: '#2d4f86', gold: '#85621c'});
   const tf = TITLE_FONTS[P.title] || TITLE_FONTS.classic;
-  const scene = !P.classic && P.group !== 'Classic' ? (SCENE_ART[P.id] ? `url("${SCENE_ART[P.id]}")` : svgURL(sceneSVG(P.id, {accent: V.accent, gold: V.gold, tab: V.tab}, dark))) : '';
+  const scene = SCENE_ART[P.id] ? `url("${SCENE_ART[P.id]}")` : !P.classic && P.group !== 'Classic' ? svgURL(sceneSVG(P.id, {accent: V.accent, gold: V.gold, tab: V.tab}, dark)) : '';
   if (scene) return `<span class="th-sw th-scene" style="background-image:${scene.replace(/"/g, '&quot;')}"><span class="th-sw-p" style="background:${V.sheet};border-color:${V.accent}"><span class="th-sw-t" style="background:${V.tab};color:${V['tab-fg']};font-family:${esc(tf.f)}">Aa</span><span class="th-sw-l" style="background:${V.ink}"></span><span class="th-sw-l s" style="background:${V.accent}"></span><span class="th-sw-d" style="background:${V.gold}"></span></span></span>`;
   return `<span class="th-sw" style="background:${V.paper}"><span class="th-sw-p" style="background:${V.sheet};border-color:${V.gold}"><span class="th-sw-t" style="background:${V.tab};color:${V['tab-fg']};font-family:${esc(tf.f)}">Aa</span><span class="th-sw-l" style="background:${V.ink}"></span><span class="th-sw-l s" style="background:${V.accent}"></span><span class="th-sw-d" style="background:${V.gold}"></span></span></span>`;
 }
@@ -234,8 +249,11 @@ function renderOptionsPage(c){
   const colorIn = (k, label) => `<label class="th-color"><input type="color" data-th="color" data-k="${k}" value="${esc(T.colors[k] || (k === 'paper' ? '#f2f1ec' : g(k)))}"><span>${label}</span></label>`;
   const rep = paletteReport(), worst = Math.min(...rep.map(r => r.r));
   const report = `<div class="th-report ${worst >= 4.5 ? 'ok' : 'bad'}"><b>${worst >= 4.5 ? '✓ All text is easy to read' : 'Some text is hard to read'}</b><span class="hint">${rep.map(r => `${r.n} ${r.r.toFixed(1)}:1`).join(' · ')}</span></div>`;
-  const bgOpts = {theme: `From theme (${T.style === 'adventure' ? 'scene' : BGS[T.P.bg || 'none'] || 'none'})`, ...BGS, image: 'My own picture…'};
-  const bgCur = t.bg ? t.bg : 'theme';
+  const artName = id => (THEMES.find(x => x.id === id) || {name: id}).name;
+  const bgSel = `<select data-th="bg"><option value="none" ${T.bg === 'none' ? 'selected' : ''}>None</option>
+    ${['Class', 'Race', 'Classic'].map(gr => `<optgroup label="${gr === 'Classic' ? 'General' : gr}">${THEMES.filter(P => P.group === gr && SCENE_ART[P.id]).map(P => `<option value="${P.id}" ${T.bg === P.id ? 'selected' : ''}>${esc(P.name)}${P.id === T.preset ? ' (this theme)' : ''}</option>`).join('')}</optgroup>`).join('')}
+    ${T.bgImg ? `<option value="image" ${T.bg === 'image' ? 'selected' : ''}>Your picture</option>` : ''}<option value="upload">Upload background…</option></select>`;
+  const g0 = glassOf(T, dark);
   const themeP = panel(`Theme for ${esc(c.name || 'this character')}`, `<div class="pb grid" style="gap:14px">
       <p class="hint" style="margin:0">Each character keeps its own theme. Pick a starting point, then change any part below. Colours are checked automatically so text stays readable in light and dark mode.</p>
       ${groups}</div>`,
@@ -246,10 +264,11 @@ function renderOptionsPage(c){
       <div class="fields th-fields">
         ${F('Layout', sel('style', STYLES, T.style))}${F('Title font', sel('title', TITLE_FONTS, T.title))}${F('Text font (notes and descriptions)', sel('text', TEXT_FONTS, T.text))}
         ${F('Box border', sel('border', BORDERS, T.border))}${F('Title style', sel('head', HEADS, T.head))}
-        ${F('Background', sel('bg', bgOpts, bgCur))}${F('Box texture', sel('texture', TEXTURES, T.texture))}</div>
-      ${T.bg === 'image' ? `<div class="row th-bgimg">${T.bgImg && IMG.src(T.bgImg) ? `<span class="th-bgthumb" style="background-image:url('${IMG.src(T.bgImg)}')"></span>` : ''}<label class="btn sm" for="thBgFile">${T.bgImg ? 'Change picture' : 'Choose picture'}</label><input type="file" id="thBgFile" accept="image/*" hidden>
-        <label class="row" style="gap:6px;flex:1;min-width:200px"><span class="cap">Strength</span><input type="range" data-th="bgStrength" min="5" max="45" value="${num(T.bgStrength)}" style="flex:1"><span class="hint">${num(T.bgStrength)}%</span></label></div>
-        <p class="hint" style="margin:0">Your picture is shown faintly behind the boxes (up to 45%), and boxes stay solid, so text stays clear.</p>` : ''}
+        ${F('Background', bgSel)}${F('Box texture', sel('texture', TEXTURES, T.texture))}</div>
+      <input type="file" id="thBgFile" accept="image/*" hidden>
+      ${T.bg === 'image' && T.bgImg && IMG.src(T.bgImg) ? `<div class="row th-bgimg"><span class="th-bgthumb" style="background-image:url('${IMG.src(T.bgImg)}')"></span><label class="btn sm" for="thBgFile">Change picture</label></div>` : ''}
+      ${T.bg !== 'none' ? `<div><label class="row th-glass" style="gap:8px"><span class="cap">Box opacity</span><input type="range" data-th="glass" min="${GLASS_MIN}" max="100" step="1" value="${g0}" style="flex:1" aria-label="Box opacity"><span class="hint th-glass-v">${g0}%</span></label>
+        <p class="hint" style="margin:2px 0 0">Lower lets more of the background show through the boxes. ${T.glass != null ? '<a href="#" data-th="glassauto">Back to automatic</a>' : 'Automatic for light and dark mode.'} On phones, boxes stay solid.</p></div>` : ''}
       ${report}
       <div class="th-preview"><div class="cap">Preview</div><section class="panel"><div class="ph"><h2>Saving throws</h2><div class="tools"><button class="btn sm pri">Button</button></div></div>
         <div class="pb grid" style="gap:6px"><p style="margin:0;font-family:var(--f-text);font-size:calc(15px * var(--text-scale,1))">The prior spoke of a bell lost beneath the abbey, and of <a href="#" class="ref" onclick="return false">Lord Abott</a>'s men on the road.</p>
@@ -271,28 +290,34 @@ function renderOptionsPage(c){
 // ---------- changing the theme ----------
 function setTheme(c, k, v){
   const t = c.theme = c.theme || {};
-  if (k === 'preset'){ c.theme = {preset: v, bg: t.bg === 'image' ? 'image' : undefined, bgImg: t.bgImg, bgStrength: t.bgStrength}; if (c.theme.bg === undefined) delete c.theme.bg; }
-  else if (k === 'reset'){ c.theme = {preset: t.preset || 'classic', bgImg: t.bgImg, bgStrength: t.bgStrength}; }
+  if (k === 'preset'){ c.theme = {preset: v, bg: t.bg === 'image' ? 'image' : undefined, bgImg: t.bgImg, bgLum: t.bgLum, glass: t.glass}; for (const x of ['bg', 'bgImg', 'bgLum', 'glass']) if (c.theme[x] == null) delete c.theme[x]; }
+  else if (k === 'reset'){ c.theme = {preset: t.preset || 'classic', bgImg: t.bgImg, bgLum: t.bgLum}; for (const x of ['bgImg', 'bgLum']) if (c.theme[x] == null) delete c.theme[x]; }
+  else if (k === 'glassauto'){ delete t.glass; }
   else if (k === 'nocolors'){ delete t.colors; }
   else if (k === 'bg'){ if (v === 'theme') delete t.bg; else t.bg = v; }
   else if (k === 'style'){ t.style = v; delete t.border; if (t.bg !== 'image') delete t.bg; }
-  else if (k === 'bgStrength'){ t.bgStrength = num(v); }
   else t[k] = v;
   markDirty(); renderAll();
 }
 document.addEventListener('click', e => { const b = e.target.closest('button[data-th], a[data-th]'); if (!b) return; e.preventDefault(); const c = APP_cur(); if (!c) return; const k = b.dataset.th;
   if (k === 'mode'){ try { localStorage.setItem(THEME_PREF, b.dataset.v); } catch {} applyTheme(b.dataset.v); renderAll(); return; }
   if (k === 'all'){ if (!armConfirm(b, 'Apply to all? Click again')) return; const copy = JSON.stringify(c.theme || {}); for (const x of Object.values(APP.chars)){ if (x === c) continue; x.theme = JSON.parse(copy); markDirty(x.id); } toast(`Every character now uses this theme.`); return; }
-  if (k === 'preset' || k === 'reset' || k === 'nocolors') setTheme(c, k, b.dataset.v); });
+  if (k === 'preset' || k === 'reset' || k === 'nocolors' || k === 'glassauto') setTheme(c, k, b.dataset.v); });
 document.addEventListener('change', e => { const el = e.target; if (!el.dataset || !el.dataset.th) return; const c = APP_cur(); if (!c) return; const k = el.dataset.th;
   if (k === 'color'){ const T = themeOf(c); c.theme = c.theme || {}; c.theme.colors = Object.assign({}, T.colors, {[el.dataset.k]: el.value}); markDirty(); renderAll(); return; }
-  if (k === 'bg' && el.value === 'image' && !(c.theme || {}).bgImg){ setTheme(c, 'bg', 'image'); setTimeout(() => { const f = document.getElementById('thBgFile'); if (f) f.click(); }, 50); return; }
+  if (k === 'glass') return; // handled while dragging (below)
+  if (k === 'bg' && el.value === 'upload'){ el.value = themeOf(c).bg; const f = document.getElementById('thBgFile'); if (f) f.click(); return; }
   setTheme(c, k, el.value); });
-document.addEventListener('input', e => { const el = e.target; if (!el.dataset || el.dataset.th !== 'bgStrength') return; const c = APP_cur(); if (!c) return; c.theme = c.theme || {}; c.theme.bgStrength = num(el.value);
-  const s = el.parentElement.querySelector('.hint'); if (s) s.textContent = el.value + '%'; applyCharTheme(c); markDirty(); });
+// Box opacity: updates live while dragging
+document.addEventListener('input', e => { const el = e.target; if (!el.dataset || el.dataset.th !== 'glass') return; const c = APP_cur(); if (!c) return; c.theme = c.theme || {}; c.theme.glass = num(el.value);
+  const s = el.parentElement.querySelector('.th-glass-v'); if (s) s.textContent = el.value + '%'; applyCharTheme(c); markDirty(); });
+document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.th === 'glass') renderAll(); });
+// how bright a picture is (0–1), so dark mode can dim bright pictures
+function imageLum(src){ return new Promise(res => { const im = new Image(); im.onload = () => { try { const cv = document.createElement('canvas'); cv.width = 64; cv.height = 32; const x = cv.getContext('2d'); x.drawImage(im, 0, 0, 64, 32);
+  const d = x.getImageData(0, 0, 64, 32).data; let t = 0; for (let i = 0; i < d.length; i += 4) t += .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]; res(+(t / (d.length / 4) / 255).toFixed(3)); } catch { res(.3); } }; im.onerror = () => res(.3); im.src = src; }); }
 document.addEventListener('change', async e => { if (e.target.id !== 'thBgFile') return; const f = e.target.files[0]; e.target.value = ''; if (!f) return; const c = APP_cur(); if (!c) return;
   if (!/^image\//.test(f.type)){ toast('That file isn\'t an image.', 'warn'); return; }
-  try { const d = await imageToDataURL(f, 1600); c.theme = c.theme || {}; if (c.theme.bgImg) IMG.drop(c.theme.bgImg); c.theme.bgImg = IMG.put(d); c.theme.bg = 'image'; markDirty(); renderAll(); toast('Background picture set.'); }
+  try { const d = await imageToDataURL(f, 1600); c.theme = c.theme || {}; if (c.theme.bgImg) IMG.drop(c.theme.bgImg); c.theme.bgImg = IMG.put(d); c.theme.bgLum = await imageLum(d); c.theme.bg = 'image'; markDirty(); renderAll(); toast('Background picture set.'); }
   catch { toast('That image couldn\'t be read.', 'warn'); } });
 
 window.THEMES_READY = true;
