@@ -1,5 +1,20 @@
 [
  {
+  "v": "0.6.6",
+  "date": "2026-11-22",
+  "title": "Religions, mentions and healing choices",
+  "items": [
+   "Religions page under Notes: gods, faiths and cults with title, alignment, domains, portfolio, holy symbol, favored weapon, worshippers, temples (linked locations), allied and rival faiths, and what you've learned. NPCs and factions have a Faith field, and #rel links religions in notes.",
+   "Mentioned in: every NPC, player, location, faction, religion and map lists the notes, quests and cards that name it. Click one to jump straight there (Game notes scroll to the note).",
+   "Renaming an NPC, player, location, faction, religion or map changes the name everywhere it was written, so links keep working.",
+   "Potions & oils box on Combat & Effects (Full and Compact).",
+   "Healing potions, healing items and cure spells ask how to heal: Roll for me, or roll your own dice and type the total. Choose who's healed (you, a companion or someone else). Cancel spends nothing.",
+   "Experience: type the XP you gained and Add XP adds it to your total, with Undo for the last one and a note when you're ready to level up.",
+   "Items page: Sort by type, where it is, name, weight or value, with a colour for each kind of item.",
+   "Game notes search fixed and improved: matches every word in any order across title, date and text, highlights matches and shows how many notes match."
+  ]
+ },
+ {
   "v": "0.6.5",
   "date": "2026-11-20",
   "title": "Painted backgrounds for every theme",
