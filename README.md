@@ -46,6 +46,7 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 - **Merging double-ups.** If the same NPC, player, location, faction or religion ended up on two cards (a misspelling, a nickname or a name learned later), **Merge with…** joins them: choose the name to keep, and descriptions, details, logs, links, map pins and mentions all move to one card. Game notes and quests have **Join…**. Every merge can be undone straight after, and cards with very similar names show a hint.
 - **Mentioned in, and renaming.** Every NPC, player, location, faction, religion and map lists the notes, quests and cards that name it, and clicking one jumps there. Rename one and every place its name was written changes too, so the links keep working.
 - **Healing.** Healing potions, items and cure spells ask whether to roll for you or let you type your own dice total, and who's healed. Combat & Effects has a Potions & oils box.
+- **Item cards.** The Items page has Full view (a card per item with its picture, your own upload or a stand-in) and Compact view (one line each). A type icon coloured by rarity (Common, Uncommon, Rare, Very rare, Legendary, Artifact) sits on each item's corner; rarity is guessed from price until you set it.
 - **Experience and items.** Add XP gained to your total (with undo). Items can be sorted by type, location, name, weight or value, with a colour for each kind of item.
 - **Rules lookup.** Search the SRD rules by keyword (combat, magic, skills, equipment, conditions, environment, traps, prestige classes and more), or browse them chapter by chapter. Matching words are highlighted, and quick matches link straight to spells, feats, items and conditions. Press `/` anywhere to search.
 - **Maps.** Upload world, city or dungeon maps. They're kept at up to 4096 pixels on the long side (stored as tiles), so small labels stay readable when you zoom in. Drag your locations, NPCs, factions and party members onto them, or tap one and then tap the map. Zoom with the mouse wheel (or pinch on a phone) and drag to move around the map. Hover a pin for a summary, click it for the full card, and use Move/remove to rearrange pins.
@@ -87,6 +88,7 @@ src/js/app-shell.js   Install-as-app support (offline service worker, Install bu
 src/js/updates.js     Version, update checks (website version.json / GitHub Releases) and the change log
 src/changelog.json    The change log; its first entry is the app's version
 src/js/ui-links.js    "Mentioned in" lists and renaming names everywhere they're written
+src/js/ui-itemcards.js Item type icons, rarity and item pictures
 src/js/ui-merge.js    Merging double-up cards, notes and quests
 src/js/ui-heal.js     Healing dialog (roll for me / I rolled) and the Potions & oils box
 src/js/folder.js      Save location: keeps characters, homebrew and pictures in a folder of the player's choice and syncs it

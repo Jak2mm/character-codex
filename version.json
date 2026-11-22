@@ -1,16 +1,27 @@
 {
- "version": "0.6.7",
- "date": "2026-11-22",
- "title": "Key Items and merging double-ups",
+ "version": "0.6.8",
+ "date": "2026-11-23",
+ "title": "Item pictures, icons and rarity",
  "items": [
-  "Key Items page under Notes for artifacts, quest items, clues, letters and keys: type, status (we have it, seen it, heard of it, lost, handed over, destroyed), who has it, where it is, the quest it belongs to, powers and properties, and what you've learned. NPCs and locations show the key items they hold, #item links them in notes, and they can be pinned on maps.",
-  "Merge with\u2026 on every NPC, player, location, faction and religion card joins two cards for the same thing (a misspelling, a nickname or a name learned later). Pick which name to keep, or type the correct one.",
-  "Nothing is lost when merging: descriptions are combined, empty details and stats filled in, logs joined, and links, temples, map pins and initiative entries move to the kept card. The old name is changed to the kept one in every note, quest and card.",
-  "Cards show a hint when another one has a very similar name, with a Merge button.",
-  "Join\u2026 on Game notes and Quests adds another note or quest into this one (quest objectives are combined without repeats).",
-  "Every merge can be undone straight after."
+  "Items page has Full and Compact views. Full shows each item as a card with a picture; Compact shows one line per item with its main button (Drink, Use, Wield, Equip). Click a name in Compact to open it in Full view.",
+  "Every item has a picture: a stand-in for now, or Upload picture to use your own (Change and Reset afterwards).",
+  "Type icons (weapon, armor & shield, ammunition, potion & oil, scroll, wand / staff / rod, ring & wondrous, gear, treasure) sit on each item's top-left corner, coloured by rarity. They also show in the Potions & oils box on Combat & Effects.",
+  "Rarity: Common, Uncommon, Rare, Very rare, Legendary and Artifact. It's guessed from the item's price until you choose one, and each item's type can be changed too.",
+  "+1 to +5 weapons and armor are recognised as weapons and armor, and priced by the 3.5 rules for sorting by value."
  ],
  "changelog": [
+  {
+   "v": "0.6.8",
+   "date": "2026-11-23",
+   "title": "Item pictures, icons and rarity",
+   "items": [
+    "Items page has Full and Compact views. Full shows each item as a card with a picture; Compact shows one line per item with its main button (Drink, Use, Wield, Equip). Click a name in Compact to open it in Full view.",
+    "Every item has a picture: a stand-in for now, or Upload picture to use your own (Change and Reset afterwards).",
+    "Type icons (weapon, armor & shield, ammunition, potion & oil, scroll, wand / staff / rod, ring & wondrous, gear, treasure) sit on each item's top-left corner, coloured by rarity. They also show in the Potions & oils box on Combat & Effects.",
+    "Rarity: Common, Uncommon, Rare, Very rare, Legendary and Artifact. It's guessed from the item's price until you choose one, and each item's type can be changed too.",
+    "+1 to +5 weapons and armor are recognised as weapons and armor, and priced by the 3.5 rules for sorting by value."
+   ]
+  },
   {
    "v": "0.6.7",
    "date": "2026-11-22",
@@ -102,19 +113,6 @@
     "Options page with a theme for each character: 20 presets by class and race, your own colours, fonts, borders, title styles, backgrounds and textures.",
     "Adventure layout: an original scene for every class and race, framed boxes and a shield-shaped Armor Class.",
     "Colours are checked automatically so text stays readable in light and dark mode."
-   ]
-  },
-  {
-   "v": "0.4.0",
-   "date": "2026-11-19",
-   "title": "Combat & Effects",
-   "items": [
-    "Combat & Effects page: every box full width with Full and Compact views.",
-    "Attack options (flanking, sneak attack, Power Attack, Rapid Shot, Point Blank Shot and more) and attacks of opportunity that reset each round.",
-    "Initiative: a spells and conditions menu for every combatant, who each effect is on, and name suggestions when adding.",
-    "Companions as Full/Compact/Hide boxes, shown on Combat & Effects when they're in initiative.",
-    "Spells show damage type, dice at your caster level, touch attacks and saves; prepared spells can be limited to your slots.",
-    "Magic and custom ammunition, item labels on the Items page, and picture framing for NPCs, players, places and companions."
    ]
   }
  ]
