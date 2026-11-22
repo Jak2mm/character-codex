@@ -1,11 +1,11 @@
 // ===================== UI HELPERS =====================
 const TABS = [['sheet','Character'],['skills','Skills & Feats'],['spells','Spells'],['tracker','Combat & Effects'],['items','Items'],['notes','Notes'],['quests','Quests'],['library','Custom Library'],['rules','Rules Lookup'],['options','Options']];
 // sub-tabs shown as titles at the top of a top-level tab
-const SUBTABS = {sheet:[['sheet','Character'],['companions','Companions']], notes:[['notes','Game Notes'],['players','Players'],['npcs','NPCs'],['locations','Locations'],['factions','Factions'],['maps','Maps']]};
+const SUBTABS = {sheet:[['sheet','Character'],['companions','Companions']], notes:[['notes','Game Notes'],['players','Players'],['npcs','NPCs'],['locations','Locations'],['factions','Factions'],['religions','Religions'],['maps','Maps']]};
 const PARENT = {}; for (const [p, l] of Object.entries(SUBTABS)) for (const [k] of l) PARENT[k] = p;
 const ALL_TABS = [...new Set([...TABS.map(t => t[0]), ...Object.keys(PARENT)])];
 function subTabBar(){ const p = PARENT[APP.tab]; if (!p) return ''; const c = APP_cur();
-  const count = k => { const a = k === 'companions' ? c.companions : k === 'notes' ? c.notes : ['players','npcs','locations','factions','maps'].includes(k) ? c[k] : null; return a && a.length ? `<span class="n">${a.length}</span>` : ''; };
+  const count = k => { const a = k === 'companions' ? c.companions : k === 'notes' ? c.notes : ['players','npcs','locations','factions','religions','maps'].includes(k) ? c[k] : null; return a && a.length ? `<span class="n">${a.length}</span>` : ''; };
   return `<nav class="subtabs" role="tablist" aria-label="${esc(TABS.find(t => t[0] === p)[1])} sections">${SUBTABS[p].map(([k, l]) => `<button role="tab" aria-selected="${APP.tab === k}" data-tab="${k}">${l}${count(k)}</button>`).join('')}${APP.tab === 'sheet' && !APP.sheetEdit ? '<button class="btn sm sp-custom" data-sp="edit" title="Reorder, resize, collapse or hide sections of this sheet">Customise sheet</button>' : ''}</nav>`; }
 function I(path, val, extra=''){ return `<input type="text" id="k-${esc(path)}" data-k="${esc(path)}" value="${esc(val)}" ${extra}>`; }
 function N(path, val, extra=''){ return `<input type="number" id="k-${esc(path)}" data-k="${esc(path)}" data-num="1" value="${esc(val === 0 || val ? val : '')}" ${extra}>`; }
@@ -86,16 +86,19 @@ function renderCharBar(){
   $('#delWrap').innerHTML = '<button class="btn ghost" id="delChar">Delete</button>';
 }
 function renderTabs(){ renderSidebar(); }
+const afterRenderHooks = []; // run after each page render (e.g. jump to a note)
 function renderAll(){
   renderCharBar(); renderTabs();
   const c = APP_cur(); const m = $('#main'); if (window.THEMES_READY) applyCharTheme(c);
   if (!c){ m.innerHTML = `<div class="panel"><div class="empty"><b>No characters yet.</b><br>Choose <b>New character</b> above to start a sheet, or <b>Import</b> one you exported earlier.</div></div>`; return; }
-  const R0 = {sheet:renderSheet, skills:renderSkills, spells:renderSpells, tracker:renderTracker, items:renderItems, notes:renderNotes, companions:renderCompanions, quests:renderQuests, players:renderPlayers, npcs:renderNpcs, locations:renderLocations, factions:renderFactions, maps:renderMaps, library:renderLibrary, rules:renderRules, options:renderOptionsPage}; const tabsRS = ruleset(c).tabs || {}; const R = tabsRS[APP.tab] || R0[APP.tab] || renderSheet;
+  const R0 = {sheet:renderSheet, skills:renderSkills, spells:renderSpells, tracker:renderTracker, items:renderItems, notes:renderNotes, companions:renderCompanions, quests:renderQuests, players:renderPlayers, religions:renderReligions, npcs:renderNpcs, locations:renderLocations, factions:renderFactions, maps:renderMaps, library:renderLibrary, rules:renderRules, options:renderOptionsPage}; const tabsRS = ruleset(c).tabs || {}; const R = tabsRS[APP.tab] || R0[APP.tab] || renderSheet;
   if (PARENT[APP.tab]){ APP.lastSub[PARENT[APP.tab]] = APP.tab; try { localStorage.setItem('ccodex-subtabs', JSON.stringify(APP.lastSub)); } catch {} }
   if (APP.tab !== 'sheet') APP.sheetEdit = false;
   D = derive(c); m.innerHTML = subTabBar() + R(c); updateOutputs(); applyTASizes();
   document.documentElement.style.setProperty('--toph', ($('.top').offsetHeight || 0) + 'px');
   if (APP.tab === 'rules' && (APP.rq || '').trim()) highlightReader();
+  if (APP.tab === 'notes' && typeof noteSearch === 'function') noteSearch();
+  if (typeof afterRenderHooks !== 'undefined') afterRenderHooks.forEach(f => { try { f(c); } catch {} });
   try { localStorage.setItem('ccodex-tab', APP.tab); } catch {}
 }
 
@@ -124,7 +127,9 @@ function sheetPanels35(c){
         <div class="row" style="margin-top:6px;gap:8px"><button class="btn sm" data-act="addClass">Add a class (multiclass)</button>
           <a href="#" class="hint" data-act="prcRules">${prcN ? `${prcN} prestige class${prcN === 1 ? '' : 'es'} available` : 'Prestige classes'} — see requirements</a></div></div>
       <div><div class="cap">Experience</div><div class="row"><div style="flex:1;min-width:120px">${N('xp', c.xp, 'step="100" style="text-align:left"')}</div><span class="hint">next level at ${OT('xpNext')}</span></div>
-        <div class="meter acc" id="xpMeter" style="margin-top:6px"><i></i></div></div>
+        <div class="meter acc" id="xpMeter" style="margin-top:6px"><i></i></div>
+        <div class="row xp-add"><input type="number" id="xpGain" inputmode="numeric" placeholder="XP gained" aria-label="XP gained" step="1"><button class="btn sm" data-act="xpAdd">Add XP</button>
+          ${(c.xpLog || []).length ? (() => { const l = c.xpLog[0]; return `<span class="hint">Last: ${l.v > 0 ? '+' : ''}${l.v.toLocaleString()} (${esc(l.d)}) · <a href="#" data-act="xpUndo">Undo</a></span>`; })() : ''}</div></div>
     </div>
     <div class="fields">${['age','gender','height','weight','eyes','hair','skin'].map(k => F(k[0].toUpperCase() + k.slice(1), I(k, c[k]))).join('')}</div>
   </div></div>`, `<span class="pill rs-badge" title="This character's ruleset was chosen when it was made and can't be changed. Homebrew can be added any time in the Custom Library.">Ruleset: ${esc(rsOf(c).short)} · locked</span>`);

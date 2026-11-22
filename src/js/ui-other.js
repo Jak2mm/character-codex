@@ -160,19 +160,60 @@ function drawLoad(c, D){
     <div class="row hint" style="justify-content:space-between;font-variant-numeric:tabular-nums"><span>Light ≤ ${L.light}</span><span>Medium ≤ ${L.medium}</span><span>Heavy ≤ ${L.heavy} lb.</span></div>
     <p class="hint" style="margin:4px 0 0">Lift overhead ${L.heavy} · lift off ground ${L.heavy * 2} · push/drag ${L.heavy * 5} lb. Based on Str ${D.StrScore}, ${D.size}. ${refA('gloss', 'Load', 'Load penalties')}</p>`;
 }
+// ---- item types (for sorting and the colour stripe on each item) ----
+const ITEM_CATS = {weapon: ['Weapons', '#b23a3a'], armor: ['Armor & shields', '#3f6aa8'], ammo: ['Ammunition', '#8a6d3b'], potion: ['Potions & oils', '#2e8b57'],
+  scroll: ['Scrolls', '#c27c0e'], wand: ['Wands, staffs & rods', '#7b4fa0'], magic: ['Rings & wondrous items', '#c2407a'], gear: ['Gear', '#6b7280'], treasure: ['Treasure', '#b8960c']};
+const ITEM_SORTS = {type: 'Type', loc: 'Where it is', name: 'Name (A–Z)', weight: 'Weight (heaviest first)', value: 'Value (most valuable first)'};
+function itemCat(it){
+  const n = String(it.n || '').toLowerCase().trim(), L = it.lib ? libById(it.lib) : null;
+  if (L){ if (L.kind === 'weapon') return 'weapon'; if (L.kind === 'armor' || L.kind === 'shield') return 'armor'; if (L.kind === 'ammo') return 'ammo';
+    if (/^scroll\b/.test(n)) return 'scroll'; if (/\b(potion|oil|elixir|salve)\b/.test(n)) return 'potion'; if (/\b(wand|staff|rod)\b/.test(n)) return 'wand'; return 'magic'; }
+  const cx = IDX.consumables.get(n); if (cx) return cx.k === 'wand' ? 'wand' : 'potion';
+  if (/^scroll\b/.test(n)) return 'scroll';
+  if (/^(wand|staff|rod)s? of\b/.test(n)) return 'wand'; if (/^(potion|oil|elixir|philter)s? of\b/.test(n)) return 'potion';
+  const w = IDX.weapons.get(n); if (w) return w.dM === '—' && /arrow|bolt|bullet/.test(n) ? 'ammo' : 'weapon';
+  if (/\b(arrows?|bolts?|sling bullets?)\b/.test(n)) return 'ammo';
+  if (IDX.armor.get(n)) return 'armor';
+  const m = IDX.magic.get(n); if (m) return m.cat === 'Rod' || m.cat === 'Staff' ? 'wand' : m.cat === 'Specific Armor/Shield' ? 'armor' : m.cat === 'Specific Weapon' ? 'weapon' : 'magic';
+  if (typeof MAGIC_WEAPONS !== 'undefined' && MAGIC_WEAPONS[normKey(it.n)]) return 'weapon';
+  if (/^(ring|amulet|cloak|boots|gloves|gauntlets|belt|bracers|circlet|headband|helm|robe|vest|periapt|necklace|brooch|goggles|lenses|figurine|bag of|portable hole|ioun|pearl of|rope of|horn of|carpet|crystal ball)\b/.test(n) && /\+\d|of /.test(n)) return 'magic';
+  if (/\b(gem|gems|diamond|ruby|rubies|emerald|sapphire|pearl|opal|jade|amethyst|garnet|topaz|jewel|jewelry|jewellery|gold bar|silver bar|ingot|statuette|chalice|goblet|crown|tiara|idol|art object|coins?)\b/.test(n) && !IDX.gear.get(n)) return 'treasure';
+  return 'gear';
+}
+// value in gp (each), from the SRD price or your custom item's cost; '' if unknown
+function itemValue(it){
+  const n = String(it.n || '').toLowerCase(), L = it.lib ? libById(it.lib) : null;
+  const base = n.replace(/\s*\+\d+$/, ''), like = (map, k) => map.get(k) || [...map.values()].find(x => x.n.toLowerCase().startsWith(k + ' (')) || {};
+  const raw = (L && L.cost) || it.cost || like(IDX.consumables, n).price || like(IDX.magic, n).price || like(IDX.magic, base).price || ((IDX.weapons.get(n) || {}).cost) || ((IDX.armor.get(n) || {}).cost) || ((IDX.gear.get(n) || {}).cost) || '';
+  const m = String(raw).replace(/,/g, '').match(/([\d.]+)\s*(pp|gp|sp|cp)?/i); if (!m) return '';
+  return parseFloat(m[1]) * ({pp: 10, gp: 1, sp: .1, cp: .01}[(m[2] || 'gp').toLowerCase()]);
+}
 function renderItems(c){
-  const groups = Object.keys(LOCS).map(loc => { const its = c.items.filter(i => (i.loc || 'carried') === loc); if (!its.length) return '';
-    const w = its.reduce((s, i) => s + num(i.w) * num(i.qty || 1), 0);
-    return `<div class="splv row" style="justify-content:space-between"><span>${LOCS[loc]}</span><span>${Math.round(w * 100) / 100} lb.${loc === 'stored' || loc === 'mount' ? ' · not counted' : ''}</span></div>` + its.map(it => { const i = c.items.indexOf(it);
-      const t = it.t === 'custom' ? 'custom' : 'item'; const key = it.t === 'custom' ? (it.lib || it.n) : it.n; const has = it.t === 'custom' ? !!libById(it.lib) || !!libByName('item', it.n) : !!getRef('item', it.n);
-      return `<div class="it"><div style="min-width:0"><div class="row" style="flex-wrap:nowrap;gap:6px"><div style="flex:1;min-width:0">${I('items.' + i + '.n', it.n, 'aria-label="Item name"')}</div>${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}</div>
+  const sort = ITEM_SORTS[c.itemSort] ? c.itemSort : 'type';
+  const wt = it => num(it.w) * num(it.qty || 1), lb = v => Math.round(v * 100) / 100;
+  const row = it => { const i = c.items.indexOf(it), cat = itemCat(it);
+      const has = it.t === 'custom' ? !!libById(it.lib) || !!libByName('item', it.n) : !!getRef('item', it.n);
+      return `<div class="it it-cat" style="--cat:${ITEM_CATS[cat][1]}" title="${esc(ITEM_CATS[cat][0])}"><div style="min-width:0"><div class="row" style="flex-wrap:nowrap;gap:6px"><div style="flex:1;min-width:0">${I('items.' + i + '.n', it.n, 'aria-label="Item name" data-rerender="1"')}</div>${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}</div>
           <div style="margin-top:4px">${I('items.' + i + '.note', it.note, 'placeholder="Notes, charges, who carries it…" style="font-size:13px;padding:3px 6px"')}</div>${itemBonusLine(c, it)}</div>
         <label class="it-f">${N('items.' + i + '.qty', it.qty, 'min="0" aria-label="Quantity" data-rerender="1"')}<span>Qty</span></label>
         <label class="it-f">${N('items.' + i + '.w', it.w, 'min="0" step="0.25" aria-label="Weight each" data-rerender="1"')}<span>Lb. each</span></label>
-        <span class="it-f wt-total"><b class="w">${Math.round(num(it.w) * num(it.qty || 1) * 100) / 100} lb.</b><span>Total</span></span>
+        <span class="it-f wt-total"><b class="w">${lb(wt(it))} lb.</b><span>Total</span></span>
         <label class="it-f loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}<span>Where</span></label>
-        <button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>`; }).join(''); }).join('');
-  const items = panel('Equipment', `<div class="list">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
+        <button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>`; };
+  const byName = (a, b) => String(a.n || '~').localeCompare(String(b.n || '~'));
+  const head = (label, its, note = '', color = '') => `<div class="splv row it-group" style="justify-content:space-between${color ? `;--cat:${color}` : ''}"><span>${color ? '<i class="cat-dot" aria-hidden="true"></i>' : ''}${esc(label)} <span class="it-n">${its.length}</span></span><span>${lb(its.reduce((s, i) => s + wt(i), 0))} lb.${note}</span></div>`;
+  let groups = '';
+  if (!c.items.length) groups = '';
+  else if (sort === 'type') groups = Object.keys(ITEM_CATS).map(k => { const its = c.items.filter(i => itemCat(i) === k).sort(byName); return its.length ? head(ITEM_CATS[k][0], its, '', ITEM_CATS[k][1]) + its.map(row).join('') : ''; }).join('');
+  else if (sort === 'loc') groups = Object.keys(LOCS).map(loc => { const its = c.items.filter(i => (i.loc || 'carried') === loc).sort((a, b) => Object.keys(ITEM_CATS).indexOf(itemCat(a)) - Object.keys(ITEM_CATS).indexOf(itemCat(b)) || byName(a, b));
+      return its.length ? head(LOCS[loc], its, loc === 'stored' || loc === 'mount' ? ' · not counted' : '') + its.map(row).join('') : ''; }).join('');
+  else { const its = [...c.items].sort(sort === 'name' ? byName : sort === 'weight' ? (a, b) => wt(b) - wt(a) || byName(a, b)
+      : (a, b) => { const va = itemValue(a), vb = itemValue(b); return (vb === '' ? -1 : vb * num(b.qty || 1)) - (va === '' ? -1 : va * num(a.qty || 1)) || byName(a, b); });
+    groups = its.map(it => row(it) + (sort === 'value' ? '' : '')).join(''); }
+  const present = Object.keys(ITEM_CATS).filter(k => c.items.some(i => itemCat(i) === k));
+  const tools = c.items.length ? `<div class="pb row it-tools"><label class="row" style="gap:6px"><span class="cap">Sort by</span><select data-k="itemSort" data-rerender="1" aria-label="Sort items by">${Object.entries(ITEM_SORTS).map(([v, l]) => `<option value="${v}" ${v === sort ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+      ${sort === 'type' ? '' : `<span class="cat-legend">${present.map(k => `<span style="--cat:${ITEM_CATS[k][1]}"><i class="cat-dot" aria-hidden="true"></i>${esc(ITEM_CATS[k][0])}</span>`).join('')}</span>`}</div>` : '';
+  const items = panel('Equipment', `${tools}<div class="list">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
     `<button class="btn sm pri" data-act="addItem">Add item</button><button class="btn sm gold" data-act="newCustomItem">New custom item</button>`);
   const coins = panel('Money &amp; load', `<div class="pb grid" style="gap:12px">
       <div class="coins">${['pp','gp','sp','cp'].map(k => F(k.toUpperCase(), N('coins.' + k, c.coins[k], 'min="0" data-rerender="1"'))).join('')}</div>
@@ -185,13 +226,12 @@ function renderItems(c){
 
 // ===================== NOTES TAB =====================
 function renderNotes(c){
-  const q = (APP.noteQ || '').toLowerCase();
-  const notes = c.notes.filter(n => !q || (n.t + ' ' + n.body).toLowerCase().includes(q));
-  const help = APP.notesHelpHidden ? '' : `<div class="notes-help"><b>Linking names:</b> type <code>#</code> in any note, then pick from the list, for example <code>#npc</code> for your NPCs, <code>#loc</code> for locations, <code>#fac</code> factions, <code>#player</code> party members or <code>#map</code> maps. You can also type <code>#</code> and the start of a name (<code>#pri</code> → Prior Hesk). Choosing one writes the exact name, so it always links. Names you type out in full still link on their own. Hover a link to see a summary, click it to open the page. Use <kbd>↑</kbd> <kbd>↓</kbd> and <kbd>Enter</kbd> to pick, <kbd>Esc</kbd> to close. <a href="#" data-act="hideNotesHelp" class="hint">Hide</a></div>`;
-  return panel('Game notes', `${help}<div class="pb row"><input type="search" id="noteQ" placeholder="Search notes…" value="${esc(APP.noteQ || '')}" style="flex:1;min-width:160px;background:var(--sheet);border:1px solid var(--rule);padding:6px 8px"></div>
-    <div class="list">${notes.map(n => { const i = c.notes.indexOf(n); return `<div class="note"><div class="note-h">${I('notes.' + i + '.t', n.t, 'class="title" placeholder="Session / topic" aria-label="Note title"')}
+  const notes = c.notes;
+  const help = APP.notesHelpHidden ? '' : `<div class="notes-help"><b>Linking names:</b> type <code>#</code> in any note, then pick from the list, for example <code>#npc</code> for your NPCs, <code>#loc</code> for locations, <code>#fac</code> factions, <code>#player</code> party members, <code>#rel</code> religions or <code>#map</code> maps. You can also type <code>#</code> and the start of a name (<code>#pri</code> → Prior Hesk). Choosing one writes the exact name, so it always links. Names you type out in full still link on their own. Hover a link to see a summary, click it to open the page. Use <kbd>↑</kbd> <kbd>↓</kbd> and <kbd>Enter</kbd> to pick, <kbd>Esc</kbd> to close. <a href="#" data-act="hideNotesHelp" class="hint">Hide</a></div>`;
+  return panel('Game notes', `${help}<div class="pb row"><input type="search" id="noteQ" placeholder="Search notes (every word, any order)…" value="${esc(APP.noteQ || '')}" autocomplete="off" style="flex:1;min-width:160px;background:var(--sheet);border:1px solid var(--rule);padding:6px 8px"><span class="hint" id="noteQn" aria-live="polite"></span></div>
+    <div class="list" id="noteList">${notes.map(n => { const i = c.notes.indexOf(n); return `<div class="note" id="note-${n.id}" data-note="${n.id}"><div class="note-h">${I('notes.' + i + '.t', n.t, 'class="title" placeholder="Session / topic" aria-label="Note title"')}
       <input type="date" data-k="notes.${i}.date" id="k-notes.${i}.date" value="${esc(n.date)}" aria-label="Date"><button class="btn ghost sm" data-act="delNote" data-id="${n.id}" aria-label="Delete note">Delete</button></div>
-      ${LT('notes.' + i + '.body', n.body, 'What happened, NPCs met, clues, loot… (names of your NPCs, locations and factions become links)', 6)}</div>`; }).join('') || `<div class="empty">${q ? 'No notes match that search.' : 'No notes yet. <b>New note</b> starts a page for this session.'}</div>`}</div>`,
+      ${LT('notes.' + i + '.body', n.body, 'What happened, NPCs met, clues, loot… (names of your NPCs, locations and factions become links)', 6)}</div>`; }).join('') || `<div class="empty">${'No notes yet. <b>New note</b> starts a page for this session.'}</div>`}</div>`,
     `<button class="btn sm pri" data-act="addNote">New note</button>`);
 }
 
@@ -200,7 +240,7 @@ function renderQuests(c){
   const order = ['active', 'hold', 'done', 'failed'];
   const qs = [...c.quests].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
   const cards = qs.map(q => { const i = c.quests.indexOf(q); const done = q.obj.filter(o => o.done).length, tot = q.obj.length; const pct = tot ? done / tot : (q.status === 'done' ? 1 : 0);
-    return `<div class="quest"><div class="qh">${I('quests.' + i + '.t', q.t, 'class="title" placeholder="Quest name" aria-label="Quest name"')}
+    return `<div class="quest" id="quest-${q.id}"><div class="qh">${I('quests.' + i + '.t', q.t, 'class="title" placeholder="Quest name" aria-label="Quest name"')}
         <div style="width:140px">${S('quests.' + i + '.status', q.status, Object.entries(QSTAT).map(([k, v]) => [k, v[0]]), 'data-rerender="1" aria-label="Status"')}</div>
         <span class="pill ${QSTAT[q.status][1]}">${done}/${tot} objectives</span><button class="btn ghost sm" data-act="delQuest" data-id="${q.id}" aria-label="Delete quest">Delete</button></div>
       <div class="pb grid" style="gap:10px">
@@ -270,7 +310,7 @@ function itemActions(c, it, bl){
   const L = it.lib ? libById(it.lib) : null; const out = [];
   if (it.t === 'consumable'){ const x = IDX.consumables.get(it.n.toLowerCase());
     if (x && x.k === 'wand') return `<span class="row" style="gap:4px"><span class="cap">Charges</span><input type="number" min="0" style="width:64px" data-k="items.${c.items.indexOf(it)}.charges" data-num="1" id="k-wc-${it.id}" value="${num(it.charges ?? x.charges)}"></span><button class="btn sm pri" data-act="castItem" data-id="${it.id}" data-i="0">Use</button>`;
-    if (x) return `<button class="btn sm pri" data-act="drink" data-id="${it.id}">${x.k === 'oil' ? 'Apply' : 'Drink'}</button>${healRoll(x.sp, x.cl) ? '<span class="hint">heals you automatically</span>' : ''}`; }
+    if (x) return `<button class="btn sm pri" data-act="drink" data-id="${it.id}">${x.k === 'oil' ? 'Apply' : 'Drink'}</button>${healRoll(x.sp, x.cl) ? '<span class="hint">roll or enter your own</span>' : ''}`; }
   const isW = L ? L.kind === 'weapon' : (it.t === 'weapon' && IDX.weapons.get(it.n.toLowerCase()) && IDX.weapons.get(it.n.toLowerCase()).dM !== '—') || !!MAGIC_WEAPONS[normKey(it.n)];
   const armK = L ? (L.kind === 'armor' || L.kind === 'shield' ? L.kind : '') : it.t === 'armor' && IDX.armor.get(it.n.toLowerCase()) ? (/shield|buckler/i.test(it.n) ? 'shield' : (/spikes|gauntlet/i.test(it.n) ? '' : 'armor')) : '';
   if (isW && !c.attacks.some(a => (L && a.lib === L.id) || a.n === it.n)) out.push(`<button class="btn sm" data-act="wield" data-id="${it.id}">Wield</button>`);
@@ -281,4 +321,26 @@ function itemActions(c, it, bl){
   else { out.push(`<button class="btn ghost sm" data-act="itemBon" data-id="${it.id}" style="padding:0 4px">${bl.length ? 'Edit bonuses' : '+ Bonus'}</button>`);
     out.push(`<button class="btn ghost sm" data-act="customize" data-id="${it.id}" style="padding:0 4px" title="Make an editable copy with abilities, spells and bonuses">Customize</button>`); }
   return out.join('');
+}
+
+// ---- Game notes search: filters the notes in place (typing never loses focus), every word in any order,
+// across title, date and text, with matches highlighted
+function noteSearch(){
+  const c = APP_cur(), box = document.getElementById('noteList'); if (!c || !box) return;
+  const words = (APP.noteQ || '').toLowerCase().split(/\s+/).filter(Boolean); let shown = 0;
+  for (const el of box.querySelectorAll('.note[data-note]')){
+    const n = c.notes.find(x => x.id === el.dataset.note); if (!n) continue;
+    const hay = [n.t, n.date, n.body].join(' ').toLowerCase(), ok = words.every(w => hay.includes(w));
+    el.hidden = !ok; if (ok) shown++;
+    const v = el.querySelector('.lt-view'); if (v){ v.querySelectorAll('mark.nq').forEach(m => m.replaceWith(...m.childNodes)); v.normalize(); if (ok && words.length) markWords(v, words); }
+  }
+  let none = box.querySelector('.nq-none'); if (words.length && !shown && c.notes.length){ if (!none){ none = document.createElement('div'); none.className = 'empty nq-none'; none.textContent = 'No notes match that search.'; box.appendChild(none); } } else if (none) none.remove();
+  const cnt = document.getElementById('noteQn'); if (cnt) cnt.textContent = words.length ? `${shown} of ${c.notes.length}` : '';
+}
+function markWords(root, words){
+  const re = new RegExp('(' + words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+  const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const nodes = []; while (walk.nextNode()) nodes.push(walk.currentNode);
+  for (const t of nodes){ if (!re.test(t.nodeValue)) continue; re.lastIndex = 0; const f = document.createDocumentFragment(); let last = 0;
+    t.nodeValue.replace(re, (m, g, i) => { f.append(t.nodeValue.slice(last, i)); const mk = document.createElement('mark'); mk.className = 'nq'; mk.textContent = m; f.append(mk); last = i + m.length; return m; });
+    f.append(t.nodeValue.slice(last)); t.replaceWith(f); }
 }
