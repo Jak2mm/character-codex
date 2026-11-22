@@ -1,7 +1,7 @@
 // ===================== MAPS =====================
 // c.maps = [{id, n, img (image key), pins:[{id, kind:'loc'|'npc'|'fac'|'pc', ref, x, y}]}]  (x, y in % of the image)
 APP.mapZoom = 100; APP.mapEdit = false; APP.placing = null; APP.pinKind = 'loc';
-const PIN_KINDS = [['loc', 'Locations'], ['npc', 'NPCs'], ['fac', 'Factions'], ['pc', 'Players']];
+const PIN_KINDS = [['loc', 'Locations'], ['npc', 'NPCs'], ['fac', 'Factions'], ['rel', 'Religions'], ['pc', 'Players']];
 
 // Maps are kept at up to 4096 px on the long side, cut into 1024 px tiles (each stored picture must stay
 // under ~256 KB), plus a small thumbnail for the list. On screen the tiles are drawn onto one canvas.
@@ -64,7 +64,8 @@ function renderMaps(c){
         <div class="row"><label for="mapFile-${m.id}" class="btn sm">${m.img ? 'Replace picture' : 'Add picture'}</label><input type="file" accept="image/*" hidden id="mapFile-${m.id}" data-mapfile="${m.id}">
           <button class="btn ghost sm" data-act="mapDel" data-id="${m.id}">Delete map</button></div></div>
       ${m.img && !m.tiles ? `<p class="hint pb" style="margin:0;padding-top:0;color:var(--warn)">This map was saved at the old, lower quality. Use <b>Replace picture</b> with the original file to store it in high resolution; your pins stay where they are.</p>` : ''}
-      <p class="hint pb" style="margin:0;padding-top:0">Scroll the mouse wheel to zoom and drag the map to move around (on a phone, pinch and swipe). Hover a pin to see what you know; click it for the full card.</p>`
+      <p class="hint pb" style="margin:0;padding-top:0">Scroll the mouse wheel to zoom and drag the map to move around (on a phone, pinch and swipe). Hover a pin to see what you know; click it for the full card.</p>
+      <div class="pb" style="padding-top:0">${mentionsBlock(c, 'map', m)}</div>`
     : `<div class="empty"><b>No maps yet.</b><br>Upload a world map, city plan or dungeon map, then drop your locations, NPCs, factions and party members onto it.<br><br><label for="mapNewFile" class="btn pri">Upload a map</label></div>`;
   return `<div class="w-grid map-grid"><aside class="panel w-side"><div class="ph"><h2>Maps</h2><div class="tools"><label for="mapNewFile" class="btn sm pri">New map</label></div></div>
       <input type="file" accept="image/*" hidden id="mapNewFile">

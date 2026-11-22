@@ -107,7 +107,7 @@ function spellDmgLine(s, cl){
   const sd = IDX.spells.get(String(s.n || '').toLowerCase()); const x = spellDamage(sd, cl); if (!x) return '';
   const chips = x.heal ? '<span class="dmg-chip t-heal">Healing</span>' : (x.types.length ? x.types : ['untyped']).map(t => `<span class="dmg-chip t-${t.replace(/\s+/g, '-')}">${esc(DMG_LABEL[t] || (t === 'untyped' ? 'Damage' : t[0].toUpperCase() + t.slice(1)))}</span>`).join('');
   const many = x.count > 1 || x.unit;
-  const roll = x.expr ? (/d/.test(x.expr) ? `<button class="out sm dmg-roll" data-act="rollExpr" data-expr="${esc(x.expr)}" data-label="${esc(s.n)} ${x.heal ? 'healing' : 'damage'}${many ? ` (${x.count} ${x.unit}${x.count === 1 ? '' : 's'})` : ''}" title="${x.heal ? 'Healing' : 'Damage'} at caster level ${cl}${many ? `: ${x.count} ${x.unit}${x.count === 1 ? '' : 's'} of ${x.each} each, rolled together (total ${x.expr}). Each can target a different creature.` : ''}. Click to roll.">${many ? `${x.count} × ${esc(x.each)}` : esc(x.expr)}</button>${many ? `<span class="hint">${x.count} ${x.unit}${x.count === 1 ? '' : 's'} at caster level ${cl}</span>` : ''}` : `<b class="dmg-flat">${esc(x.expr)}</b>`) : '';
+  const roll = x.expr ? (/d/.test(x.expr) ? `<button class="out sm dmg-roll" data-act="${x.heal ? 'healExpr' : 'rollExpr'}" data-expr="${esc(x.expr)}" data-label="${x.heal ? esc(s.n) : esc(s.n) + ' damage'}${many ? ` (${x.count} ${x.unit}${x.count === 1 ? '' : 's'})` : ''}" title="${x.heal ? 'Healing' : 'Damage'} at caster level ${cl}${many ? `: ${x.count} ${x.unit}${x.count === 1 ? '' : 's'} of ${x.each} each, rolled together (total ${x.expr}). Each can target a different creature.` : ''}. Click to roll.">${many ? `${x.count} × ${esc(x.each)}` : esc(x.expr)}</button>${many ? `<span class="hint">${x.count} ${x.unit}${x.count === 1 ? '' : 's'} at caster level ${cl}</span>` : ''}` : `<b class="dmg-flat">${esc(x.expr)}</b>`) : '';
   const extra = [x.touch ? x.touch[0].toUpperCase() + x.touch.slice(1) : '', x.save ? 'Save: ' + x.save.replace(/;\s*see text/i, '') : ''].filter(Boolean).join(' · ');
   return `<div class="dmg-line">${chips}${roll}${extra ? `<span class="hint">${esc(extra)}</span>` : ''}</div>`;
 }
@@ -147,6 +147,7 @@ function trackerExtras35(c){
     {id: 'attacks', full: full('attacks'), compact: () => compactAttacks35(c), def: 'compact'},
     {id: 'options', full: () => attackOptionsPanel(c, false), compact: () => attackOptionsPanel(c, true), def: 'full'},
     {id: 'spells', full: () => casters().map(({k, info}) => spellClassPanel(c, k, info)).join(''), compact: () => spellsReady35(c), def: 'compact'},
+    {id: 'potions', full: () => potionsPanel(c, false), compact: () => potionsPanel(c, true), def: 'full'},
     {id: 'itemspells', full: () => renderItemSpells(c)},
     ...trackerCompanions(c),
   ];

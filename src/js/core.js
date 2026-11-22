@@ -98,7 +98,7 @@ function newChar(name='New Adventurer'){
     saves:{Fort:{magic:0,misc:0,temp:0}, Ref:{magic:0,misc:0,temp:0}, Will:{magic:0,misc:0,temp:0}}, babMisc:0, grMisc:0,
     attacks:[], skills:{}, subskills:[], feats:[], abilities:[], languages:'Common',
     spells:{}, domains:['',''], effects:[], combat:{round:0, turn:0, list:[]},
-    items:[], coins:{cp:0, sp:0, gp:0, pp:0}, coinWeight:true, ignoreWeight:false, notes:[], quests:[], players:[], npcs:[], locations:[], factions:[], maps:[], companions:[], updatedAt: Date.now()};
+    items:[], coins:{cp:0, sp:0, gp:0, pp:0}, coinWeight:true, ignoreWeight:false, notes:[], quests:[], players:[], npcs:[], locations:[], factions:[], religions:[], maps:[], companions:[], updatedAt: Date.now()};
   for (const a of ABIL) c.abil[a] = {base:10, enh:0, temp:0};
   return c;
 }

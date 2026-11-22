@@ -2,7 +2,7 @@
 let barTimer = null;
 function readVal(el){ if (el.type === 'checkbox') return el.checked; if (el.dataset.num) return el.value === '' ? '' : num(el.value); return el.value; }
 $('#main').addEventListener('input', e => {
-  const el = e.target; if (el.id === 'noteQ'){ APP.noteQ = el.value; const pos = el.selectionStart; renderAll(); const q = $('#noteQ'); if (q){ q.focus(); q.setSelectionRange(pos, pos); } return; }
+  const el = e.target; if (el.id === 'noteQ'){ APP.noteQ = el.value; noteSearch(); return; }
   const k = el.dataset.k; if (!k) return; const c = APP_cur(); if (!c) return;
   let v = readVal(el); setPath(c, k, v);
   // ability scores follow the rules unless the sheet is unlocked
@@ -83,7 +83,9 @@ const ACT = {
   mapDel: (c, b) => { if (!armConfirm(b, 'Delete map? Click again')) return 'noRender'; const m = c.maps.find(x => x.id === b.dataset.id); mapDrop(m); c.maps = c.maps.filter(x => x !== m); APP.mapSel = null; },
   wNew: (c, b) => { const k = b.dataset.kind; const x = newWorld(k); wArr(c, k).push(x); APP[WK[k].sel] = x.id; APP[WK[k].q] = ''; setTimeout(() => { const n = $(`[data-k="${WK[k].arr}.${wArr(c, k).length - 1}.n"]`); if (n) n.focus(); }, 0); },
   wDel: (c, b) => { if (!armConfirm(b, 'Delete? Click again')) return 'noRender'; const k = b.dataset.kind; c[WK[k].arr] = wArr(c, k).filter(x => x.id !== b.dataset.id); APP[WK[k].sel] = null;
-    for (const n of c.npcs){ if (n.loc === b.dataset.id) n.loc = ''; if (n.fac === b.dataset.id) n.fac = ''; } for (const l of c.locations) if (l.parent === b.dataset.id) l.parent = ''; for (const f of c.factions){ if (f.leader === b.dataset.id) f.leader = ''; if (f.hq === b.dataset.id) f.hq = ''; } },
+    for (const n of c.npcs){ if (n.loc === b.dataset.id) n.loc = ''; if (n.fac === b.dataset.id) n.fac = ''; } for (const l of c.locations) if (l.parent === b.dataset.id) l.parent = ''; for (const f of c.factions){ if (f.leader === b.dataset.id) f.leader = ''; if (f.hq === b.dataset.id) f.hq = ''; if (f.rel === b.dataset.id) f.rel = ''; }
+    for (const n of c.npcs) if (n.rel === b.dataset.id) n.rel = ''; for (const r of c.religions || []) r.temples = (r.temples || []).filter(id => id !== b.dataset.id); },
+  relTempleDel: (c, b) => { const x = wArr(c, 'rel').find(v => v.id === b.dataset.id); if (x) x.temples = (x.temples || []).filter(id => id !== b.dataset.loc); },
   wLogAdd: (c, b) => { const t = $('#wlog-new').value.trim(); if (!t){ $('#wlog-new').focus(); return 'noRender'; } const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log = x.log || []; x.log.unshift({date: today(), text: t}); toast('Added to what you know.'); },
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
   wImgDel: (c, b) => { const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); IMG.drop(x.img); x.img = ''; delete x.crop; },
@@ -98,6 +100,7 @@ const ACT = {
   compInit: (c, b) => { const x = (c.companions || []).find(v => v.id === b.dataset.id); const s = compStats(c, x); const m = parseInt(String(s.init || '0').replace('–', '-')) || 0; const r = rollD(20);
     const ex = compInitEntry(c, x); if (ex){ ex.init = r + m; ex.mod = m; ex.comp = x.id; } else c.combat.list.push({id:uid('i'), n:x.n || x.base || 'Companion', comp:x.id, init:r + m, mod:m, hp:`${x.hp ?? s.hpMax ?? ''}/${s.hpMax ?? ''}`}); toast(`<b>${esc(x.n || x.base || 'Companion')}</b> rolls initiative <b>${r + m}</b> <span style="opacity:.75">d20 ${r} ${sgn(m)}</span>. ${ex ? 'Updated on' : 'Added to'} Combat &amp; Effects.`); },
   compDmg: (c, b) => compHp(c, b, -1), compHeal: (c, b) => compHp(c, b, 1),
+  healExpr: (c, b) => { openHeal({title: b.dataset.label || 'Healing', expr: b.dataset.expr}); return 'noRender'; },
   rollExpr: (c, b) => { const x = rollExpr(b.dataset.expr); if (x) toast(`<span class="cap" style="color:inherit;opacity:.8">${esc(b.dataset.label || 'Roll')}</span><br><b>${x.total}</b> &nbsp;<span style="opacity:.75">${esc(b.dataset.expr)} → [${x.rolls.join(', ')}]${x.bonus ? ' ' + sgn(x.bonus) : ''}</span>`); return 'noRender'; },
   putAway: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); a.eq = ''; relabelHands(c); },
   wieldAtk: (c, b) => { const a = c.attacks.find(x => x.id === b.dataset.id); if (!equipAttack(c, a)) return 'noRender'; },
@@ -163,6 +166,7 @@ const ACT = {
     if (slot && slot.total != null && used >= slot.total){ toast(`No ${lvLabel(num(s.lvl))}-level slots left.`, 'warn'); return 'noRender'; }
     book.used[s.lvl] = used + 1; if (!info.ci.spont) s.cast = num(s.cast) + 1;
     const sd = IDX.spells.get(s.n.toLowerCase()) || libByName('spell', s.n); const dur = parseDuration(sd && sd.dur, info.cl);
+    const hx = healExpr(s.n, info.cl); if (hx){ setTimeout(() => openHeal({title: s.n, from: `cast as ${cls} · CL ${info.cl}`, expr: hx}), 0); return; }
     if (dur.rounds != null){ addEffect(c, {n:s.n, kind:'spell', cl:info.cl, rounds:dur.rounds, total:dur.rounds, note:`Cast as ${cls} CL ${info.cl} · ${dur.text}`});
       toast(`Cast <b>${esc(s.n)}</b>. Tracking ${fmtRounds(dur.rounds)} on Combat &amp; Effects.`); }
     else toast(`Cast <b>${esc(s.n)}</b>${dur.inst ? ' (instantaneous)' : ''}.`); },
@@ -223,23 +227,30 @@ const ACT = {
     c.items.forEach(x => { if (x.id !== it.id && x.loc === 'equipped' && old && x.n === old) x.loc = 'carried'; }); it.loc = 'equipped'; toast(`Now wearing <b>${esc(it.n)}</b> as your ${slot}.`); },
   itemPip: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); it.used = it.used || {}; const n = +b.dataset.n; const used = num(it.used[b.dataset.k]); it.used[b.dataset.k] = n < used ? n : n + 1; },
   restItems: c => { c.items.forEach(it => { if (it.used) it.used = {}; }); toast('Per-day item uses restored.'); },
-  drink: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); const x = IDX.consumables.get(it.n.toLowerCase()); if (!x) return 'noRender';
-    it.qty = num(it.qty || 1) - 1; if (it.qty <= 0) c.items = c.items.filter(i => i.id !== it.id);
-    const verb = x.k === 'oil' ? 'Applied' : 'Drank'; const heal = healRoll(x.sp, x.cl);
-    if (heal && x.k === 'potion'){ const D0 = derive(c); const before = num(c.hp.cur); c.hp.cur = Math.min(D0.hpMax, before + heal.total); c.hp.nl = Math.max(0, num(c.hp.nl) - heal.total);
-      toast(`${verb} <b>${esc(x.n)}</b>: healed <b>${heal.total}</b> <span style="opacity:.75">(${esc(heal.expr)} → [${heal.rolls.join(', ')}]${heal.bonus ? ' +' + heal.bonus : ''})</span>. HP ${before} → ${c.hp.cur}.`); return; }
+  drink: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); const x = it && IDX.consumables.get(it.n.toLowerCase()); if (!x) return 'noRender';
+    const spend = () => { it.qty = num(it.qty || 1) - 1; if (it.qty <= 0) c.items = c.items.filter(i => i.id !== it.id); };
+    const verb = x.k === 'oil' ? 'Applied' : 'Drank'; const hx = healExpr(x.sp, x.cl);
+    if (hx && x.k === 'potion'){ openHeal({title: x.n, from: `${verb.toLowerCase()} · CL ${x.cl}`, expr: hx, consume: spend}); return 'noRender'; }
+    spend();
     const sd = IDX.spells.get(x.sp.toLowerCase()); const dur = parseDuration(sd && sd.dur, x.cl);
     if (dur.rounds != null){ addEffect(c, {n:x.sp, kind:'spell', cl:x.cl, rounds:dur.rounds, total:dur.rounds, note:`From ${x.n} · CL ${x.cl} · ${dur.text}`}); toast(`${verb} <b>${esc(x.n)}</b>. Tracking ${fmtRounds(dur.rounds)} on Combat &amp; Effects.`); }
     else toast(`${verb} <b>${esc(x.n)}</b>.`); },
   castItem: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); const L = itemSpellDef(it); const s = L.spells[+b.dataset.i]; it.used = it.used || {}; const k = 's' + b.dataset.i;
     if (s.mode === 'day' && num(it.used[k]) >= Math.max(1, num(s.uses))){ toast(`No uses of <b>${esc(s.n)}</b> left today.`, 'warn'); return 'noRender'; }
     if (s.mode === 'once' && num(it.used[k])){ toast(`<b>${esc(it.n)}</b>'s ${esc(s.n)} is used up.`, 'warn'); return 'noRender'; }
-    if (s.mode === 'charges'){ const cost = num(s.cost || 1); const have = num(it.charges ?? L.charges); if (have < cost){ toast(`Not enough charges left in <b>${esc(it.n)}</b>.`, 'warn'); return 'noRender'; } it.charges = have - cost; }
-    else if (s.mode !== 'atwill') it.used[k] = num(it.used[k]) + 1;
+    if (s.mode === 'charges'){ const cost = num(s.cost || 1); const have = num(it.charges ?? L.charges); if (have < cost){ toast(`Not enough charges left in <b>${esc(it.n)}</b>.`, 'warn'); return 'noRender'; } }
+    const spendUse = () => { if (s.mode === 'charges') it.charges = num(it.charges ?? L.charges) - num(s.cost || 1); else if (s.mode !== 'atwill') it.used[k] = num(it.used[k]) + 1; };
     const sd = IDX.spells.get(s.n.toLowerCase()) || libByName('spell', s.n); const cl = num(s.cl) || 1; const dur = parseDuration(sd && sd.dur, cl);
-    const heal = healRoll(s.n, cl); if (heal){ toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}: heals <b>${heal.total}</b> <span style="opacity:.75">(${esc(heal.expr)} → [${heal.rolls.join(', ')}]${heal.bonus ? ' +' + heal.bonus : ''})</span>. Use Heal on the Character tab if it's you.`); return; }
+    const hx = healExpr(s.n, cl); if (hx){ openHeal({title: s.n, from: `${it.n} · CL ${cl}`, expr: hx, consume: spendUse}); return 'noRender'; }
+    spendUse();
     if (dur.rounds != null){ addEffect(c, {n:s.n, kind:'spell', cl, rounds:dur.rounds, total:dur.rounds, note:`From ${it.n} · CL ${cl} · ${dur.text}${s.dc ? ' · DC ' + s.dc : ''}`}); toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}. Tracking ${fmtRounds(dur.rounds)}.`); }
     else toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}${s.dc ? ` (DC ${s.dc})` : ''}.`); },
+  // add XP gained to the total (keeps the last 20 additions so one can be undone)
+  xpAdd: c => { const el = $('#xpGain'); const v = Math.round(num(el && el.value)); if (!v){ if (el) el.focus(); return 'noRender'; }
+    const before = num(c.xp), next = derive(c).xpNext; c.xp = Math.max(0, before + v);
+    c.xpLog = [{v, d: new Date().toLocaleDateString(undefined, {day: 'numeric', month: 'short'})}, ...(c.xpLog || [])].slice(0, 20);
+    toast(`${v > 0 ? '+' : ''}${v.toLocaleString()} XP. Total ${num(c.xp).toLocaleString()}.${before < next && c.xp >= next ? ' <b>Ready to level up!</b>' : ''}`); },
+  xpUndo: c => { const l = (c.xpLog || [])[0]; if (!l) return 'noRender'; c.xp = Math.max(0, num(c.xp) - l.v); c.xpLog.shift(); toast(`Took back ${l.v.toLocaleString()} XP.`); },
   addNote: c => { c.notes.unshift({id:uid('n'), t:'', date:new Date().toISOString().slice(0, 10), body:''}); APP.noteQ = ''; setTimeout(() => { const t = $('input.title'); if (t) t.focus(); }, 0); },
   delNote: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; c.notes = c.notes.filter(n => n.id !== b.dataset.id); },
   addQuest: c => { c.quests.unshift({id:uid('q'), t:'', giver:'', where:'', status:'active', reward:'', note:'', obj:[{t:'', done:false}]}); setTimeout(() => { const t = $('.quest input.title'); if (t) t.focus(); }, 0); },
@@ -316,3 +327,5 @@ renderAll();
 connectDb();
 if (startPrefOn()) openStart('menu');
 IMG.loadLocal().then(() => { FOLDER.init(); if (APP_cur()) renderAll(); if (APP.startOpen) renderStart(); if (APP.importedFromOriginal) toast(`Brought over ${APP.importedFromOriginal} character${APP.importedFromOriginal === 1 ? '' : 's'} from the 3.5 Character Codex. The original app still has its own copies.`); });
+// Enter in the XP gained box adds it
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'xpGain'){ e.preventDefault(); const b = document.querySelector('[data-act="xpAdd"]'); if (b) b.click(); } });
