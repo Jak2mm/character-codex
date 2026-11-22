@@ -1,5 +1,18 @@
 [
  {
+  "v": "0.6.7",
+  "date": "2026-11-22",
+  "title": "Key Items and merging double-ups",
+  "items": [
+   "Key Items page under Notes for artifacts, quest items, clues, letters and keys: type, status (we have it, seen it, heard of it, lost, handed over, destroyed), who has it, where it is, the quest it belongs to, powers and properties, and what you've learned. NPCs and locations show the key items they hold, #item links them in notes, and they can be pinned on maps.",
+   "Merge with… on every NPC, player, location, faction and religion card joins two cards for the same thing (a misspelling, a nickname or a name learned later). Pick which name to keep, or type the correct one.",
+   "Nothing is lost when merging: descriptions are combined, empty details and stats filled in, logs joined, and links, temples, map pins and initiative entries move to the kept card. The old name is changed to the kept one in every note, quest and card.",
+   "Cards show a hint when another one has a very similar name, with a Merge button.",
+   "Join… on Game notes and Quests adds another note or quest into this one (quest objectives are combined without repeats).",
+   "Every merge can be undone straight after."
+  ]
+ },
+ {
   "v": "0.6.6",
   "date": "2026-11-22",
   "title": "Religions, mentions and healing choices",
