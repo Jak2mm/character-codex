@@ -1,5 +1,17 @@
 [
  {
+  "v": "0.6.8",
+  "date": "2026-11-23",
+  "title": "Item pictures, icons and rarity",
+  "items": [
+   "Items page has Full and Compact views. Full shows each item as a card with a picture; Compact shows one line per item with its main button (Drink, Use, Wield, Equip). Click a name in Compact to open it in Full view.",
+   "Every item has a picture: a stand-in for now, or Upload picture to use your own (Change and Reset afterwards).",
+   "Type icons (weapon, armor & shield, ammunition, potion & oil, scroll, wand / staff / rod, ring & wondrous, gear, treasure) sit on each item's top-left corner, coloured by rarity. They also show in the Potions & oils box on Combat & Effects.",
+   "Rarity: Common, Uncommon, Rare, Very rare, Legendary and Artifact. It's guessed from the item's price until you choose one, and each item's type can be changed too.",
+   "+1 to +5 weapons and armor are recognised as weapons and armor, and priced by the 3.5 rules for sorting by value."
+  ]
+ },
+ {
   "v": "0.6.7",
   "date": "2026-11-22",
   "title": "Key Items and merging double-ups",
