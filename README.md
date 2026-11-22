@@ -42,6 +42,8 @@ Character Codex grew out of the [3.5 Character Codex](https://github.com/Jak2mm/
 - **Players.** Track the other characters in your party: who plays them, race, class, party role, how you feel about them, your opinion, stats as you learn them, and a dated log.
 - **NPCs, Locations and Factions.** Each one has a picture, details, a description and a dated "What you've learned" log you add to over time. NPCs also have stats you fill in as you learn them, an attitude, status, location and faction, plus an **Add to initiative** button. Locations can sit inside other locations. Factions have a leader, headquarters, goals and members. Their names become links anywhere you mention them in notes, quests or logs: hover for a summary, or click to open it. Type `#` in any note to pick a name from a list (`#npc`, `#loc`, `#fac`, `#player`, `#map`, or `#` plus the start of a name); you can also add a new NPC, location, faction or player straight from the list.
 - **Religions.** Gods, faiths and cults with title, alignment, domains, portfolio, holy symbol, favored weapon, worshippers, temples (linked locations), allied and rival faiths and a dated log. NPCs and factions have a Faith field; type `#rel` in notes to link one.
+- **Key Items.** Artifacts, quest items, clues, letters and keys under Notes, with status, who has it, where it is, its quest, and powers. Type `#item` in notes to link one.
+- **Merging double-ups.** If the same NPC, player, location, faction or religion ended up on two cards (a misspelling, a nickname or a name learned later), **Merge with…** joins them: choose the name to keep, and descriptions, details, logs, links, map pins and mentions all move to one card. Game notes and quests have **Join…**. Every merge can be undone straight after, and cards with very similar names show a hint.
 - **Mentioned in, and renaming.** Every NPC, player, location, faction, religion and map lists the notes, quests and cards that name it, and clicking one jumps there. Rename one and every place its name was written changes too, so the links keep working.
 - **Healing.** Healing potions, items and cure spells ask whether to roll for you or let you type your own dice total, and who's healed. Combat & Effects has a Potions & oils box.
 - **Experience and items.** Add XP gained to your total (with undo). Items can be sorted by type, location, name, weight or value, with a colour for each kind of item.
@@ -85,6 +87,7 @@ src/js/app-shell.js   Install-as-app support (offline service worker, Install bu
 src/js/updates.js     Version, update checks (website version.json / GitHub Releases) and the change log
 src/changelog.json    The change log; its first entry is the app's version
 src/js/ui-links.js    "Mentioned in" lists and renaming names everywhere they're written
+src/js/ui-merge.js    Merging double-up cards, notes and quests
 src/js/ui-heal.js     Healing dialog (roll for me / I rolled) and the Potions & oils box
 src/js/folder.js      Save location: keeps characters, homebrew and pictures in a folder of the player's choice and syncs it
 src/js/rulesets/      One file per ruleset (rules data, calculations, sheet panels, tabs); dnd35.js is the 3.5 SRD
@@ -99,7 +102,7 @@ src/js/ui-bonus.js    Stacking warnings and the bonus editor
 src/js/ui-custom.js   Custom item editor, weapon/armor special abilities, item spells and abilities
 src/js/ui-gear.js     Gear slots (head, neck, rings…), equipping and slot detection
 src/js/ui-attacks.js  Hands and wielding rules, two-weapon fighting, ammunition
-src/js/ui-world.js    Players, NPCs, Locations, Factions and Religions (under Notes); name links in notes
+src/js/ui-world.js    Players, NPCs, Locations, Factions, Religions and Key Items (under Notes); name links in notes
 src/js/ui-mention.js  # name picker in notes
 src/js/ui-map.js      Maps tab: map pictures, pins, drag-and-drop, zoom
 src/js/ui-companion.js Companions: animal companions, familiars, paladin mounts, custom
