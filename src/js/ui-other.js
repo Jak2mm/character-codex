@@ -171,9 +171,10 @@ function itemCat(it){
   const cx = IDX.consumables.get(n); if (cx) return cx.k === 'wand' ? 'wand' : 'potion';
   if (/^scroll\b/.test(n)) return 'scroll';
   if (/^(wand|staff|rod)s? of\b/.test(n)) return 'wand'; if (/^(potion|oil|elixir|philter)s? of\b/.test(n)) return 'potion';
-  const w = IDX.weapons.get(n); if (w) return w.dM === '—' && /arrow|bolt|bullet/.test(n) ? 'ammo' : 'weapon';
+  const bn = n.replace(/\s*\+\d+\b.*$/, '').replace(/^masterwork\s+/, '').trim();
+  const w = IDX.weapons.get(n) || IDX.weapons.get(bn); if (w) return w.dM === '—' && /arrow|bolt|bullet/.test(n) ? 'ammo' : 'weapon';
   if (/\b(arrows?|bolts?|sling bullets?)\b/.test(n)) return 'ammo';
-  if (IDX.armor.get(n)) return 'armor';
+  if (IDX.armor.get(n) || IDX.armor.get(bn)) return 'armor';
   const m = IDX.magic.get(n); if (m) return m.cat === 'Rod' || m.cat === 'Staff' ? 'wand' : m.cat === 'Specific Armor/Shield' ? 'armor' : m.cat === 'Specific Weapon' ? 'weapon' : 'magic';
   if (typeof MAGIC_WEAPONS !== 'undefined' && MAGIC_WEAPONS[normKey(it.n)]) return 'weapon';
   if (/^(ring|amulet|cloak|boots|gloves|gauntlets|belt|bracers|circlet|headband|helm|robe|vest|periapt|necklace|brooch|goggles|lenses|figurine|bag of|portable hole|ioun|pearl of|rope of|horn of|carpet|crystal ball)\b/.test(n) && /\+\d|of /.test(n)) return 'magic';
@@ -185,35 +186,52 @@ function itemValue(it){
   const n = String(it.n || '').toLowerCase(), L = it.lib ? libById(it.lib) : null;
   const base = n.replace(/\s*\+\d+$/, ''), like = (map, k) => map.get(k) || [...map.values()].find(x => x.n.toLowerCase().startsWith(k + ' (')) || {};
   const raw = (L && L.cost) || it.cost || like(IDX.consumables, n).price || like(IDX.magic, n).price || like(IDX.magic, base).price || ((IDX.weapons.get(n) || {}).cost) || ((IDX.armor.get(n) || {}).cost) || ((IDX.gear.get(n) || {}).cost) || '';
-  const m = String(raw).replace(/,/g, '').match(/([\d.]+)\s*(pp|gp|sp|cp)?/i); if (!m) return '';
-  return parseFloat(m[1]) * ({pp: 10, gp: 1, sp: .1, cp: .01}[(m[2] || 'gp').toLowerCase()]);
+  const m = String(raw).replace(/,/g, '').match(/([\d.]+)\s*(pp|gp|sp|cp)?/i);
+  let v = m ? parseFloat(m[1]) * ({pp: 10, gp: 1, sp: .1, cp: .01}[(m[2] || 'gp').toLowerCase()]) : '';
+  // +1 to +5 weapons and armor: 3.5 prices (masterwork plus 2,000 / 1,000 gp × bonus²)
+  const plus = !L && n.match(/\s\+([1-5])\b/), bn = n.replace(/\s*\+\d+\b/, '').replace(/^masterwork\s+/, '').trim().replace(/\s+/g, ' ');
+  if (plus){ const k = +plus[1], w = IDX.weapons.get(bn) || IDX.weapons.get(bn.replace(/\s*\(.*$/, '')), a = IDX.armor.get(bn), cost = x => { const mm = String(x.cost || '').replace(/,/g, '').match(/([\d.]+)/); return mm ? parseFloat(mm[1]) : 0; };
+    // ammunition is priced per 50 (2,000 gp × bonus² for 50), so a bundle of 20 costs 20/50 of that
+    const ammo = /arrow|bolt|bullet/i.test(bn), count = ammo ? (parseInt((bn.match(/\((\d+)\)/) || [])[1]) || 50) : 1;
+    if (w) return ammo ? cost(w) + (300 / 50 + 2000 * k * k / 50) * count : cost(w) + 300 + 2000 * k * k;
+    if (a) return cost(a) + 150 + 1000 * k * k;
+    if (v !== '' && like(IDX.magic, bn).price) return v * k * k; }
+  return v;
 }
 function renderItems(c){
-  const sort = ITEM_SORTS[c.itemSort] ? c.itemSort : 'type';
+  const sort = ITEM_SORTS[c.itemSort] ? c.itemSort : 'type', view = c.itemView === 'compact' ? 'compact' : 'full';
   const wt = it => num(it.w) * num(it.qty || 1), lb = v => Math.round(v * 100) / 100;
-  const row = it => { const i = c.items.indexOf(it), cat = itemCat(it);
+  const opt = (v, l, cur) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${esc(l)}</option>`;
+  const card = it => { const i = c.items.indexOf(it), r = itemRarity(it), t = itemType(it), own = it.img && IMG.src(it.img);
       const has = it.t === 'custom' ? !!libById(it.lib) || !!libByName('item', it.n) : !!getRef('item', it.n);
-      return `<div class="it it-cat" style="--cat:${ITEM_CATS[cat][1]}" title="${esc(ITEM_CATS[cat][0])}"><div style="min-width:0"><div class="row" style="flex-wrap:nowrap;gap:6px"><div style="flex:1;min-width:0">${I('items.' + i + '.n', it.n, 'aria-label="Item name" data-rerender="1"')}</div>${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}</div>
-          <div style="margin-top:4px">${I('items.' + i + '.note', it.note, 'placeholder="Notes, charges, who carries it…" style="font-size:13px;padding:3px 6px"')}</div>${itemBonusLine(c, it)}</div>
-        <label class="it-f">${N('items.' + i + '.qty', it.qty, 'min="0" aria-label="Quantity" data-rerender="1"')}<span>Qty</span></label>
-        <label class="it-f">${N('items.' + i + '.w', it.w, 'min="0" step="0.25" aria-label="Weight each" data-rerender="1"')}<span>Lb. each</span></label>
-        <span class="it-f wt-total"><b class="w">${lb(wt(it))} lb.</b><span>Total</span></span>
-        <label class="it-f loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}<span>Where</span></label>
-        <button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>`; };
+      return `<div class="icard" id="item-${it.id}" style="--rc:${RARITY[r][1]}">${itemIcon(it, 'md')}
+        <div class="icard-pic"><label for="iimg-${it.id}" class="ipic ${own ? 'own' : ''}" title="${own ? 'Change picture' : 'Upload a picture'}">${itemPic(it)}</label><input type="file" accept="image/*" hidden id="iimg-${it.id}" data-itemimg="${it.id}">
+          <span class="ipic-b"><label for="iimg-${it.id}">${own ? 'Change' : 'Upload picture'}</label>${own ? ` · <a href="#" data-act="itemImgReset" data-id="${it.id}">Reset</a>` : ''}</span></div>
+        <div class="icard-body"><div class="row" style="flex-wrap:nowrap;gap:6px;align-items:center"><div style="flex:1;min-width:0">${I('items.' + i + '.n', it.n, 'class="inm" aria-label="Item name" data-rerender="1"')}</div>${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}<button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>
+          <div class="imeta"><select class="irar" data-k="items.${i}.rarity" data-rerender="1" aria-label="Rarity" style="--rc:${RARITY[r][1]}">${opt('', (RARITY[it.rarity] ? 'Guess from price' : RARITY[r][0] + ' (guessed)'), it.rarity || '')}${Object.entries(RARITY).map(([k, v]) => opt(k, v[0], it.rarity || '')).join('')}</select>
+            <select class="ityp" data-k="items.${i}.icat" data-rerender="1" aria-label="Item type">${opt('', it.icat ? 'Work out the type' : ITEM_TYPE_NAMES[t], it.icat || '')}${Object.entries(ITEM_TYPE_NAMES).map(([k, v]) => opt(k, v, it.icat || '')).join('')}</select></div>
+          <div class="iflds"><label class="it-f">${N('items.' + i + '.qty', it.qty, 'min="0" aria-label="Quantity" data-rerender="1"')}<span>Qty</span></label>
+            <label class="it-f">${N('items.' + i + '.w', it.w, 'min="0" step="0.25" aria-label="Weight each" data-rerender="1"')}<span>Lb. each</span></label>
+            <span class="it-f wt-total"><b class="w">${lb(wt(it))} lb.</b><span>Total</span></span>
+            <label class="it-f loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}<span>Where</span></label></div>
+          <div style="margin-top:6px">${I('items.' + i + '.note', it.note, 'placeholder="Notes, charges, who carries it…" style="font-size:13px;padding:3px 6px"')}</div>${itemBonusLine(c, it)}</div></div>`; };
+  const row = it => { const r = itemRarity(it), t = itemType(it);
+      return `<div class="irow" id="item-${it.id}">${itemIcon(it, 'sm')}<span class="n"><a href="#" data-act="itemOpen" data-id="${it.id}" title="Open in Full view">${esc(it.n || 'Unnamed item')}</a>${num(it.qty ?? 1) !== 1 ? ` <small class="q">×${num(it.qty)}</small>` : ''}<small style="color:${RARITY[r][1]}">${RARITY[r][0]}</small></span>
+        <span class="r">${lb(wt(it))} lb.</span><span class="r hide-s">${esc((LOCS[it.loc || 'carried'] || '').split(/[ (/]/)[0])}</span><span class="r hide-s">${esc(ITEM_TYPE_NAMES[t])}</span><span class="acts">${compactActs(c, it)}</span></div>`; };
+  const list = its => view === 'full' ? `<div class="icards">${its.map(card).join('')}</div>` : its.map(row).join('');
   const byName = (a, b) => String(a.n || '~').localeCompare(String(b.n || '~'));
-  const head = (label, its, note = '', color = '') => `<div class="splv row it-group" style="justify-content:space-between${color ? `;--cat:${color}` : ''}"><span>${color ? '<i class="cat-dot" aria-hidden="true"></i>' : ''}${esc(label)} <span class="it-n">${its.length}</span></span><span>${lb(its.reduce((s, i) => s + wt(i), 0))} lb.${note}</span></div>`;
+  const head = (label, its, note = '') => `<div class="splv row it-group" style="justify-content:space-between"><span>${esc(label)} <span class="it-n">${its.length}</span></span><span>${lb(its.reduce((s, i) => s + wt(i), 0))} lb.${note}</span></div>`;
   let groups = '';
   if (!c.items.length) groups = '';
-  else if (sort === 'type') groups = Object.keys(ITEM_CATS).map(k => { const its = c.items.filter(i => itemCat(i) === k).sort(byName); return its.length ? head(ITEM_CATS[k][0], its, '', ITEM_CATS[k][1]) + its.map(row).join('') : ''; }).join('');
-  else if (sort === 'loc') groups = Object.keys(LOCS).map(loc => { const its = c.items.filter(i => (i.loc || 'carried') === loc).sort((a, b) => Object.keys(ITEM_CATS).indexOf(itemCat(a)) - Object.keys(ITEM_CATS).indexOf(itemCat(b)) || byName(a, b));
-      return its.length ? head(LOCS[loc], its, loc === 'stored' || loc === 'mount' ? ' · not counted' : '') + its.map(row).join('') : ''; }).join('');
-  else { const its = [...c.items].sort(sort === 'name' ? byName : sort === 'weight' ? (a, b) => wt(b) - wt(a) || byName(a, b)
-      : (a, b) => { const va = itemValue(a), vb = itemValue(b); return (vb === '' ? -1 : vb * num(b.qty || 1)) - (va === '' ? -1 : va * num(a.qty || 1)) || byName(a, b); });
-    groups = its.map(it => row(it) + (sort === 'value' ? '' : '')).join(''); }
-  const present = Object.keys(ITEM_CATS).filter(k => c.items.some(i => itemCat(i) === k));
+  else if (sort === 'type') groups = Object.keys(ITEM_CATS).map(k => { const its = c.items.filter(i => itemType(i) === k).sort(byName); return its.length ? head(ITEM_CATS[k][0], its) + list(its) : ''; }).join('');
+  else if (sort === 'loc') groups = Object.keys(LOCS).map(loc => { const its = c.items.filter(i => (i.loc || 'carried') === loc).sort((a, b) => Object.keys(ITEM_CATS).indexOf(itemType(a)) - Object.keys(ITEM_CATS).indexOf(itemType(b)) || byName(a, b));
+      return its.length ? head(LOCS[loc], its, loc === 'stored' || loc === 'mount' ? ' · not counted' : '') + list(its) : ''; }).join('');
+  else groups = list([...c.items].sort(sort === 'name' ? byName : sort === 'weight' ? (a, b) => wt(b) - wt(a) || byName(a, b)
+      : (a, b) => { const va = itemValue(a), vb = itemValue(b); return (vb === '' ? -1 : vb * num(b.qty || 1)) - (va === '' ? -1 : va * num(a.qty || 1)) || byName(a, b); }));
   const tools = c.items.length ? `<div class="pb row it-tools"><label class="row" style="gap:6px"><span class="cap">Sort by</span><select data-k="itemSort" data-rerender="1" aria-label="Sort items by">${Object.entries(ITEM_SORTS).map(([v, l]) => `<option value="${v}" ${v === sort ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
-      ${sort === 'type' ? '' : `<span class="cat-legend">${present.map(k => `<span style="--cat:${ITEM_CATS[k][1]}"><i class="cat-dot" aria-hidden="true"></i>${esc(ITEM_CATS[k][0])}</span>`).join('')}</span>`}</div>` : '';
-  const items = panel('Equipment', `${tools}<div class="list">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
+      <div class="seg" role="radiogroup" aria-label="View">${[['full', 'Full'], ['compact', 'Compact']].map(([v, l]) => `<button class="${view === v ? 'on' : ''}" data-act="itemView" data-v="${v}" role="radio" aria-checked="${view === v}">${l}</button>`).join('')}</div>
+      <span class="cat-legend"><span class="cap">Rarity</span>${Object.values(RARITY).map(([l, col]) => `<span><i class="cat-dot sq" style="--cat:${col}" aria-hidden="true"></i>${l}</span>`).join('')}</span></div>` : '';
+  const items = panel('Equipment', `${tools}<div class="list ${view === 'full' ? 'ilist-full' : 'ilist-compact'}">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
     `<button class="btn sm pri" data-act="addItem">Add item</button><button class="btn sm gold" data-act="newCustomItem">New custom item</button>`);
   const coins = panel('Money &amp; load', `<div class="pb grid" style="gap:12px">
       <div class="coins">${['pp','gp','sp','cp'].map(k => F(k.toUpperCase(), N('coins.' + k, c.coins[k], 'min="0" data-rerender="1"'))).join('')}</div>
@@ -292,6 +310,11 @@ function openLibEditor(id, type, onDone){
   });
 }
 
+// Compact view keeps only the main button (Drink, Apply, Use, Wield, Wear, Equip); the rest are in Full view
+function compactActs(c, it){
+  const html = itemActions(c, it, itemBonuses(it)), keep = (html.match(/<button[^>]*data-act="(drink|castItem|wield|wear|wearOld|slotPick)"[^>]*>[\s\S]*?<\/button>/g) || []);
+  return keep.slice(0, 1).join('');
+}
 function itemBonusLine(c, it){
   const bl = itemBonuses(it); const st = bonusStatus(D);
   const btn = itemActions(c, it, bl);

@@ -39,8 +39,8 @@ function potionsPanel(c, compact){
   const ps = potionItems(c);
   const btn = p => `<button class="btn sm pri" data-act="drink" data-id="${p.it.id}">${p.x.k === 'oil' ? 'Apply' : 'Drink'}</button>`;
   const body = !ps.length ? '<p class="hint" style="margin:0">No potions or oils. Add them on the Items page (search “potion of”).</p>'
-    : compact ? `<div class="pot-chips">${ps.map(p => `<span class="pot-chip"><span>${esc(p.it.n.replace(/^(potion|oil) of /i, ''))}${num(p.it.qty ?? 1) > 1 ? ` <b>×${num(p.it.qty)}</b>` : ''}</span>${btn(p)}</span>`).join('')}</div>`
+    : compact ? `<div class="pot-chips">${ps.map(p => `<span class="pot-chip">${itemIcon(p.it, 'xs')}<span>${esc(p.it.n.replace(/^(potion|oil) of /i, ''))}${num(p.it.qty ?? 1) > 1 ? ` <b>×${num(p.it.qty)}</b>` : ''}</span>${btn(p)}</span>`).join('')}</div>`
     : `<div class="list">${ps.map(p => { const h = healExpr(p.x.sp, p.x.cl); const sd = IDX.spells.get(p.x.sp.toLowerCase());
-        return `<div class="pot-row"><div>${refA('item', p.it.n)}${num(p.it.qty ?? 1) > 1 ? ` <span class="pill">×${num(p.it.qty)}</span>` : ''}<div class="hint">${esc([h ? 'heals ' + h : '', 'CL ' + p.x.cl, sd && sd.dur && !h ? sd.dur : ''].filter(Boolean).join(' · '))}</div></div>${btn(p)}</div>`; }).join('')}</div>`;
+        return `<div class="pot-row">${itemIcon(p.it, 'sm')}<div style="flex:1;min-width:0">${refA('item', p.it.n)}${num(p.it.qty ?? 1) > 1 ? ` <span class="pill">×${num(p.it.qty)}</span>` : ''}<div class="hint">${esc([h ? 'heals ' + h : '', 'CL ' + p.x.cl, sd && sd.dur && !h ? sd.dur : ''].filter(Boolean).join(' · '))}</div></div>${btn(p)}</div>`; }).join('')}</div>`;
   return panel('Potions & oils', `<div class="pb">${body}</div>`);
 }

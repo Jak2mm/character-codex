@@ -214,7 +214,7 @@ const ACT = {
     const conMod = D.Con + v / 2; const r = Math.max(1, 3 + conMod); if (c.combat.round === 0) c.combat.round = 1;
     addEffect(c, {n:'Barbarian Rage', kind:'ability', ref:'Barbarian|Rage (Ex)', rounds:r, total:r, note:`Lasts 3 + Con modifier = ${r} rounds`}); toast(`Raging for <b>${r}</b> rounds.`); },
   newCustomItem: c => { openLibEditor(null, 'item', e => { const it = {id:uid('it'), n:e.name, t:'custom', lib:e.key, qty:1, w:num(e.lib.w), loc:'carried', note:''}; c.items.push(it); onItemAdded(c, it); markDirty(); }); return 'noRender'; },
-  delItem: (c, b) => { const it0 = c.items.find(i => i.id === b.dataset.id); if (it0 && it0.slot) unequipSlot(c, it0.slot, true); const it = it0; c.items = c.items.filter(i => i.id !== b.dataset.id); if (it) onItemRemoved(c, it); },
+  delItem: (c, b) => { const it0 = c.items.find(i => i.id === b.dataset.id); if (it0 && it0.img) IMG.drop(it0.img); if (it0 && it0.slot) unequipSlot(c, it0.slot, true); const it = it0; c.items = c.items.filter(i => i.id !== b.dataset.id); if (it) onItemRemoved(c, it); },
   editItem: (c, b) => { openItemEditor(b.dataset.id); return 'noRender'; },
   customize: (c, b) => { customizeItem(c, c.items.find(i => i.id === b.dataset.id)); return 'noRender'; },
   wield: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); const L = it.lib && libById(it.lib);
@@ -245,6 +245,9 @@ const ACT = {
     spendUse();
     if (dur.rounds != null){ addEffect(c, {n:s.n, kind:'spell', cl, rounds:dur.rounds, total:dur.rounds, note:`From ${it.n} · CL ${cl} · ${dur.text}${s.dc ? ' · DC ' + s.dc : ''}`}); toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}. Tracking ${fmtRounds(dur.rounds)}.`); }
     else toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}${s.dc ? ` (DC ${s.dc})` : ''}.`); },
+  itemView: (c, b) => { c.itemView = b.dataset.v; },
+  itemOpen: (c, b) => { c.itemView = 'full'; APP.jumpEl = 'item-' + b.dataset.id; },
+  itemImgReset: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); if (it && it.img){ IMG.drop(it.img); delete it.img; } },
   // add XP gained to the total (keeps the last 20 additions so one can be undone)
   xpAdd: c => { const el = $('#xpGain'); const v = Math.round(num(el && el.value)); if (!v){ if (el) el.focus(); return 'noRender'; }
     const before = num(c.xp), next = derive(c).xpNext; c.xp = Math.max(0, before + v);
