@@ -16,9 +16,9 @@ function linkedTexts(c){
     push(lbl, q.note, j, v => { q.note = v; }); push(lbl + ' · quest giver', q.giver, j, v => { q.giver = v; }); push(lbl + ' · location', q.where, j, v => { q.where = v; });
     push(lbl + ' · reward', q.reward, j, v => { q.reward = v; }); (q.obj || []).forEach(o => push(lbl + ' · objective', o.t, j, v => { o.t = v; }));
   });
-  for (const kind of ['pc', 'npc', 'loc', 'fac', 'rel']) for (const x of wArr(c, kind)){
+  for (const kind of ['pc', 'npc', 'loc', 'fac', 'rel', 'key']) for (const x of wArr(c, kind)){
     const lbl = `${WK[kind].plural.replace(/s$/, '')} · ${x.n || 'Unnamed'}`, j = {world: kind + ':' + x.id};
-    for (const [f, nm] of [['desc', 'description'], ['opinion', 'your opinion'], ['goals', 'goals'], ['allies', 'allied faiths'], ['rivals', 'rival faiths'], ['attacks', 'attacks'], ['special', 'special abilities']])
+    for (const [f, nm] of [['desc', 'description'], ['powers', 'powers'], ['opinion', 'your opinion'], ['goals', 'goals'], ['allies', 'allied faiths'], ['rivals', 'rival faiths'], ['attacks', 'attacks'], ['special', 'special abilities']])
       push(`${lbl} · ${nm}`, x[f], j, v => { x[f] = v; }, {self: kind + ':' + x.id});
     (x.log || []).forEach(l => push(`${lbl} · what you've learned${l.date ? ' (' + l.date + ')' : ''}`, l.text, j, v => { l.text = v; }, {self: kind + ':' + x.id}));
   }
@@ -26,7 +26,7 @@ function linkedTexts(c){
   return out;
 }
 // how a name is matched in text: whole words, any case; "The Black Hand" also matches "Black Hand"
-function nameKey(kind, n){ n = String(n || '').trim(); if (kind === 'loc' || kind === 'fac' || kind === 'rel' || kind === 'map') n = n.replace(/^the\s+/i, ''); return n; }
+function nameKey(kind, n){ n = String(n || '').trim(); if (kind === 'loc' || kind === 'fac' || kind === 'rel' || kind === 'key' || kind === 'map') n = n.replace(/^the\s+/i, ''); return n; }
 const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const nameRe = n => new RegExp('(^|[^\\p{L}\\p{N}])(' + reEsc(n) + ')(?![\\p{L}\\p{N}])', 'giu');
 
@@ -61,11 +61,25 @@ afterRenderHooks.push(() => {
 });
 document.addEventListener('click', e => { const a = e.target.closest('[data-mjump]'); if (!a) return; e.preventDefault(); try { goMention(JSON.parse(a.dataset.mjump)); } catch {} });
 
+// replace a name with another in every linked text; returns {changed, places}. Where the new name already
+// contains the old one ("Hesk" → "Prior Hesk"), existing "Prior Hesk" isn't turned into "Prior Prior Hesk".
+function renameInTexts(c, n0, n1, skipSelf){
+  let changed = 0, places = 0; const guard = n1.toLowerCase().includes(n0.toLowerCase());
+  for (const t of linkedTexts(c)){
+    if (skipSelf && t.self === skipSelf) continue;
+    if (!nameRe(n0).test(t.text)) continue; let k = 0, v = t.text; const keep = [];
+    if (guard) v = v.replace(nameRe(n1), (m, pre, nm) => { keep.push(nm); return pre + '\uE000'; });
+    v = v.replace(nameRe(n0), (m, pre) => { k++; return pre + n1; });
+    if (guard) v = v.replace(/\uE000/g, () => keep.shift());
+    if (k){ t.set(v); changed += k; places++; }
+  }
+  return {changed, places};
+}
 // ---------- renaming changes the name everywhere it was written ----------
 // remembers the name when you start editing, and on leaving the box rewrites old → new in all linked text
-const RENAME_FIELDS = {pc: 'players', npc: 'npcs', loc: 'locations', fac: 'factions', rel: 'religions'};
+const RENAME_FIELDS = {pc: 'players', npc: 'npcs', loc: 'locations', fac: 'factions', rel: 'religions', key: 'keyItems'};
 function renameTarget(el){
-  const k = el.dataset && el.dataset.k; if (!k) return null; let m = k.match(/^(players|npcs|locations|factions|religions)\.(\d+)\.n$/);
+  const k = el.dataset && el.dataset.k; if (!k) return null; let m = k.match(/^(players|npcs|locations|factions|religions|keyItems)\.(\d+)\.n$/);
   if (m){ const kind = Object.keys(RENAME_FIELDS).find(x => RENAME_FIELDS[x] === m[1]); const x = (APP_cur()[m[1]] || [])[+m[2]]; return x ? {kind, x} : null; }
   m = k.match(/^maps\.(\d+)\.n$/); if (m){ const x = (APP_cur().maps || [])[+m[1]]; return x ? {kind: 'map', x} : null; }
   return null;
@@ -75,10 +89,6 @@ document.addEventListener('change', e => {
   const el = e.target, t = renameTarget(el); if (!t || el._oldName === undefined) return;
   const oldN = el._oldName, newN = (t.x.n || '').trim(); el._oldName = newN;
   const n0 = nameKey(t.kind, oldN), n1 = nameKey(t.kind, newN); if (n0.length < 3 || !n1 || n0.toLowerCase() === n1.toLowerCase()) return;
-  const c = APP_cur(); let changed = 0, places = 0;
-  for (const tx of linkedTexts(c)){
-    const re = nameRe(n0); if (!re.test(tx.text)) continue; let k = 0;
-    const v = tx.text.replace(nameRe(n0), (m, pre, name) => { k++; return pre + n1; }); if (k){ tx.set(v); changed += k; places++; }
-  }
+  const c = APP_cur(); const {changed, places} = renameInTexts(c, n0, n1);
   if (changed){ markDirty(); renderAll(); toast(`Renamed “${esc(oldN)}” to “${esc(newN)}” in ${changed} place${changed === 1 ? '' : 's'} across ${places} note${places === 1 ? '' : 's'} and cards.`); }
 });

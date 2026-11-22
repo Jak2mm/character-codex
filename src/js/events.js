@@ -84,7 +84,7 @@ const ACT = {
   wNew: (c, b) => { const k = b.dataset.kind; const x = newWorld(k); wArr(c, k).push(x); APP[WK[k].sel] = x.id; APP[WK[k].q] = ''; setTimeout(() => { const n = $(`[data-k="${WK[k].arr}.${wArr(c, k).length - 1}.n"]`); if (n) n.focus(); }, 0); },
   wDel: (c, b) => { if (!armConfirm(b, 'Delete? Click again')) return 'noRender'; const k = b.dataset.kind; c[WK[k].arr] = wArr(c, k).filter(x => x.id !== b.dataset.id); APP[WK[k].sel] = null;
     for (const n of c.npcs){ if (n.loc === b.dataset.id) n.loc = ''; if (n.fac === b.dataset.id) n.fac = ''; } for (const l of c.locations) if (l.parent === b.dataset.id) l.parent = ''; for (const f of c.factions){ if (f.leader === b.dataset.id) f.leader = ''; if (f.hq === b.dataset.id) f.hq = ''; if (f.rel === b.dataset.id) f.rel = ''; }
-    for (const n of c.npcs) if (n.rel === b.dataset.id) n.rel = ''; for (const r of c.religions || []) r.temples = (r.temples || []).filter(id => id !== b.dataset.id); },
+    for (const n of c.npcs) if (n.rel === b.dataset.id) n.rel = ''; for (const x of c.keyItems || []){ if (x.holder === k + ':' + b.dataset.id) x.holder = ''; if (x.loc === b.dataset.id) x.loc = ''; } for (const r of c.religions || []) r.temples = (r.temples || []).filter(id => id !== b.dataset.id); },
   relTempleDel: (c, b) => { const x = wArr(c, 'rel').find(v => v.id === b.dataset.id); if (x) x.temples = (x.temples || []).filter(id => id !== b.dataset.loc); },
   wLogAdd: (c, b) => { const t = $('#wlog-new').value.trim(); if (!t){ $('#wlog-new').focus(); return 'noRender'; } const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log = x.log || []; x.log.unshift({date: today(), text: t}); toast('Added to what you know.'); },
   wLogDel: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; const x = wArr(c, b.dataset.kind).find(v => v.id === b.dataset.id); x.log.splice(+b.dataset.j, 1); },
@@ -254,7 +254,7 @@ const ACT = {
   addNote: c => { c.notes.unshift({id:uid('n'), t:'', date:new Date().toISOString().slice(0, 10), body:''}); APP.noteQ = ''; setTimeout(() => { const t = $('input.title'); if (t) t.focus(); }, 0); },
   delNote: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; c.notes = c.notes.filter(n => n.id !== b.dataset.id); },
   addQuest: c => { c.quests.unshift({id:uid('q'), t:'', giver:'', where:'', status:'active', reward:'', note:'', obj:[{t:'', done:false}]}); setTimeout(() => { const t = $('.quest input.title'); if (t) t.focus(); }, 0); },
-  delQuest: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; c.quests = c.quests.filter(q => q.id !== b.dataset.id); },
+  delQuest: (c, b) => { if (!armConfirm(b, 'Delete?')) return 'noRender'; c.quests = c.quests.filter(q => q.id !== b.dataset.id); for (const k of c.keyItems || []) if (k.quest === b.dataset.id) k.quest = ''; },
   addObj: (c, b) => { c.quests.find(q => q.id === b.dataset.q).obj.push({t:'', done:false}); },
   delObj: (c, b) => { c.quests.find(q => q.id === b.dataset.q).obj.splice(+b.dataset.j, 1); },
   libNew: (c, b) => { openLibEditor(null, b.dataset.t); return 'noRender'; },

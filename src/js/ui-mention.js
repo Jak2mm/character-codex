@@ -6,6 +6,7 @@ const MENTION_KINDS = [
   {kind:'loc', label:'Location', plural:'Locations', words:['location', 'locations', 'loc', 'place', 'places']},
   {kind:'fac', label:'Faction', plural:'Factions', words:['faction', 'factions', 'fac', 'guild', 'group']},
   {kind:'rel', label:'Religion', plural:'Religions', words:['religion', 'religions', 'rel', 'deity', 'god', 'gods', 'faith', 'church', 'cult']},
+  {kind:'key', label:'Key item', plural:'Key items', words:['item', 'items', 'key', 'keyitem', 'artifact', 'artefact', 'clue', 'relic']},
   {kind:'pc', label:'Player', plural:'Players', words:['player', 'players', 'pc', 'pcs', 'party']},
   {kind:'map', label:'Map', plural:'Maps', words:['map', 'maps']},
 ];
@@ -16,7 +17,7 @@ function mentionEntries(c, kind){
   const arr = kind === 'map' ? (c.maps || []) : wArr(c, kind);
   return arr.filter(x => (x.n || '').trim()).map(x => ({type:'pick', kind, id:x.id, n:x.n.trim(),
     sub: kind === 'npc' ? [x.role, wName(c, 'loc', x.loc)].filter(Boolean).join(' · ') : kind === 'loc' ? [x.type, x.region].filter(Boolean).join(' · ')
-      : kind === 'fac' ? x.type || '' : kind === 'rel' ? [x.title, x.type].filter(Boolean).join(' · ') : kind === 'pc' ? [x.race, x.cls].filter(Boolean).join(' ') : `${(x.pins || []).length} pins`}))
+      : kind === 'fac' ? x.type || '' : kind === 'rel' ? [x.title, x.type].filter(Boolean).join(' · ') : kind === 'key' ? [x.type, (KEY_STATUS.find(s => s[0] === x.status) || [])[1]].filter(Boolean).join(' · ') : kind === 'pc' ? [x.race, x.cls].filter(Boolean).join(' ') : `${(x.pins || []).length} pins`}))
     .sort((a, b) => a.n.localeCompare(b.n));
 }
 const mWordStart = (name, q) => { const n = name.toLowerCase().replace(/^the\s+/, ''); return n.startsWith(q) || name.toLowerCase().includes(' ' + q) || name.toLowerCase().startsWith(q); };

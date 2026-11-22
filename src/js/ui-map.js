@@ -1,7 +1,7 @@
 // ===================== MAPS =====================
 // c.maps = [{id, n, img (image key), pins:[{id, kind:'loc'|'npc'|'fac'|'pc', ref, x, y}]}]  (x, y in % of the image)
 APP.mapZoom = 100; APP.mapEdit = false; APP.placing = null; APP.pinKind = 'loc';
-const PIN_KINDS = [['loc', 'Locations'], ['npc', 'NPCs'], ['fac', 'Factions'], ['rel', 'Religions'], ['pc', 'Players']];
+const PIN_KINDS = [['loc', 'Locations'], ['npc', 'NPCs'], ['fac', 'Factions'], ['rel', 'Religions'], ['key', 'Key Items'], ['pc', 'Players']];
 
 // Maps are kept at up to 4096 px on the long side, cut into 1024 px tiles (each stored picture must stay
 // under ~256 KB), plus a small thumbnail for the list. On screen the tiles are drawn onto one canvas.
