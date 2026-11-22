@@ -5,6 +5,9 @@ const NPC_STATUS = [['alive', 'Alive'], ['dead', 'Dead'], ['missing', 'Missing']
 const LOC_TYPES = ['', 'City', 'Town', 'Village', 'Keep / castle', 'Temple', 'Tavern / inn', 'Shop', 'Dungeon', 'Ruins', 'Cave', 'Wilderness', 'Region', 'Plane', 'Other'];
 const LOC_STATUS = [['heard', 'Heard of'], ['visited', 'Visited'], ['cleared', 'Cleared'], ['avoid', 'Avoid']];
 const REL_TYPES = ['', 'Deity', 'Pantheon', 'Church / faith', 'Cult', 'Philosophy', 'Demigod / saint', 'Spirit / ancestor', 'Other'];
+const KEY_TYPES = ['', 'Artifact', 'Quest item', 'Clue', 'Letter / document', 'Map / directions', 'Key', 'Relic', 'Weapon / armor', 'Treasure', 'Other'];
+const KEY_STATUS = [['have', 'We have it'], ['seen', 'Seen it'], ['heard', 'Heard of it'], ['lost', 'Lost / stolen'], ['given', 'Handed over'], ['destroyed', 'Destroyed']];
+const KEY_PILL = {have: 'good', seen: 'acc', heard: '', lost: 'bad', given: 'warn', destroyed: 'bad'};
 const FAC_TYPES = ['', 'Guild', 'Church / temple', 'Cult', 'Noble house', 'Government', 'Military', 'Thieves / criminal', 'Mercenaries', 'Merchants', 'Arcane order', 'Tribe / clan', 'Secret society', 'Other'];
 const NPC_STATS = [['cr', 'CR'], ['hp', 'HP'], ['ac', 'AC'], ['init', 'Init'], ['speed', 'Speed'], ['bab', 'BAB / Grapple'], ['fort', 'Fort'], ['ref', 'Ref'], ['will', 'Will'],
   ['str', 'Str'], ['dex', 'Dex'], ['con', 'Con'], ['int', 'Int'], ['wis', 'Wis'], ['cha', 'Cha']];
@@ -14,6 +17,7 @@ const PC_STATUS = [['active', 'In the party'], ['away', 'Away'], ['left', 'Left 
 const WK = {pc:{arr:'players', tab:'players', sel:'pcSel', q:'pcQ', label:'player character', plural:'Players'}, npc:{arr:'npcs', tab:'npcs', sel:'npcSel', q:'npcQ', label:'NPC', plural:'NPCs'}, loc:{arr:'locations', tab:'locations', sel:'locSel', q:'locQ', label:'location', plural:'Locations'},
   fac:{arr:'factions', tab:'factions', sel:'facSel', q:'facQ', label:'faction', plural:'Factions'},
   rel:{arr:'religions', tab:'religions', sel:'relSel', q:'relQ', label:'religion', plural:'Religions'},
+  key:{arr:'keyItems', tab:'keyitems', sel:'keySel', q:'keyQ', label:'key item', plural:'Key Items'},
   comp:{arr:'companions', tab:'companions', sel:'compSel', q:'compQ', label:'companion', plural:'Companions'}};
 
 async function imageToDataURL(file, max = 480){
@@ -30,6 +34,7 @@ function newWorld(kind){
   if (kind === 'npc') return {...base, role:'', race:'', cls:'', align:'', attitude:'', status:'alive', loc:'', fac:'', stats:{}, attacks:'', special:''};
   if (kind === 'pc') return {...base, player:'', race:'', cls:'', align:'', role:'', trust:'', status:'active', deity:'', stats:{}, attacks:'', special:'', opinion:''};
   if (kind === 'loc') return {...base, type:'', region:'', status:'heard', parent:''};
+  if (kind === 'key') return {...base, type:'', status:'heard', holder:'', loc:'', quest:'', powers:''};
   if (kind === 'rel') return {...base, type:'Deity', title:'', align:'', domains:'', portfolio:'', symbol:'', weapon:'', worshippers:'', temples:[], allies:'', rivals:''};
   return {...base, type:'', attitude:'', leader:'', hq:'', goals:''};
 }
@@ -39,9 +44,9 @@ const wName = (c, kind, id) => { const x = wArr(c, kind).find(v => v.id === id);
 // ---------- name links inside free text ----------
 function worldIndex(c){
   const out = [];
-  for (const kind of ['pc', 'npc', 'loc', 'fac', 'rel']) for (const x of wArr(c, kind)){
+  for (const kind of ['pc', 'npc', 'loc', 'fac', 'rel', 'key']) for (const x of wArr(c, kind)){
     let n = String(x.n || '').trim();
-    if (kind === 'loc' || kind === 'fac' || kind === 'rel') n = n.replace(/^the\s+/i, ''); // "The Black Hand" also matches "Black Hand" / "the Black Hand"
+    if (kind === 'loc' || kind === 'fac' || kind === 'rel' || kind === 'key') n = n.replace(/^the\s+/i, ''); // "The Black Hand" also matches "Black Hand" / "the Black Hand"
     if (n.length >= 3) out.push({n, kind, id:x.id}); }
   for (const m of c.maps || []){ const n = String(m.n || '').trim().replace(/^the\s+/i, ''); if (n.length >= 3) out.push({n, kind:'map', id:m.id}); }
   return out.sort((a, b) => b.n.length - a.n.length);
@@ -96,9 +101,10 @@ function worldRef(key){
     : kind === 'npc' ? [x.role, x.race, x.cls, x.status !== 'alive' ? x.status : '', x.attitude, wName(c, 'loc', x.loc), wName(c, 'fac', x.fac)]
     : kind === 'loc' ? [x.type, x.region, wName(c, 'loc', x.parent), (LOC_STATUS.find(s => s[0] === x.status) || [])[1]]
     : kind === 'rel' ? [x.title, x.type, x.align, x.domains ? 'domains: ' + x.domains : '', x.portfolio]
+    : kind === 'key' ? [x.type, (KEY_STATUS.find(s => s[0] === x.status) || [])[1], holderName(c, x.holder) ? 'held by ' + holderName(c, x.holder) : '', wName(c, 'loc', x.loc)]
     : [x.type, x.attitude ? x.attitude + ' to you' : '', x.leader ? 'led by ' + wName(c, 'npc', x.leader) : '', x.hq ? 'based at ' + wName(c, 'loc', x.hq) : ''];
   const stats = kind === 'npc' || kind === 'pc' ? NPC_STATS.filter(([k]) => (x.stats || {})[k]).map(([k, l]) => `${l} ${esc(x.stats[k])}`).join(' · ') : '';
-  return {title: x.n || 'Unnamed', sub: {pc:'Player character', npc:'NPC', loc:'Location', fac:'Faction', rel:'Religion'}[kind] + ' · click to open',
+  return {title: x.n || 'Unnamed', sub: {pc:'Player character', npc:'NPC', loc:'Location', fac:'Faction', rel:'Religion', key:'Key item'}[kind] + ' · click to open',
     html: `${x.img ? `<span class="w-thumb" style="float:right;width:84px;height:84px;margin:0 0 6px 10px">${cropImg(x)}</span>` : ''}
       <p class="hint" style="margin-top:0">${esc(bits.filter(Boolean).join(' · '))}</p>${stats ? `<p style="font-size:13px">${stats}</p>` : ''}
       <div class="rt">${x.opinion ? `<p><b>Your opinion:</b> ${esc(x.opinion)}</p>` : ''}${x.desc ? `<p>${esc(x.desc).replace(/\n/g, '<br>')}</p>` : ''}${last ? `<p><b>Latest${last.date ? ' (' + esc(last.date) + ')' : ''}:</b> ${esc(last.text)}</p>` : ''}${!x.desc && !last ? '<p class="hint">Nothing written yet.</p>' : ''}</div>`};
@@ -110,12 +116,13 @@ function jumpWorld(key){ const [kind, id] = String(key).split(':');
 // ---------- list & detail ----------
 function worldList(kind, c){
   const arr = wArr(c, kind); const q = (APP[WK[kind].q] || '').toLowerCase(); const sel = APP[WK[kind].sel];
-  const hay = x => [x.n, x.player, x.opinion, x.role, x.race, x.type, x.region, x.goals, x.desc, x.title, x.domains, x.portfolio, x.symbol, x.worshippers, ...(x.log || []).map(l => l.text)].join(' ').toLowerCase();
+  const hay = x => [x.n, x.player, x.opinion, x.role, x.race, x.type, x.region, x.goals, x.desc, x.title, x.domains, x.portfolio, x.symbol, x.worshippers, x.powers, ...(x.log || []).map(l => l.text)].join(' ').toLowerCase();
   const shown = arr.filter(x => !q || hay(x).includes(q)).sort((a, b) => (a.n || '~').localeCompare(b.n || '~'));
   return shown.map(x => {
-    const sub = kind === 'pc' ? [x.cls, x.race, x.player ? '(' + x.player + ')' : ''] : kind === 'npc' ? [x.role, x.race, wName(c, 'loc', x.loc)] : kind === 'loc' ? [x.type, x.region || wName(c, 'loc', x.parent)] : kind === 'rel' ? [x.title || x.type, x.align] : [x.type, x.hq ? wName(c, 'loc', x.hq) : ''];
+    const sub = kind === 'pc' ? [x.cls, x.race, x.player ? '(' + x.player + ')' : ''] : kind === 'npc' ? [x.role, x.race, wName(c, 'loc', x.loc)] : kind === 'loc' ? [x.type, x.region || wName(c, 'loc', x.parent)] : kind === 'rel' ? [x.title || x.type, x.align] : kind === 'key' ? [x.type, holderName(c, x.holder)] : [x.type, x.hq ? wName(c, 'loc', x.hq) : ''];
     const pill = kind === 'loc' ? `<span class="pill ${x.status === 'visited' ? 'good' : x.status === 'cleared' ? 'acc' : x.status === 'avoid' ? 'bad' : ''}">${(LOC_STATUS.find(s => s[0] === x.status) || ['', ''])[1]}</span>`
       : kind === 'pc' ? (x.status === 'dead' ? '<span class="pill bad">dead</span>' : x.status === 'left' ? '<span class="pill">left</span>' : x.trust ? `<span class="pill ${TRUST_PILL[x.trust]}">${(TRUST.find(t => t[0] === x.trust) || [])[1]}</span>` : '')
+      : kind === 'key' ? `<span class="pill ${KEY_PILL[x.status] || ''}">${(KEY_STATUS.find(s => s[0] === x.status) || ['', ''])[1]}</span>`
       : kind === 'npc' && x.status === 'dead' ? '<span class="pill bad">dead</span>' : x.attitude ? `<span class="pill ${ATT_PILL[x.attitude]}">${x.attitude}</span>` : '';
     return `<a href="#" class="w-item ${x.id === sel ? 'act' : ''}" data-wsel="${kind}:${x.id}">${x.img ? `<span class="w-thumb">${cropImg(x)}</span>` : `<span class="w-ph">${esc((x.n || '?').slice(0, 1).toUpperCase())}</span>`}
       <span class="w-t"><b>${esc(x.n || 'Unnamed')}</b><span class="hint">${esc(sub.filter(Boolean).join(' · '))}</span></span>${pill}</a>`; }).join('')
@@ -156,11 +163,19 @@ function worldDetail(kind, c, x, i){
       <div class="fields">${F('Race', I(P('race'), x.race))}${F('Class / level', I(P('cls'), x.cls, 'placeholder="e.g. Wizard 5"'))}${F('Alignment', I(P('align'), x.align))}
         ${F('Attitude ' + refA('skill', 'Diplomacy', 'ⓘ'), S(P('attitude'), x.attitude, ATTITUDES, 'data-rerender="1"'))}${F('Status', S(P('status'), x.status, NPC_STATUS, 'data-rerender="1"'))}${F('Where found', S(P('loc'), x.loc, opts('loc'), 'data-rerender="1"'))}${F('Faith', S(P('rel'), x.rel, opts('rel'), 'data-rerender="1"'))}</div>`;
     extra = statsBlock;
+    const held = (c.keyItems || []).filter(k => k.holder === 'npc:' + x.id); if (held.length) links = `<div class="bchips">${held.map(k => chipLink('key', k)).join('')}</div><p class="hint" style="margin:0">Key items they have.</p>`;
   } else if (kind === 'loc'){
     fields = `<div class="fields">${F('Name', I(P('n'), x.n, 'data-rerender-list="loc" placeholder="Name"'), 'wide')}${F('Type', S(P('type'), x.type, LOC_TYPES.map(t => [t, t || '—'])))}${F('Status', S(P('status'), x.status, LOC_STATUS, 'data-rerender="1"'))}</div>
       <div class="fields">${F('Region', I(P('region'), x.region, 'placeholder="e.g. The Vale"'))}${F('Inside / part of', S(P('parent'), x.parent, opts('loc'), 'data-rerender="1"'))}</div>`;
-    const here = c.npcs.filter(n => n.loc === x.id), inside = c.locations.filter(l => l.parent === x.id), facs = c.factions.filter(f => f.hq === x.id);
-    if (here.length || inside.length || facs.length) links = `<div class="bchips">${here.map(n => chipLink('npc', n)).join('')}${facs.map(f => chipLink('fac', f)).join('')}${inside.map(l => chipLink('loc', l)).join('')}</div><p class="hint" style="margin:0">People, factions and places linked here.</p>`;
+    const here = c.npcs.filter(n => n.loc === x.id), inside = c.locations.filter(l => l.parent === x.id), facs = c.factions.filter(f => f.hq === x.id), keys = (c.keyItems || []).filter(k => k.loc === x.id);
+    if (here.length || inside.length || facs.length || keys.length) links = `<div class="bchips">${here.map(n => chipLink('npc', n)).join('')}${facs.map(f => chipLink('fac', f)).join('')}${inside.map(l => chipLink('loc', l)).join('')}${keys.map(k => chipLink('key', k)).join('')}</div><p class="hint" style="margin:0">People, factions, places and key items linked here.</p>`;
+  } else if (kind === 'key'){
+    const holders = [['', 'Unknown / nobody'], ['me', `${c.name || 'Your character'} (you)`], ...c.players.map(v => ['pc:' + v.id, (v.n || 'Unnamed') + ' (player)']), ...c.npcs.map(v => ['npc:' + v.id, (v.n || 'Unnamed') + ' (NPC)']), ...c.factions.map(v => ['fac:' + v.id, (v.n || 'Unnamed') + ' (faction)'])];
+    fields = `<div class="fields">${F('Name', I(P('n'), x.n, 'data-rerender-list="key" placeholder="e.g. The Bell of Tolling, Hesk\'s letter"'), 'wide')}${F('Type', S(P('type'), x.type, KEY_TYPES.map(t => [t, t || '—'])))}${F('Status', S(P('status'), x.status, KEY_STATUS, 'data-rerender="1"'))}</div>
+      <div class="fields">${F('Who has it', S(P('holder'), x.holder, holders, 'data-rerender="1"'))}${F('Where it is', S(P('loc'), x.loc, opts('loc'), 'data-rerender="1"'))}${F('Quest', S(P('quest'), x.quest, [['', '—'], ...c.quests.map(q => [q.id, q.t || 'Untitled quest'])], 'data-rerender="1"'))}</div>`;
+    const hk = (x.holder || '').split(':'), hx = hk.length === 2 && wArr(c, hk[0]).find(v => v.id === hk[1]), lx = c.locations.find(l => l.id === x.loc), qx = c.quests.find(q => q.id === x.quest);
+    links = hx || lx || qx ? `<div class="bchips">${hx ? chipLink(hk[0], hx) : ''}${lx ? chipLink('loc', lx) : ''}${qx ? `<a href="#" class="bchip w-chip" data-mjump='${esc(JSON.stringify({tab: 'quests', el: 'quest-' + qx.id}))}'>${esc(qx.t || 'Quest')}</a>` : ''}</div>` : '';
+    extra = `<div class="w-sec">${F('Powers and properties', LT(P('powers'), x.powers, 'What it does, how it works, what you\'ve tested…', 3))}</div>`;
   } else if (kind === 'rel'){
     fields = `<div class="fields">${F('Name', I(P('n'), x.n, 'data-rerender-list="rel" placeholder="e.g. Pelor, the Church of the Silver Flame"'), 'wide')}${F('Type', S(P('type'), x.type, REL_TYPES.map(t => [t, t || '—'])))}${F('Title', I(P('title'), x.title, 'placeholder="e.g. The Sun Father"'))}</div>
       <div class="fields">${F('Alignment', I(P('align'), x.align))}${F('Domains', I(P('domains'), x.domains, 'placeholder="e.g. Good, Healing, Strength, Sun"'))}${F('Portfolio', I(P('portfolio'), x.portfolio, 'placeholder="e.g. Sun, light, healing"'))}
@@ -180,21 +195,24 @@ function worldDetail(kind, c, x, i){
     links = `<div class="bchips">${members.map(n => chipLink('npc', n)).join('') || '<span class="hint">No members yet: set an NPC\'s Faction to link them.</span>'}</div>`;
   }
   return `<div class="pb grid" style="gap:14px">
+    ${dupeHint(c, kind, x)}
     <div class="w-head"><div class="w-imgcol">${imgBox(kind, x)}</div><div class="grid" style="gap:10px;min-width:0">${fields}${links}</div></div>
-    ${F('Description', LT(P('desc'), x.desc, kind === 'npc' ? 'Appearance, personality, what they want…' : kind === 'loc' ? 'What it looks like, who runs it, dangers, rumours…' : kind === 'rel' ? 'Beliefs, holy days, rites, what the faithful are asked to do…' : 'Who they are, what they\'re known for…', 4))}
+    ${F('Description', LT(P('desc'), x.desc, kind === 'npc' ? 'Appearance, personality, what they want…' : kind === 'loc' ? 'What it looks like, who runs it, dangers, rumours…' : kind === 'rel' ? 'Beliefs, holy days, rites, what the faithful are asked to do…' : kind === 'key' ? 'What it looks like, its history, markings…' : 'Who they are, what they\'re known for…', 4))}
     ${extra}${logBlock(kind, i, x)}
     ${mentionsBlock(c, kind, x)}
-    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="wDel" data-kind="${kind}" data-id="${x.id}">Delete ${WK[kind].label}</button></div></div>`;
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-merge="${kind}:${x.id}" title="Join this with another card for the same ${WK[kind].label}">Merge with…</button><button class="btn ghost" data-act="wDel" data-kind="${kind}" data-id="${x.id}">Delete ${WK[kind].label}</button></div></div>`;
 }
 function renderWorld(kind, c){
   const arr = wArr(c, kind); const x = arr.find(n => n.id === APP[WK[kind].sel]) || arr[0]; if (x) APP[WK[kind].sel] = x.id;
-  const intro = {pc:'Keep track of the other characters in your party: who they are, what you\'ve learned about them, and what you think of them.', npc:'Add the people you meet: their stats as you learn them, what they\'re like, and everything you find out over time.', loc:'Add towns, dungeons, inns and anywhere you go or hear about, and build up what you know about each.', fac:'Track guilds, churches, cults and noble houses: who leads them, where they\'re based, what they want, and who belongs.', rel:'Keep track of gods, faiths and cults: their domains, symbols and temples, who follows them, and what you learn about them.'}[kind];
+  const intro = {pc:'Keep track of the other characters in your party: who they are, what you\'ve learned about them, and what you think of them.', npc:'Add the people you meet: their stats as you learn them, what they\'re like, and everything you find out over time.', loc:'Add towns, dungeons, inns and anywhere you go or hear about, and build up what you know about each.', fac:'Track guilds, churches, cults and noble houses: who leads them, where they\'re based, what they want, and who belongs.', key:'Keep track of the items that matter to the story: artifacts, quest items, clues, letters and keys, who has them, where they are and what they do.', rel:'Keep track of gods, faiths and cults: their domains, symbols and temples, who follows them, and what you learn about them.'}[kind];
   return `<div class="w-grid"><aside class="panel w-side"><div class="ph"><h2>${WK[kind].plural}</h2><div class="tools"><button class="btn sm pri" data-act="wNew" data-kind="${kind}">New ${WK[kind].label}</button></div></div>
       <div class="pb" style="border-bottom:1px solid var(--rule-2)"><input type="search" id="wq-${kind}" data-wq="${kind}" placeholder="Search names and notes…" value="${esc(APP[WK[kind].q] || '')}"></div>
       <div class="w-list" id="wlist-${kind}">${worldList(kind, c)}</div></aside>
     <section class="panel w-main">${x ? `<div class="ph"><h2 id="wtitle">${esc(x.n || 'Unnamed ' + WK[kind].label)}</h2></div>${worldDetail(kind, c, x, arr.indexOf(x))}` : `<div class="empty"><b>No ${WK[kind].plural.toLowerCase()} yet.</b><br>${intro}<br><br><button class="btn pri" data-act="wNew" data-kind="${kind}">New ${WK[kind].label}</button></div>`}</section></div>`;
 }
-const renderReligions = c => renderWorld('rel', c);
+const renderReligions = c => renderWorld('rel', c), renderKeyItems = c => renderWorld('key', c);
+// who holds a key item: 'me', or 'pc:id' / 'npc:id' / 'fac:id'
+function holderName(c, h){ if (!h) return ''; if (h === 'me') return c.name || 'you'; const [k, id] = h.split(':'); return WK[k] ? wName(c, k, id) : ''; }
 const renderPlayers = c => renderWorld('pc', c), renderNpcs = c => renderWorld('npc', c), renderLocations = c => renderWorld('loc', c), renderFactions = c => renderWorld('fac', c);
 
 // ---------- events ----------
