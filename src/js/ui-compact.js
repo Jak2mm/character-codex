@@ -52,7 +52,7 @@ function compactGear35(c){
     const L = it.lib ? libById(it.lib) : null;
     const name = (L ? refA('custom', L.id, it.n, 'custom') : getRef('item', it.n) ? refA('item', it.n) : `<b>${esc(it.n)}</b>`) + (it.plus && !L ? ` <b>+${it.plus}</b>` : '');
     const live = liveBonuses('item', it.id);
-    return `<div class="cg-row"><span class="cg-slot">${esc(label.replace(' (held)', ''))}</span><span class="cg-n">${name}</span>${live.length ? `<span class="bchips">${bonusChips(live, st)}</span>` : ''}</div>`; }).join('');
+    return `<div class="cg-row"><span class="cg-slot">${esc(label.replace(' (held)', ''))}</span><span class="cg-n">${itemIcon(it, 'xs')}<span>${name}</span></span>${live.length ? `<span class="bchips">${bonusChips(live, st)}</span>` : ''}</div>`; }).join('');
   return panel('Gear', `<div class="cg-list">${rows || '<div class="empty">Nothing equipped. Switch this panel to Full to put items in their slots.</div>'}</div>
     <div class="pb row hint" style="border-top:1px solid var(--rule-2)">Armor check ${OT('acp')} · spell failure ${OT('asf')}% · max Dex ${OT('mdx')}</div>`);
 }

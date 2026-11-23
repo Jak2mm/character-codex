@@ -26,8 +26,8 @@ function rarityGuess(it){
 }
 const itemRarity = it => RARITY[it.rarity] ? it.rarity : rarityGuess(it);
 function itemIcon(it, size = 'md'){
-  const t = itemType(it), r = itemRarity(it);
-  return `<span class="ib ${size}" style="background:${RARITY[r][1]}" title="${esc(ITEM_TYPE_NAMES[t])} · ${esc(RARITY[r][0])}${RARITY[it.rarity] ? '' : ' (guessed from price)'}"><svg viewBox="0 0 24 24" aria-hidden="true">${ITEM_ICONS[t]}</svg></span>`;
+  const t = itemType(it), r = itemRarity(it), k = iconKeyFor(it, t);
+  return `<span class="ib ${size}" style="background:${RARITY[r][1]}" title="${esc(ITEM_TYPE_NAMES[t])} · ${esc(RARITY[r][0])}${RARITY[it.rarity] ? '' : ' (guessed from price)'}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k] || ITEM_ICONS[t]}</svg></span>`;
 }
 function itemPic(it){
   const own = it.img && IMG.src(it.img), def = ITEM_PICS[itemType(it)];
@@ -37,4 +37,16 @@ function itemPic(it){
 document.addEventListener('change', async e => { const id = e.target.dataset && e.target.dataset.itemimg; if (!id) return; const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   if (!/^image\//.test(f.type)){ toast('That file isn\'t an image.', 'warn'); return; }
   const c = APP_cur(), it = c.items.find(i => i.id === id); if (!it) return;
-  try { const d = await imageToDataURL(f, 400); if (it.img) IMG.drop(it.img); it.img = IMG.put(d); markDirty(); renderAll(); } catch { toast('That image couldn\'t be read.', 'warn'); } });
+  try { const d = await imageToDataURL(f, 400); if (it.img) IMG.drop(it.img); it.img = IMG.put(d); if ($('.ipic-big')) closeModal(); markDirty(); renderAll(); } catch { toast('That image couldn\'t be read.', 'warn'); } });
+
+// the picture, bigger: Upload / Change / Reset live here
+function openItemPic(id){
+  const c = APP_cur(), it = c && c.items.find(i => i.id === id); if (!it) return;
+  const own = it.img && IMG.src(it.img), r = itemRarity(it);
+  const bg = openModal(`<div class="modal narrow" role="dialog" aria-label="Item picture"><div class="mh"><h3 class="row" style="gap:8px">${itemIcon(it, 'md')}${esc(it.n || 'Item')}</h3><button class="btn ghost" data-close>Close</button></div>
+    <div class="mform"><div class="ipic-big" style="--rc:${RARITY[r][1]}">${itemPic(it)}</div>
+      <div class="row" style="justify-content:center;gap:8px"><label class="btn sm pri" for="iimg-big">${own ? 'Change picture' : 'Upload picture'}</label><input type="file" accept="image/*" hidden id="iimg-big" data-itemimg="${it.id}">
+      ${own ? `<button class="btn sm" data-act="itemImgReset" data-id="${it.id}">Reset</button>` : ''}</div>
+      <p class="hint" style="margin:0;text-align:center">${esc(RARITY[r][0])} · ${esc(ITEM_TYPE_NAMES[itemType(it)])}</p></div></div>`);
+  $$('[data-close]', bg).forEach(b => b.addEventListener('click', closeModal));
+}

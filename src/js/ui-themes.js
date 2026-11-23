@@ -189,6 +189,13 @@ function bgSVG(id, a, b){
 // ---------- applying the theme ----------
 const THEME_VARS = ['paper', 'sheet', 'ink', 'ink-2', 'rule', 'rule-2', 'tab', 'tab-fg', 'accent', 'accent-soft', 'gold', 'gold-soft'];
 let themeFontsLoaded = '';
+// UI scale: zooms the whole app on this device (every character), 75–150%
+const UI_SCALE_KEY = 'ccodex-uiscale';
+const uiScale = () => { const v = num(lsGet(UI_SCALE_KEY)); return v >= 75 && v <= 150 ? v : 100; };
+function applyUiScale(v = uiScale()){ document.documentElement.style.zoom = v === 100 ? '' : v / 100; const o = document.querySelector('.th-scale-v'); if (o) o.textContent = v + '%'; }
+applyUiScale();
+document.addEventListener('input', e => { if (e.target.id !== 'uiScale') return; const v = Math.round(num(e.target.value)); lsSet(UI_SCALE_KEY, v); applyUiScale(v); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-uiscale]'); if (!b) return; e.preventDefault(); const v = num(b.dataset.uiscale); lsSet(UI_SCALE_KEY, v); applyUiScale(v); const r = document.getElementById('uiScale'); if (r) r.value = v; });
 const GLASS = {l: 66, d: 58}; // how solid boxes are over a picture by default (light / dark), in %; Customise → Box opacity changes it
 const GLASS_MIN = 50;  // the lowest Box opacity offered (text is checked readable down to here)
 const glassOf = (T, dark) => Math.max(GLASS_MIN, Math.min(100, T.glass != null ? num(T.glass) : dark ? GLASS.d : GLASS.l));
@@ -269,6 +276,8 @@ function renderOptionsPage(c){
       ${T.bg === 'image' && T.bgImg && IMG.src(T.bgImg) ? `<div class="row th-bgimg"><span class="th-bgthumb" style="background-image:url('${IMG.src(T.bgImg)}')"></span><label class="btn sm" for="thBgFile">Change picture</label></div>` : ''}
       ${T.bg !== 'none' ? `<div><label class="row th-glass" style="gap:8px"><span class="cap">Box opacity</span><input type="range" data-th="glass" min="${GLASS_MIN}" max="100" step="1" value="${g0}" style="flex:1" aria-label="Box opacity"><span class="hint th-glass-v">${g0}%</span></label>
         <p class="hint" style="margin:2px 0 0">Lower lets more of the background show through the boxes. ${T.glass != null ? '<a href="#" data-th="glassauto">Back to automatic</a>' : 'Automatic for light and dark mode.'} On phones, boxes stay solid.</p></div>` : ''}
+      <div><label class="row th-glass" style="gap:8px"><span class="cap">UI scale</span><input type="range" id="uiScale" min="75" max="150" step="5" value="${uiScale()}" style="flex:1" aria-label="UI scale"><span class="hint th-scale-v">${uiScale()}%</span></label>
+        <p class="hint" style="margin:2px 0 0">Makes everything bigger or smaller on this device, for every character. <a href="#" data-uiscale="100">Back to 100%</a></p></div>
       ${report}
       <div class="th-preview"><div class="cap">Preview</div><section class="panel"><div class="ph"><h2>Saving throws</h2><div class="tools"><button class="btn sm pri">Button</button></div></div>
         <div class="pb grid" style="gap:6px"><p style="margin:0;font-family:var(--f-text);font-size:calc(15px * var(--text-scale,1))">The prior spoke of a bell lost beneath the abbey, and of <a href="#" class="ref" onclick="return false">Lord Abott</a>'s men on the road.</p>

@@ -13,6 +13,7 @@ const SLOTS = [
   ['feet', 'Feet', 'Boots, shoes, slippers', /\b(boots|shoes|slippers)\b/i],
   ['shield', 'Shield (held)', 'Shield or buckler', /\b(shield|buckler)\b/i],
 ];
+const SLOT_ICON = {head: 'helm', eyes: 'goggles', neck: 'amulet', torso: 'clothes', body: 'armor', waist: 'belt', shoulders: 'cloak', arms: 'bracers', hands: 'gloves', ring1: 'ring', ring2: 'ring', feet: 'boots', shield: 'shield'};
 const SLOT_LABEL = Object.fromEntries(SLOTS.map(s => [s[0], s[1]]));
 // what slot an item goes in: 'body' / 'shield' for armor, otherwise by name (custom items can set it)
 function itemSlotKind(it){
@@ -76,10 +77,13 @@ function renderGearPanel(c){
     const extras = L ? [(L.abil || []).length ? `${L.abil.length} abilit${L.abil.length === 1 ? 'y' : 'ies'}` : '', (L.spells || []).length ? `${L.spells.length} spell${L.spells.length === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ') : '';
     const armorFields = it && k === 'body' && c.armor.n === it.n ? `<div class="fields slotstats">${F('AC', N('armor.bonus', c.armor.bonus))}${F('Enh', N('armor.enh', c.armor.enh))}${F('Max Dex', I('armor.mdx', c.armor.mdx, 'placeholder="none"'))}${F('Check', N('armor.acp', c.armor.acp))}${F('ASF %', N('armor.asf', c.armor.asf))}</div>`
       : it && k === 'shield' && c.shield.n === it.n ? `<div class="fields slotstats">${F('AC', N('shield.bonus', c.shield.bonus))}${F('Enh', N('shield.enh', c.shield.enh))}${F('Check', N('shield.acp', c.shield.acp))}${F('ASF %', N('shield.asf', c.shield.asf))}</div>` : '';
-    return `<div class="slot-card ${it ? 'full' : ''}"><div class="slot-h"><span class="slot-l">${esc(label)}</span>
+    const r = it ? itemRarity(it) : '', own = it && it.img && IMG.src(it.img);
+    const icon = it ? itemIcon(it, 'md') : `<span class="ib md slot-empty-ib" aria-hidden="true"><svg viewBox="0 0 24 24">${ICONS[SLOT_ICON[k]]}</svg></span>`;
+    return `<div class="slot-card ${it ? 'full' : ''}" ${it ? `style="--rc:${RARITY[r][1]}"` : ''}>${icon}<div class="slot-h"><span class="slot-l">${esc(label)}</span>
         <span class="row" style="gap:2px">${it ? `<button class="btn ghost sm" data-act="slotEdit" data-id="${it.id}" title="Bonuses / item">Edit</button><button class="btn ghost sm" data-act="unslot" data-slot="${k}" aria-label="Take off ${esc(it.n)}">✕</button>` : ''}<button class="btn sm" data-act="slotPick" data-slot="${k}">${it ? 'Change' : 'Equip'}</button></span></div>
-      <div class="slot-n">${name}</div>
-      ${live.length ? `<div class="bchips">${bonusChips(live, st)}</div>` : ''}${extras ? `<div class="hint">${esc(extras)}</div>` : ''}${armorFields}</div>`;
+      <div class="slot-main">${it ? `<button class="ipic ${own ? 'own' : ''}" data-act="itemPicView" data-id="${it.id}" title="Show picture" aria-label="Show picture of ${esc(it.n)}">${itemPic(it)}</button>` : ''}
+        <div class="slot-txt"><div class="slot-n">${name}</div>${it ? `<div class="slot-r" style="color:${RARITY[r][1]}">${RARITY[r][0]}</div>` : ''}
+        ${live.length ? `<div class="bchips">${bonusChips(live, st)}</div>` : ''}${extras ? `<div class="hint">${esc(extras)}</div>` : ''}</div></div>${armorFields}</div>`;
   }).join('');
   return panel('Gear', `<div class="slot-grid">${cards}</div>
     <div class="pb row hint" style="border-top:1px solid var(--rule-2)">Armor check penalty <b>${OT('acp')}</b> · arcane spell failure <b>${OT('asf')}</b>% · max Dex <b>${OT('mdx')}</b> · one item per slot (two rings). Items worn here apply their bonuses, abilities and spells; clashing bonuses pop up a warning.</div>`);

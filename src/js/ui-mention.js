@@ -10,7 +10,7 @@ const MENTION_KINDS = [
   {kind:'pc', label:'Player', plural:'Players', words:['player', 'players', 'pc', 'pcs', 'party']},
   {kind:'map', label:'Map', plural:'Maps', words:['map', 'maps']},
 ];
-const MENTION_FIELDS = '.lt textarea, #wlog-new';
+const MENTION_FIELDS = '.lt textarea, #wlog-new, input.mention-in';
 let MN = null; // {ta, start, end, items, sel}
 
 function mentionEntries(c, kind){

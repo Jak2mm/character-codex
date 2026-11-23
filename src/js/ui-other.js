@@ -172,13 +172,17 @@ function itemCat(it){
   if (/^scroll\b/.test(n)) return 'scroll';
   if (/^(wand|staff|rod)s? of\b/.test(n)) return 'wand'; if (/^(potion|oil|elixir|philter)s? of\b/.test(n)) return 'potion';
   const bn = n.replace(/\s*\+\d+\b.*$/, '').replace(/^masterwork\s+/, '').trim();
-  const w = IDX.weapons.get(n) || IDX.weapons.get(bn); if (w) return w.dM === '—' && /arrow|bolt|bullet/.test(n) ? 'ammo' : 'weapon';
+  const fl = bn.includes(' ') && !bn.includes(',') ? bn.replace(/^(.*)\s(\S+)$/, '$2, $1') : bn; // "heavy mace" → "mace, heavy" (the SRD's order)
+  const w = IDX.weapons.get(n) || IDX.weapons.get(bn) || IDX.weapons.get(fl); if (w) return w.dM === '—' && /arrow|bolt|bullet/.test(n) ? 'ammo' : 'weapon';
   if (/\b(arrows?|bolts?|sling bullets?)\b/.test(n)) return 'ammo';
-  if (IDX.armor.get(n) || IDX.armor.get(bn)) return 'armor';
+  if (IDX.armor.get(n) || IDX.armor.get(bn) || IDX.armor.get(fl)) return 'armor';
   const m = IDX.magic.get(n); if (m) return m.cat === 'Rod' || m.cat === 'Staff' ? 'wand' : m.cat === 'Specific Armor/Shield' ? 'armor' : m.cat === 'Specific Weapon' ? 'weapon' : 'magic';
   if (typeof MAGIC_WEAPONS !== 'undefined' && MAGIC_WEAPONS[normKey(it.n)]) return 'weapon';
   if (/^(ring|amulet|cloak|boots|gloves|gauntlets|belt|bracers|circlet|headband|helm|robe|vest|periapt|necklace|brooch|goggles|lenses|figurine|bag of|portable hole|ioun|pearl of|rope of|horn of|carpet|crystal ball)\b/.test(n) && /\+\d|of /.test(n)) return 'magic';
   if (/\b(gem|gems|diamond|ruby|rubies|emerald|sapphire|pearl|opal|jade|amethyst|garnet|topaz|jewel|jewelry|jewellery|gold bar|silver bar|ingot|statuette|chalice|goblet|crown|tiara|idol|art object|coins?)\b/.test(n) && !IDX.gear.get(n)) return 'treasure';
+  // typed names the SRD doesn't know: go by the words in them
+  if (typeof iconKeyFor === 'function' && !IDX.gear.get(n)){ const k = iconKeyFor({n}, 'any');
+    if (WEAPON_ICONS.includes(k) && k !== 'magestaff') return 'weapon'; if (k === 'shield' || k === 'armor') return 'armor'; }
   return 'gear';
 }
 // value in gp (each), from the SRD price or your custom item's cost; '' if unknown
@@ -205,16 +209,16 @@ function renderItems(c){
   const card = it => { const i = c.items.indexOf(it), r = itemRarity(it), t = itemType(it), own = it.img && IMG.src(it.img);
       const has = it.t === 'custom' ? !!libById(it.lib) || !!libByName('item', it.n) : !!getRef('item', it.n);
       return `<div class="icard" id="item-${it.id}" style="--rc:${RARITY[r][1]}">${itemIcon(it, 'md')}
-        <div class="icard-pic"><label for="iimg-${it.id}" class="ipic ${own ? 'own' : ''}" title="${own ? 'Change picture' : 'Upload a picture'}">${itemPic(it)}</label><input type="file" accept="image/*" hidden id="iimg-${it.id}" data-itemimg="${it.id}">
-          <span class="ipic-b"><label for="iimg-${it.id}">${own ? 'Change' : 'Upload picture'}</label>${own ? ` · <a href="#" data-act="itemImgReset" data-id="${it.id}">Reset</a>` : ''}</span></div>
-        <div class="icard-body"><div class="row" style="flex-wrap:nowrap;gap:6px;align-items:center"><div style="flex:1;min-width:0">${I('items.' + i + '.n', it.n, 'class="inm" aria-label="Item name" data-rerender="1"')}</div>${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}<button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>
-          <div class="imeta"><select class="irar" data-k="items.${i}.rarity" data-rerender="1" aria-label="Rarity" style="--rc:${RARITY[r][1]}">${opt('', (RARITY[it.rarity] ? 'Guess from price' : RARITY[r][0] + ' (guessed)'), it.rarity || '')}${Object.entries(RARITY).map(([k, v]) => opt(k, v[0], it.rarity || '')).join('')}</select>
-            <select class="ityp" data-k="items.${i}.icat" data-rerender="1" aria-label="Item type">${opt('', it.icat ? 'Work out the type' : ITEM_TYPE_NAMES[t], it.icat || '')}${Object.entries(ITEM_TYPE_NAMES).map(([k, v]) => opt(k, v, it.icat || '')).join('')}</select></div>
+        <button class="ipic ${own ? 'own' : ''}" data-act="itemPicView" data-id="${it.id}" title="Show picture" aria-label="Show picture of ${esc(it.n || 'item')}">${itemPic(it)}</button>
+        <div class="icard-body"><div class="icard-top"><div class="icard-nm">${I('items.' + i + '.n', it.n, 'class="inm" aria-label="Item name" data-rerender="1"')}</div>
+            <select class="irar" data-k="items.${i}.rarity" data-rerender="1" aria-label="Rarity" style="--rc:${RARITY[r][1]}">${opt('', (RARITY[it.rarity] ? 'Guess from price' : RARITY[r][0] + ' (guessed)'), it.rarity || '')}${Object.entries(RARITY).map(([k, v]) => opt(k, v[0], it.rarity || '')).join('')}</select>
+            <select class="ityp" data-k="items.${i}.icat" data-rerender="1" aria-label="Item type">${opt('', it.icat ? 'Work out the type' : ITEM_TYPE_NAMES[t], it.icat || '')}${Object.entries(ITEM_TYPE_NAMES).map(([k, v]) => opt(k, v, it.icat || '')).join('')}</select>
+            ${has ? refA(it.lib ? 'custom' : 'item', it.lib || it.n, 'ⓘ', it.lib ? 'custom' : '') : ''}<button class="btn ghost sm" data-act="delItem" data-id="${it.id}" aria-label="Remove item">✕</button></div>
           <div class="iflds"><label class="it-f">${N('items.' + i + '.qty', it.qty, 'min="0" aria-label="Quantity" data-rerender="1"')}<span>Qty</span></label>
             <label class="it-f">${N('items.' + i + '.w', it.w, 'min="0" step="0.25" aria-label="Weight each" data-rerender="1"')}<span>Lb. each</span></label>
             <span class="it-f wt-total"><b class="w">${lb(wt(it))} lb.</b><span>Total</span></span>
-            <label class="it-f loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}<span>Where</span></label></div>
-          <div style="margin-top:6px">${I('items.' + i + '.note', it.note, 'placeholder="Notes, charges, who carries it…" style="font-size:13px;padding:3px 6px"')}</div>${itemBonusLine(c, it)}</div></div>`; };
+            <label class="it-f loc">${S('items.' + i + '.loc', it.loc || 'carried', Object.entries(LOCS), 'data-rerender="1" aria-label="Location"')}<span>Where</span></label>
+            <div class="it-note">${I('items.' + i + '.note', it.note, 'placeholder="Notes, charges, who carries it…" aria-label="Notes"')}</div></div>${itemBonusLine(c, it)}</div></div>`; };
   const row = it => { const r = itemRarity(it), t = itemType(it);
       return `<div class="irow" id="item-${it.id}">${itemIcon(it, 'sm')}<span class="n"><a href="#" data-act="itemOpen" data-id="${it.id}" title="Open in Full view">${esc(it.n || 'Unnamed item')}</a>${num(it.qty ?? 1) !== 1 ? ` <small class="q">×${num(it.qty)}</small>` : ''}<small style="color:${RARITY[r][1]}">${RARITY[r][0]}</small></span>
         <span class="r">${lb(wt(it))} lb.</span><span class="r hide-s">${esc((LOCS[it.loc || 'carried'] || '').split(/[ (/]/)[0])}</span><span class="r hide-s">${esc(ITEM_TYPE_NAMES[t])}</span><span class="acts">${compactActs(c, it)}</span></div>`; };
@@ -234,7 +238,7 @@ function renderItems(c){
   const items = panel('Equipment', `${tools}<div class="list ${view === 'full' ? 'ilist-full' : 'ilist-compact'}">${groups || '<div class="empty">Your pack is empty. <b>Add item</b> browses SRD weapons, armor, gear and magic items with weights and descriptions; <b>New custom item</b> makes your own.</div>'}</div>`,
     `<button class="btn sm pri" data-act="addItem">Add item</button><button class="btn sm gold" data-act="newCustomItem">New custom item</button>`);
   const coins = panel('Money &amp; load', `<div class="pb grid" style="gap:12px">
-      <div class="coins">${['pp','gp','sp','cp'].map(k => F(k.toUpperCase(), N('coins.' + k, c.coins[k], 'min="0" data-rerender="1"'))).join('')}</div>
+      <div class="coins">${['pp','gp','sp','cp'].map(k => `<label class="coin-f">${coinIcon(k, 26)}<span class="coin-in"><span class="cap">${COIN[k][0]} (${k})</span>${N('coins.' + k, c.coins[k], `min="0" data-rerender="1" aria-label="${COIN[k][0]} pieces"`)}</span></label>`).join('')}</div>
       <div class="row hint" style="justify-content:space-between"><span>Total value ≈ <b>${(num(c.coins.pp) * 10 + num(c.coins.gp) + num(c.coins.sp) / 10 + num(c.coins.cp) / 100).toLocaleString(undefined, {maximumFractionDigits:2})} gp</b></span>
         <span class="row" style="gap:14px"><label><input type="checkbox" data-k="coinWeight" ${c.coinWeight ? 'checked' : ''} ${c.ignoreWeight ? 'disabled' : ''} data-rerender="1"> Coins have weight (50 per lb.)</label>
         <label><input type="checkbox" data-k="ignoreWeight" ${c.ignoreWeight ? 'checked' : ''} data-rerender="1"> Ignore all weight</label></span></div>
@@ -254,6 +258,15 @@ function renderNotes(c){
 }
 
 // ===================== QUESTS TAB =====================
+// one-line boxes that take # to pick a name, and the links found in them shown as chips underneath
+const MI = ph => `class="mention-in" placeholder="${esc(ph)}" autocomplete="off" data-rerender="1"`;
+function nameChips(c, texts){
+  const idx = worldIndex(c), t = texts.filter(Boolean).join('\n'); if (!idx.length || !t.trim()) return '';
+  const seen = new Set(), hits = [];
+  for (const e of [...idx].sort((a, b) => b.n.length - a.n.length)){ const k = e.kind + ':' + e.id; if (seen.has(k)) continue;
+    if (new RegExp('(^|[^\\p{L}\\p{N}])' + e.n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}\\p{N}])', 'iu').test(t)){ seen.add(k); hits.push(e); } }
+  return hits.length ? `<div class="qlinks"><span class="cap">Linked</span>${hits.map(e => `<span class="ref wl wl-${e.kind}" tabindex="0" data-ref="world" data-name="${e.kind}:${e.id}">${esc(e.n)}</span>`).join('')}</div>` : '';
+}
 function renderQuests(c){
   const order = ['active', 'hold', 'done', 'failed'];
   const qs = [...c.quests].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
@@ -263,9 +276,10 @@ function renderQuests(c){
         <span class="pill ${QSTAT[q.status][1]}">${done}/${tot} objectives</span>${c.quests.length > 1 ? `<button class="btn ghost sm" data-merge="quest:${q.id}" title="Join another quest into this one">Join…</button>` : ''}<button class="btn ghost sm" data-act="delQuest" data-id="${q.id}" aria-label="Delete quest">Delete</button></div>
       <div class="pb grid" style="gap:10px">
         <div class="meter ${q.status === 'failed' ? 'bad' : 'acc'}"><i style="width:${pct * 100}%"></i></div>
-        <div class="fields">${F('Quest giver', I('quests.' + i + '.giver', q.giver))}${F('Location', I('quests.' + i + '.where', q.where))}${F('Reward', I('quests.' + i + '.reward', q.reward), 'wide')}</div>
+        <div class="fields">${F('Quest giver', I('quests.' + i + '.giver', q.giver, MI('#npc …')))}${F('Location', I('quests.' + i + '.where', q.where, MI('#loc …')))}${F('Reward', I('quests.' + i + '.reward', q.reward, MI('Gold, items… (# to link)')), 'wide')}</div>
+        ${nameChips(c, [q.giver, q.where, q.reward, ...q.obj.map(o => o.t)])}
         <div><div class="cap">Objectives</div>${q.obj.map((o, j) => `<div class="obj ${o.done ? 'done' : ''}"><input type="checkbox" data-k="quests.${i}.obj.${j}.done" ${o.done ? 'checked' : ''} data-rerender="1" aria-label="Done">
-            ${I('quests.' + i + '.obj.' + j + '.t', o.t, 'placeholder="Objective"')}<button class="btn ghost sm" data-act="delObj" data-q="${q.id}" data-j="${j}" aria-label="Remove objective">✕</button></div>`).join('')}
+            ${I('quests.' + i + '.obj.' + j + '.t', o.t, MI('Objective (# to link a name)'))}<button class="btn ghost sm" data-act="delObj" data-q="${q.id}" data-j="${j}" aria-label="Remove objective">✕</button></div>`).join('')}
           <button class="btn sm" style="margin-top:4px" data-act="addObj" data-q="${q.id}">Add objective</button></div>
         ${F('Notes', LT('quests.' + i + '.note', q.note, 'Leads, deadlines, who to talk to…', 3))}</div></div>`; }).join('');
   return `<div class="grid" style="gap:14px"><div class="row" style="justify-content:space-between"><span class="hint">${c.quests.filter(q => q.status === 'active').length} active · ${c.quests.filter(q => q.status === 'done').length} completed</span><button class="btn pri" data-act="addQuest">New quest</button></div>

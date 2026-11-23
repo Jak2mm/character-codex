@@ -247,7 +247,8 @@ const ACT = {
     else toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}${s.dc ? ` (DC ${s.dc})` : ''}.`); },
   itemView: (c, b) => { c.itemView = b.dataset.v; },
   itemOpen: (c, b) => { c.itemView = 'full'; APP.jumpEl = 'item-' + b.dataset.id; },
-  itemImgReset: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); if (it && it.img){ IMG.drop(it.img); delete it.img; } },
+  itemImgReset: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); if (it && it.img){ IMG.drop(it.img); delete it.img; } if ($('.ipic-big')) closeModal(); },
+  itemPicView: (c, b) => { openItemPic(b.dataset.id); return 'noRender'; },
   // add XP gained to the total (keeps the last 20 additions so one can be undone)
   xpAdd: c => { const el = $('#xpGain'); const v = Math.round(num(el && el.value)); if (!v){ if (el) el.focus(); return 'noRender'; }
     const before = num(c.xp), next = derive(c).xpNext; c.xp = Math.max(0, before + v);
