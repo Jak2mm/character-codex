@@ -1,15 +1,33 @@
 {
- "version": "0.6.8",
+ "version": "0.6.9",
  "date": "2026-11-23",
- "title": "Item pictures, icons and rarity",
+ "title": "More item icons, Gear cards and UI scale",
  "items": [
-  "Items page has Full and Compact views. Full shows each item as a card with a picture; Compact shows one line per item with its main button (Drink, Use, Wield, Equip). Click a name in Compact to open it in Full view.",
-  "Every item has a picture: a stand-in for now, or Upload picture to use your own (Change and Reset afterwards).",
-  "Type icons (weapon, armor & shield, ammunition, potion & oil, scroll, wand / staff / rod, ring & wondrous, gear, treasure) sit on each item's top-left corner, coloured by rarity. They also show in the Potions & oils box on Combat & Effects.",
-  "Rarity: Common, Uncommon, Rare, Very rare, Legendary and Artifact. It's guessed from the item's price until you choose one, and each item's type can be changed too.",
-  "+1 to +5 weapons and armor are recognised as weapons and armor, and priced by the 3.5 rules for sorting by value."
+  "Items page: each item is a full-width box again, with a small picture. Click the picture to see it bigger and to upload, change or reset it.",
+  "Over 50 item icons: swords, daggers, axes, maces, hammers, flails, spears, polearms, bows, crossbows, slings and staffs; arrows, bolts and bullets; armor, shields, helms, gloves, boots, cloaks, belts and bracers; potions, scrolls, wands, rods, rings, amulets, books, gems, rope, lanterns, food, tools and more. Each item gets one from its name.",
+  "Platinum, gold, silver and copper coins next to the Money boxes.",
+  "Gear box (Full): each slot is a card with the item's picture, rarity and icon on its top-left corner. Empty slots show a faint icon for what goes there. Gear box (Compact) shows the icons next to the names.",
+  "Options \u2192 Customise: UI scale makes everything bigger or smaller on this device (75% to 150%).",
+  "Quests: type # in Quest giver, Location, Reward or an objective to pick an NPC, location or other name. Linked names show underneath and open their pages.",
+  "Long damage text (for example a bow with flaming arrows) now fits in its box.",
+  "Typed-in weapons and armor such as \"Heavy mace\" or \"Heavy steel shield\" are recognised as weapons and armor."
  ],
  "changelog": [
+  {
+   "v": "0.6.9",
+   "date": "2026-11-23",
+   "title": "More item icons, Gear cards and UI scale",
+   "items": [
+    "Items page: each item is a full-width box again, with a small picture. Click the picture to see it bigger and to upload, change or reset it.",
+    "Over 50 item icons: swords, daggers, axes, maces, hammers, flails, spears, polearms, bows, crossbows, slings and staffs; arrows, bolts and bullets; armor, shields, helms, gloves, boots, cloaks, belts and bracers; potions, scrolls, wands, rods, rings, amulets, books, gems, rope, lanterns, food, tools and more. Each item gets one from its name.",
+    "Platinum, gold, silver and copper coins next to the Money boxes.",
+    "Gear box (Full): each slot is a card with the item's picture, rarity and icon on its top-left corner. Empty slots show a faint icon for what goes there. Gear box (Compact) shows the icons next to the names.",
+    "Options \u2192 Customise: UI scale makes everything bigger or smaller on this device (75% to 150%).",
+    "Quests: type # in Quest giver, Location, Reward or an objective to pick an NPC, location or other name. Linked names show underneath and open their pages.",
+    "Long damage text (for example a bow with flaming arrows) now fits in its box.",
+    "Typed-in weapons and armor such as \"Heavy mace\" or \"Heavy steel shield\" are recognised as weapons and armor."
+   ]
+  },
   {
    "v": "0.6.8",
    "date": "2026-11-23",
@@ -103,16 +121,6 @@
    "items": [
     "Specialist wizards: choose a specialty school for the extra spell slot, and prohibited schools.",
     "Magic Missile and Scorching Ray show and roll the right number of missiles or rays for your caster level."
-   ]
-  },
-  {
-   "v": "0.5.0",
-   "date": "2026-11-19",
-   "title": "Themes",
-   "items": [
-    "Options page with a theme for each character: 20 presets by class and race, your own colours, fonts, borders, title styles, backgrounds and textures.",
-    "Adventure layout: an original scene for every class and race, framed boxes and a shield-shaped Armor Class.",
-    "Colours are checked automatically so text stays readable in light and dark mode."
    ]
   }
  ]
