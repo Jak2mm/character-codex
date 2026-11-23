@@ -7,7 +7,7 @@ Usage:
 import os, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-JS_ORDER = ['app-shell.js', 'core.js', 'images.js', 'bonuses.js', 'ref.js', 'store.js', 'folder.js', 'updates.js', 'ui-sheet.js', 'ui-other.js', 'ui-itemcards.js', 'ui-rules.js', 'ui-bonus.js', 'ui-custom.js', 'ui-gear.js', 'ui-attacks.js', 'ui-world.js', 'ui-mention.js', 'ui-links.js', 'ui-merge.js', 'ui-map.js', 'ui-companion.js', 'ui-prestige.js', 'ui-newchar.js', 'ui-start.js', 'ui-panels.js', 'ui-compact.js', 'ui-combatopts.js', 'ui-targets.js', 'ui-scenes.js', 'ui-themes.js', 'ui-rest.js', 'ui-heal.js', 'rulesets/dnd35.js', 'ui-nav.js', 'events.js']
+JS_ORDER = ['app-shell.js', 'core.js', 'images.js', 'bonuses.js', 'ref.js', 'store.js', 'folder.js', 'updates.js', 'ui-sheet.js', 'ui-other.js', 'icons-items.js', 'ui-itemcards.js', 'ui-rules.js', 'ui-bonus.js', 'ui-custom.js', 'ui-gear.js', 'ui-attacks.js', 'ui-world.js', 'ui-mention.js', 'ui-links.js', 'ui-merge.js', 'ui-map.js', 'ui-companion.js', 'ui-prestige.js', 'ui-newchar.js', 'ui-start.js', 'ui-panels.js', 'ui-compact.js', 'ui-combatopts.js', 'ui-targets.js', 'ui-scenes.js', 'ui-themes.js', 'ui-rest.js', 'ui-heal.js', 'rulesets/dnd35.js', 'ui-nav.js', 'events.js']
 
 def read(*p):
     with open(os.path.join(ROOT, *p), encoding='utf-8') as f:
