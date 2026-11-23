@@ -247,7 +247,8 @@ const ACT = {
     else toast(`Used <b>${esc(s.n)}</b> from ${esc(it.n)}${s.dc ? ` (DC ${s.dc})` : ''}.`); },
   itemView: (c, b) => { c.itemView = b.dataset.v; },
   itemOpen: (c, b) => { c.itemView = 'full'; APP.jumpEl = 'item-' + b.dataset.id; },
-  itemImgReset: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); if (it && it.img){ IMG.drop(it.img); delete it.img; } if ($('.ipic-big')) closeModal(); },
+  itemImgReset: (c, b) => { const it = c.items.find(i => i.id === b.dataset.id); if (it && it.img){ IMG.drop(it.img); delete it.img; delete it.crop; } if ($('.ipic-big')) closeModal(); },
+  itemImgCrop: (c, b) => { openCropper(c.items.find(i => i.id === b.dataset.id)); return 'noRender'; },
   itemPicView: (c, b) => { openItemPic(b.dataset.id); return 'noRender'; },
   // add XP gained to the total (keeps the last 20 additions so one can be undone)
   xpAdd: c => { const el = $('#xpGain'); const v = Math.round(num(el && el.value)); if (!v){ if (el) el.focus(); return 'noRender'; }
@@ -265,11 +266,24 @@ const ACT = {
   libEdit: (c, b) => { openLibEditor(b.dataset.id); return 'noRender'; },
   libGive: (c, b) => { const e = libById(b.dataset.id); const it = {id:uid('it'), n:e.n, t:'custom', lib:e.id, qty:1, w:num(e.w), loc:'carried', note:''}; c.items.push(it); toast(`Added <b>${esc(e.n)}</b> to ${esc(c.name)}'s items`); onItemAdded(c, it); },
 };
+// ===================== EACH PAGE REMEMBERS WHERE YOU WERE =====================
+// Leaving a page and coming back puts you where you left it (per character, while the app is open; kept through a reload).
+const scrollKey = () => (APP.curId || '') + ':' + APP.tab;
+try { APP.scrollPos = JSON.parse(sessionStorage.getItem('ccodex-scroll') || '{}') || {}; } catch { APP.scrollPos = {}; }
+let scrollSaveT = 0;
+addEventListener('scroll', () => { if (APP.scrollHold) return; APP.scrollPos[scrollKey()] = Math.round(scrollY);
+  clearTimeout(scrollSaveT); scrollSaveT = setTimeout(() => { try { sessionStorage.setItem('ccodex-scroll', JSON.stringify(APP.scrollPos)); } catch {} }, 300); }, {passive: true});
+function restoreScroll(){
+  const y = APP.scrollPos[scrollKey()] || 0; APP.scrollHold = true;
+  const go = () => window.scrollTo({top: y, behavior: 'instant'});
+  go(); requestAnimationFrame(() => { go(); setTimeout(() => { if (Math.abs(scrollY - y) > 2) go(); APP.scrollHold = false; APP.scrollPos[scrollKey()] = Math.round(scrollY); }, 120); });
+}
+
 document.addEventListener('click', e => {
   const roll = e.target.closest('.roll'); if (roll){ const row = roll.closest('[data-atk]'); const c0 = APP_cur();
     if (row && roll.classList.contains('atkb') && c0){ const a = c0.attacks.find(x => x.id === row.dataset.atk); if (a && !fireAmmo(c0, a)) return; }
     rollToast(roll.dataset.label || 'Roll', num(roll.dataset.bonus)); return; }
-  const tab = e.target.closest('[data-tab]'); if (tab){ let t = tab.dataset.tab; if (tab.closest('#sidebar .nv-top, .rc-turn') && SUBTABS[t]) t = APP.lastSub[t] || t; APP.tab = t; renderAll(); window.scrollTo({top:0}); return; }
+  const tab = e.target.closest('[data-tab]'); if (tab){ let t = tab.dataset.tab; if (tab.closest('#sidebar .nv-top, .rc-turn') && SUBTABS[t]) t = APP.lastSub[t] || t; APP.tab = t; renderAll(); restoreScroll(); return; }
   const b = e.target.closest('[data-act]'); if (!b) return; const c = APP_cur(); if (!c) return;
   const fn = ACT[b.dataset.act]; if (!fn) return;
   const r = fn(c, b); if (r === 'noRender') return;
@@ -277,7 +291,7 @@ document.addEventListener('click', e => {
 });
 
 // ===================== CHARACTER BAR =====================
-$('#charSel').addEventListener('change', e => { APP.curId = e.target.value; const c0 = APP.chars[APP.curId]; if (c0){ c0.lastOpened = Date.now(); markDirty(c0.id); } scheduleSave(); renderAll(); });
+$('#charSel').addEventListener('change', e => { APP.curId = e.target.value; const c0 = APP.chars[APP.curId]; if (c0){ c0.lastOpened = Date.now(); markDirty(c0.id); } scheduleSave(); renderAll(); restoreScroll(); });
 $('#newChar').addEventListener('click', () => openNewCharacter());
 $('#dupChar').addEventListener('click', () => { const s = APP_cur(); if (!s) return; const c = clone(s); c.id = uid('c'); c.name = s.name + ' (copy)'; APP.chars[c.id] = c; APP.curId = c.id; markDirty(c.id); renderAll(); toast('Copied. You are now editing the copy.'); });
 document.addEventListener('click', async e => {

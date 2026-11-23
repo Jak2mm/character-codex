@@ -31,13 +31,15 @@ function itemIcon(it, size = 'md'){
 }
 function itemPic(it){
   const own = it.img && IMG.src(it.img), def = ITEM_PICS[itemType(it)];
-  return own ? `<img src="${own}" alt="" class="ipic-img">` : def ? `<img src="${def}" alt="" class="ipic-img">` : '<span class="ipic-ph">(IMAGE)</span>';
+  return own ? `<img src="${own}" alt="" class="ipic-img" style="${cropStyle(it.crop)}">` : def ? `<img src="${def}" alt="" class="ipic-img">` : '<span class="ipic-ph">(IMAGE)</span>';
 }
 // upload / reset an item's own picture
 document.addEventListener('change', async e => { const id = e.target.dataset && e.target.dataset.itemimg; if (!id) return; const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   if (!/^image\//.test(f.type)){ toast('That file isn\'t an image.', 'warn'); return; }
   const c = APP_cur(), it = c.items.find(i => i.id === id); if (!it) return;
-  try { const d = await imageToDataURL(f, 400); if (it.img) IMG.drop(it.img); it.img = IMG.put(d); if ($('.ipic-big')) closeModal(); markDirty(); renderAll(); } catch { toast('That image couldn\'t be read.', 'warn'); } });
+  try { const d = await imageToDataURL(f, 600); if (it.img) IMG.drop(it.img); it.img = IMG.put(d); delete it.crop; if ($('.ipic-big')) closeModal(); markDirty(); renderAll();
+    // not square: open Adjust straight away so you can choose what shows, like NPC pictures
+    const im = new Image(); im.src = d; await im.decode(); if (Math.abs(im.naturalWidth / im.naturalHeight - 1) > .15) openCropper(it); } catch { toast('That image couldn\'t be read.', 'warn'); } });
 
 // the picture, bigger: Upload / Change / Reset live here
 function openItemPic(id){
@@ -46,7 +48,7 @@ function openItemPic(id){
   const bg = openModal(`<div class="modal narrow" role="dialog" aria-label="Item picture"><div class="mh"><h3 class="row" style="gap:8px">${itemIcon(it, 'md')}${esc(it.n || 'Item')}</h3><button class="btn ghost" data-close>Close</button></div>
     <div class="mform"><div class="ipic-big" style="--rc:${RARITY[r][1]}">${itemPic(it)}</div>
       <div class="row" style="justify-content:center;gap:8px"><label class="btn sm pri" for="iimg-big">${own ? 'Change picture' : 'Upload picture'}</label><input type="file" accept="image/*" hidden id="iimg-big" data-itemimg="${it.id}">
-      ${own ? `<button class="btn sm" data-act="itemImgReset" data-id="${it.id}">Reset</button>` : ''}</div>
+      ${own ? `<button class="btn sm" data-act="itemImgCrop" data-id="${it.id}" title="Choose which part of the picture shows">Adjust</button><button class="btn ghost sm" data-act="itemImgReset" data-id="${it.id}">Remove</button>` : ''}</div>
       <p class="hint" style="margin:0;text-align:center">${esc(RARITY[r][0])} · ${esc(ITEM_TYPE_NAMES[itemType(it)])}</p></div></div>`);
   $$('[data-close]', bg).forEach(b => b.addEventListener('click', closeModal));
 }

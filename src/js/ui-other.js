@@ -271,9 +271,9 @@ function renderQuests(c){
   const order = ['active', 'hold', 'done', 'failed'];
   const qs = [...c.quests].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
   const cards = qs.map(q => { const i = c.quests.indexOf(q); const done = q.obj.filter(o => o.done).length, tot = q.obj.length; const pct = tot ? done / tot : (q.status === 'done' ? 1 : 0);
-    return `<div class="quest" id="quest-${q.id}"><div class="qh">${I('quests.' + i + '.t', q.t, 'class="title" placeholder="Quest name" aria-label="Quest name"')}
+    return `<div class="quest q-${QSTAT[q.status] ? q.status : 'active'}" id="quest-${q.id}"><div class="qh">${I('quests.' + i + '.t', q.t, 'class="title" placeholder="Quest name" aria-label="Quest name"')}
         <div style="width:140px">${S('quests.' + i + '.status', q.status, Object.entries(QSTAT).map(([k, v]) => [k, v[0]]), 'data-rerender="1" aria-label="Status"')}</div>
-        <span class="pill ${QSTAT[q.status][1]}">${done}/${tot} objectives</span>${c.quests.length > 1 ? `<button class="btn ghost sm" data-merge="quest:${q.id}" title="Join another quest into this one">Join…</button>` : ''}<button class="btn ghost sm" data-act="delQuest" data-id="${q.id}" aria-label="Delete quest">Delete</button></div>
+        <span class="pill qst">${done}/${tot} objectives</span>${c.quests.length > 1 ? `<button class="btn ghost sm" data-merge="quest:${q.id}" title="Join another quest into this one">Join…</button>` : ''}<button class="btn ghost sm" data-act="delQuest" data-id="${q.id}" aria-label="Delete quest">Delete</button></div>
       <div class="pb grid" style="gap:10px">
         <div class="meter ${q.status === 'failed' ? 'bad' : 'acc'}"><i style="width:${pct * 100}%"></i></div>
         <div class="fields">${F('Quest giver', I('quests.' + i + '.giver', q.giver, MI('#npc …')))}${F('Location', I('quests.' + i + '.where', q.where, MI('#loc …')))}${F('Reward', I('quests.' + i + '.reward', q.reward, MI('Gold, items… (# to link)')), 'wide')}</div>

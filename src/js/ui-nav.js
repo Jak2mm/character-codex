@@ -19,7 +19,7 @@ function sideDefault(){ let p = null; try { p = localStorage.getItem(NAV_PREF); 
 function setTopH(){ const t = document.querySelector('.top'); if (t) document.documentElement.style.setProperty('--toph', (t.offsetHeight || 0) + 'px'); }
 
 function navCount(c, k){
-  if (!c) return 0; const a = k === 'companions' ? c.companions : k === 'notes' ? c.notes : ['players', 'npcs', 'locations', 'factions', 'religions', 'maps'].includes(k) ? c[k] : k === 'keyitems' ? c.keyItems : null;
+  if (!c) return 0; const a = k === 'companions' ? c.companions : k === 'notes' ? c.notes : k === 'quests' ? (c.quests || []).filter(q => q.status === 'active') : ['players', 'npcs', 'locations', 'factions', 'religions', 'maps'].includes(k) ? c[k] : k === 'keyitems' ? c.keyItems : null;
   return a ? a.length : 0;
 }
 function renderSidebar(){

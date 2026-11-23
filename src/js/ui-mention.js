@@ -18,8 +18,9 @@ function mentionEntries(c, kind){
   return arr.filter(x => (x.n || '').trim()).map(x => ({type:'pick', kind, id:x.id, n:x.n.trim(),
     sub: kind === 'npc' ? [x.role, wName(c, 'loc', x.loc)].filter(Boolean).join(' · ') : kind === 'loc' ? [x.type, x.region].filter(Boolean).join(' · ')
       : kind === 'fac' ? x.type || '' : kind === 'rel' ? [x.title, x.type].filter(Boolean).join(' · ') : kind === 'key' ? [x.type, (KEY_STATUS.find(s => s[0] === x.status) || [])[1]].filter(Boolean).join(' · ') : kind === 'pc' ? [x.race, x.cls].filter(Boolean).join(' ') : `${(x.pins || []).length} pins`}))
-    .sort((a, b) => a.n.localeCompare(b.n));
+    .sort((a, b) => mSortKey(a.n).localeCompare(mSortKey(b.n), undefined, {numeric: true, sensitivity: 'base'}));
 }
+const mSortKey = n => String(n).replace(/^the\s+/i, '');
 const mWordStart = (name, q) => { const n = name.toLowerCase().replace(/^the\s+/, ''); return n.startsWith(q) || name.toLowerCase().includes(' ' + q) || name.toLowerCase().startsWith(q); };
 function mentionItems(c, raw){
   const q = raw.toLowerCase().replace(/^\s+/, ''); const [w, ...restA] = q.split(/\s+/); const rest = restA.join(' ').trim();
@@ -32,9 +33,9 @@ function mentionItems(c, raw){
     return out;
   }
   const out = [];
-  const cats = MENTION_KINDS.filter(k => !q || k.words.some(x => x.startsWith(q)));
+  const cats = MENTION_KINDS.filter(k => !q || k.words.some(x => x.startsWith(q))).sort((a, b) => a.plural.localeCompare(b.plural));
   if (cats.length) out.push({type:'head', text:'Choose a list'}, ...cats.map(k => ({type:'cat', kind:k.kind, word:k.label, n:k.plural, sub: `${mentionEntries(c, k.kind).length}`})));
-  if (q){ const names = MENTION_KINDS.flatMap(k => mentionEntries(c, k.kind).filter(e => mWordStart(e.n, q)).map(e => ({...e, sub: k.label + (e.sub ? ' · ' + e.sub : '')})));
+  if (q){ const names = MENTION_KINDS.flatMap(k => mentionEntries(c, k.kind).filter(e => mWordStart(e.n, q)).map(e => ({...e, sub: k.label + (e.sub ? ' · ' + e.sub : '')}))).sort((a, b) => mSortKey(a.n).localeCompare(mSortKey(b.n), undefined, {numeric: true, sensitivity: 'base'}));
     if (names.length) out.push({type:'head', text:'Names'}, ...names.slice(0, 20)); }
   return out.some(i => i.type === 'pick' || i.type === 'cat') ? out : [];
 }

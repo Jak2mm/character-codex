@@ -66,11 +66,31 @@ function LT(path, val, placeholder = 'Click to write…', rows = 4){
   return `<div class="lt" data-lt="${esc(path)}"><div class="lt-view" tabindex="0" title="Click to edit">${val ? linkify(val, APP_cur()) : `<span class="hint">${esc(placeholder)}</span>`}</div>
     <textarea data-k="${esc(path)}" id="k-${esc(path)}" rows="${rows}" hidden placeholder="${esc(placeholder)}">${esc(val || '')}</textarea></div>`;
 }
+// Editing: the coloured view stays underneath as a backdrop and the text box sits exactly on top of it with
+// see-through text, so # links stay coloured while you type. The cursor goes where you clicked and the page doesn't move.
+function ltPaint(ta){ const box = ta.closest('.lt'), v = box && $('.lt-view', box); if (!v) return;
+  v.innerHTML = linkify(ta.value, APP_cur()) + '<br>\u200b'; v.scrollTop = ta.scrollTop; }
+// where in the text a click landed (newlines count as one character, like in the text box)
+function ltOffsetAt(v, x, y){
+  let node, off; if (document.caretPositionFromPoint){ const p = document.caretPositionFromPoint(x, y); if (p){ node = p.offsetNode; off = p.offset; } }
+  else if (document.caretRangeFromPoint){ const r = document.caretRangeFromPoint(x, y); if (r){ node = r.startContainer; off = r.startOffset; } }
+  if (!node || !v.contains(node) || v.querySelector('.hint')) return null;
+  let n = 0; const walk = document.createTreeWalker(v, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  if (node.nodeType !== 3){ const kids = node.childNodes; node = kids[off] || null; off = 0; if (!node) return null; }
+  for (let cur = walk.nextNode(); cur; cur = walk.nextNode()){ if (cur === node) return n + (cur.nodeType === 3 ? off : 0);
+    if (cur.nodeType === 3) n += cur.nodeValue.length; else if (cur.tagName === 'BR') n += 1; }
+  return null;
+}
 document.addEventListener('click', e => {
-  const v = e.target.closest('.lt-view'); if (!v || e.target.closest('.ref')) return;
-  const box = v.closest('.lt'); const ta = $('textarea', box); const vh = v.offsetHeight; v.hidden = true; ta.hidden = false;
-  fitTA(ta, vh); ta.focus({preventScroll:true}); ta.setSelectionRange(ta.value.length, ta.value.length);
+  const v = e.target.closest('.lt-view'); if (!v || e.target.closest('.ref') || v.closest('.lt.editing')) return;
+  const box = v.closest('.lt'); const ta = $('textarea', box); const vh = v.offsetHeight, top = window.scrollY;
+  const at = e.detail ? ltOffsetAt(v, e.clientX, e.clientY) : null; // null for keyboard (Enter) opens at the end
+  box.classList.add('editing'); ta.hidden = false; v.setAttribute('aria-hidden', 'true'); ltPaint(ta);
+  fitTA(ta, vh); ta.focus({preventScroll:true}); const pos = at == null ? ta.value.length : Math.min(at, ta.value.length); ta.setSelectionRange(pos, pos);
+  window.scrollTo({top});
 });
+document.addEventListener('input', e => { if (e.target.matches && e.target.matches('.lt.editing textarea')) ltPaint(e.target); });
+document.addEventListener('scroll', e => { if (e.target.matches && e.target.matches('.lt.editing textarea')){ const v = $('.lt-view', e.target.closest('.lt')); if (v) v.scrollTop = e.target.scrollTop; } }, true);
 // ---- text boxes keep their size: they open at least as big as the text you were reading, grow as you type,
 // and remember a size you drag them to (per box, across re-renders and reloads)
 APP.taH = {}; try { APP.taH = JSON.parse(localStorage.getItem('ccodex-ta') || '{}'); } catch {}
@@ -89,6 +109,7 @@ document.addEventListener('keydown', e => { const v = e.target.closest && e.targ
 document.addEventListener('focusout', e => {
   const ta = e.target; if (!ta.matches || !ta.matches('.lt textarea')) return;
   const box = ta.closest('.lt'); const v = $('.lt-view', box); const ph = ta.getAttribute('placeholder');
+  box.classList.remove('editing'); v.removeAttribute('aria-hidden'); v.scrollTop = 0;
   v.innerHTML = ta.value ? linkify(ta.value, APP_cur()) : `<span class="hint">${esc(ph)}</span>`; ta.hidden = true; v.hidden = false;
 });
 function worldRef(key){
