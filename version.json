@@ -1,18 +1,33 @@
 {
- "version": "0.6.9",
+ "version": "0.6.10",
  "date": "2026-11-23",
- "title": "More item icons, Gear cards and UI scale",
+ "title": "Alphabetical menus, quest colours and pages that remember where you were",
  "items": [
-  "Items page: each item is a full-width box again, with a small picture. Click the picture to see it bigger and to upload, change or reset it.",
-  "Over 50 item icons: swords, daggers, axes, maces, hammers, flails, spears, polearms, bows, crossbows, slings and staffs; arrows, bolts and bullets; armor, shields, helms, gloves, boots, cloaks, belts and bracers; potions, scrolls, wands, rods, rings, amulets, books, gems, rope, lanterns, food, tools and more. Each item gets one from its name.",
-  "Platinum, gold, silver and copper coins next to the Money boxes.",
-  "Gear box (Full): each slot is a card with the item's picture, rarity and icon on its top-left corner. Empty slots show a faint icon for what goes there. Gear box (Compact) shows the icons next to the names.",
-  "Options \u2192 Customise: UI scale makes everything bigger or smaller on this device (75% to 150%).",
-  "Quests: type # in Quest giver, Location, Reward or an objective to pick an NPC, location or other name. Linked names show underneath and open their pages.",
-  "Long damage text (for example a bow with flaming arrows) now fits in its box.",
-  "Typed-in weapons and armor such as \"Heavy mace\" or \"Heavy steel shield\" are recognised as weapons and armor."
+  "Pages remember where you were: leave a page and come back, and it opens at the same spot instead of the top. Each character remembers its own spots, and they're kept if the page reloads. Opening a link to a card still takes you straight to that card.",
+  "Editing notes: #links stay coloured while you type, and clicking into a note puts the cursor where you clicked without the page jumping. This works in game notes, quest notes, logs and descriptions.",
+  "Drop-down menus are in alphabetical order: races, classes, item types, where items are, NPCs, locations, factions, religions, quests, fonts, borders, backgrounds, special abilities, bonus types and the rest. Choices like None or \u2014 stay at the top, and Other\u2026 and Upload\u2026 stay at the bottom.",
+  "Menus that are a scale keep their natural order: rarity, attitude, how you feel about someone, size, alignment, quest status, +1 to +5 and other numbers, and the Sort by choices.",
+  "# menus list their categories (Factions, Key items, Locations, Maps, NPCs, Players, Religions) and every name in alphabetical order. A leading \"The\" is ignored when sorting.",
+  "Quests are coloured by status: Active blue, On hold grey, Completed green and Failed red. The colour is a light tint with a stripe down the left side, and all text stays easy to read in light and dark mode.",
+  "Quests has moved into Notes, after Game Notes. Its number in the menu counts active quests.",
+  "Item pictures can be adjusted like NPC pictures: drag to choose what shows and zoom in. Use Adjust in the picture's view, from the Items page or the Gear box. Pictures that aren't square open Adjust straight after uploading, and item pictures are now kept at a higher quality so zooming stays sharp."
  ],
  "changelog": [
+  {
+   "v": "0.6.10",
+   "date": "2026-11-23",
+   "title": "Alphabetical menus, quest colours and pages that remember where you were",
+   "items": [
+    "Pages remember where you were: leave a page and come back, and it opens at the same spot instead of the top. Each character remembers its own spots, and they're kept if the page reloads. Opening a link to a card still takes you straight to that card.",
+    "Editing notes: #links stay coloured while you type, and clicking into a note puts the cursor where you clicked without the page jumping. This works in game notes, quest notes, logs and descriptions.",
+    "Drop-down menus are in alphabetical order: races, classes, item types, where items are, NPCs, locations, factions, religions, quests, fonts, borders, backgrounds, special abilities, bonus types and the rest. Choices like None or \u2014 stay at the top, and Other\u2026 and Upload\u2026 stay at the bottom.",
+    "Menus that are a scale keep their natural order: rarity, attitude, how you feel about someone, size, alignment, quest status, +1 to +5 and other numbers, and the Sort by choices.",
+    "# menus list their categories (Factions, Key items, Locations, Maps, NPCs, Players, Religions) and every name in alphabetical order. A leading \"The\" is ignored when sorting.",
+    "Quests are coloured by status: Active blue, On hold grey, Completed green and Failed red. The colour is a light tint with a stripe down the left side, and all text stays easy to read in light and dark mode.",
+    "Quests has moved into Notes, after Game Notes. Its number in the menu counts active quests.",
+    "Item pictures can be adjusted like NPC pictures: drag to choose what shows and zoom in. Use Adjust in the picture's view, from the Items page or the Gear box. Pictures that aren't square open Adjust straight after uploading, and item pictures are now kept at a higher quality so zooming stays sharp."
+   ]
+  },
   {
    "v": "0.6.9",
    "date": "2026-11-23",
@@ -112,15 +127,6 @@
    "items": [
     "Save location: keep your characters, homebrew and pictures in a folder of your choice (NAS, Dropbox, OneDrive, iCloud Drive) and share them between computers. Windows and Mac apps, and Chrome or Edge on a computer.",
     "Mac app: one download for Apple silicon and Intel Macs."
-   ]
-  },
-  {
-   "v": "0.6.0",
-   "date": "2026-11-20",
-   "title": "Specialist wizards",
-   "items": [
-    "Specialist wizards: choose a specialty school for the extra spell slot, and prohibited schools.",
-    "Magic Missile and Scorching Ray show and roll the right number of missiles or rays for your caster level."
    ]
   }
  ]
