@@ -1,5 +1,20 @@
 [
  {
+  "v": "0.6.10",
+  "date": "2026-11-23",
+  "title": "Alphabetical menus, quest colours and pages that remember where you were",
+  "items": [
+   "Pages remember where you were: leave a page and come back, and it opens at the same spot instead of the top. Each character remembers its own spots, and they're kept if the page reloads. Opening a link to a card still takes you straight to that card.",
+   "Editing notes: #links stay coloured while you type, and clicking into a note puts the cursor where you clicked without the page jumping. This works in game notes, quest notes, logs and descriptions.",
+   "Drop-down menus are in alphabetical order: races, classes, item types, where items are, NPCs, locations, factions, religions, quests, fonts, borders, backgrounds, special abilities, bonus types and the rest. Choices like None or — stay at the top, and Other… and Upload… stay at the bottom.",
+   "Menus that are a scale keep their natural order: rarity, attitude, how you feel about someone, size, alignment, quest status, +1 to +5 and other numbers, and the Sort by choices.",
+   "# menus list their categories (Factions, Key items, Locations, Maps, NPCs, Players, Religions) and every name in alphabetical order. A leading \"The\" is ignored when sorting.",
+   "Quests are coloured by status: Active blue, On hold grey, Completed green and Failed red. The colour is a light tint with a stripe down the left side, and all text stays easy to read in light and dark mode.",
+   "Quests has moved into Notes, after Game Notes. Its number in the menu counts active quests.",
+   "Item pictures can be adjusted like NPC pictures: drag to choose what shows and zoom in. Use Adjust in the picture's view, from the Items page or the Gear box. Pictures that aren't square open Adjust straight after uploading, and item pictures are now kept at a higher quality so zooming stays sharp."
+  ]
+ },
+ {
   "v": "0.6.9",
   "date": "2026-11-23",
   "title": "More item icons, Gear cards and UI scale",
